@@ -1,0 +1,24 @@
+# Python virtual environment
+.forensic/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Dataset
+r4.2/
+
+# Project answers
+answers/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
