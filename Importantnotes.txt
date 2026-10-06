@@ -1,0 +1,31 @@
+1. To run the Code : python3 -m streamlit run app.py
+2. to Connect with the Env : source .forensic/bin/activate  
+3. To Deactivate : source .forensic/bin/Deactivate
+4.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
