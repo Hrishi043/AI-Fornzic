@@ -1,4 +1,4 @@
-"""Shared processing and four-model scoring for the insider review dashboard."""
+
 
 from pathlib import Path
 import subprocess
@@ -260,7 +260,7 @@ def friendly_activity_table(user_days):
 import streamlit as st
 
 PROJECT_DIR = Path(__file__).resolve().parent
-MODEL_PATH = PROJECT_DIR / "sprint1_output" / "four_model_bundle.joblib"
+MODEL_PATH = PROJECT_DIR / "sprint1_output" / "insider_investigation_model.joblib"
 RESULTS_DIR = PROJECT_DIR / "sprint1_output"
 
 st.set_page_config(page_title="Insider Risk Review", page_icon="🔎", layout="wide")
@@ -324,8 +324,8 @@ if folder_text:
             st.session_state.ranking = report
             st.session_state.analysis_done = True
             RESULTS_DIR.mkdir(exist_ok=True)
-            days.to_csv(RESULTS_DIR / "daily_dashboard_scores.csv", index=False)
-            report.to_csv(RESULTS_DIR / "investigation_report.csv", index=False)
+            days.to_csv(RESULTS_DIR / "dashboard_day_scores.csv", index=False)
+            report.to_csv(RESULTS_DIR / "dashboard_report.csv", index=False)
             st.success("Analysis complete. The report files were saved in sprint1_output.")
         except Exception as error:
             st.error(f"Analysis could not be completed: {error}")
