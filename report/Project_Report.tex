@@ -1,6 +1,7 @@
 \documentclass[12pt,a4paper,oneside]{report}
 
 \usepackage[a4paper,margin=1in,headheight=15pt]{geometry}
+\usepackage{amsmath}
 \usepackage{newtxtext,newtxmath}
 \usepackage{setspace}
 \usepackage{graphicx}
@@ -15,16 +16,23 @@
 \usepackage{listings}
 \usepackage{caption}
 \usepackage{float}
+\usepackage{titlesec}
 
 \onehalfspacing
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\centering}
+  {\Large\thechapter}
+  {0.5ex}
+  {\LARGE\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-10pt}{28pt}
 \hypersetup{
   colorlinks=true,
   linkcolor=black,
   urlcolor=blue,
   citecolor=black,
-  pdftitle={AI Forensic Insider Risk Review},
+  pdftitle={AI Forensic Insider Risk Review System},
   pdfsubject={Mini project report}
 }
 \pagestyle{fancy}
@@ -44,67 +52,111 @@
 \setlist[itemize]{topsep=3pt,itemsep=2pt}
 \setlist[enumerate]{topsep=3pt,itemsep=2pt}
 
-\newcommand{\projecttitle}{AI Forensic Insider Risk Review}
-\newcommand{\studentname}{[Student name]}
-\newcommand{\registernumber}{[Register number]}
+\newcommand{\projecttitle}{AI Forensic Insider Risk Review System}
+\newcommand{\studentname}{HRISHIKESH P S}
+\newcommand{\registernumber}{MCA25MCA-2029}
 \newcommand{\department}{Department of Computer Applications}
-\newcommand{\collegename}{[College name]}
-\newcommand{\guide}{[Project guide]}
-\newcommand{\academicyear}{2025--2026}
+\newcommand{\collegename}{Mar Athanasius College of Engineering}
+\newcommand{\collegeplace}{Kothamangalam}
+\newcommand{\collegestatus}{Government Aided Autonomous Institution}
+\newcommand{\guide}{Prof. Nisha Markose}
+\newcommand{\hod}{Prof. Sonia Abraham}
+\newcommand{\degree}{Master of Computer Applications}
+\newcommand{\academicyear}{2025--2027}
 
 \begin{document}
 
 \pagenumbering{roman}
 \begin{titlepage}
 \centering
-\vspace*{1cm}
-{\Large \collegename\par}
+\vspace*{0.8cm}
+{\Large\bfseries \MakeUppercase{\collegename}\par}
+\vspace{0.15cm}
+{\large \MakeUppercase{\collegeplace}\par}
+\vspace{0.15cm}
+{\normalsize (\collegestatus)\par}
 \vspace{0.4cm}
-{\large \department\par}
+{\large\bfseries \department\par}
+\vspace{1.4cm}
+{\large\bfseries MINI PROJECT REPORT\par}
+\vspace{0.45cm}
+ON\\[0.45cm]
+{\Large\bfseries \MakeUppercase{\projecttitle}\par}
 \vspace{1.2cm}
-{\large MINI PROJECT REPORT\par}
-\vspace{0.9cm}
-{\huge\bfseries \projecttitle\par}
-\vspace{1.2cm}
-Submitted in partial fulfilment of the requirements for the
-degree of\\[0.2cm]
-{\large [Degree / Programme]\par}
+Submitted in partial fulfilment of the requirements for the award of the
+degree of\\[0.3cm]
+{\large\bfseries \degree\par}
 \vspace{1.0cm}
-Submitted by\\[0.25cm]
+Done by\\[0.25cm]
 {\large\bfseries \studentname\par}
-\registernumber
-\vfill
+Reg. No.: \registernumber
+\vspace{0.9cm}
+
 Under the guidance of\\[0.25cm]
 {\large\bfseries \guide\par}
 \vfill
-{\large Academic year \academicyear\par}
+{\large \academicyear\par}
 \end{titlepage}
 
 \chapter*{Certificate from College}
 \addcontentsline{toc}{chapter}{Certificate from College}
-\noindent This is to certify that the mini project report entitled
-\textbf{\projecttitle} is a record of project work carried out by
-\textbf{\studentname} (\registernumber) under the guidance of
-\textbf{\guide}, in partial fulfilment of the requirements for
-\textbf{[Degree / Programme]} during the academic year \academicyear.
+\begin{center}
+{\Large\bfseries \MakeUppercase{\collegename}\par}
+{\large \MakeUppercase{\collegeplace}\par}
+(\collegestatus)\\[1.0cm]
+{\Large\bfseries CERTIFICATE\par}
+\vspace{0.5cm}
+{\large\bfseries \MakeUppercase{\projecttitle}\par}
+\end{center}
+\vspace{0.6cm}
+Certified that this is the bonafide record of mini project work carried
+out by \textbf{\studentname}, Reg. No. \textbf{\registernumber}, during
+the academic year \academicyear, in partial fulfilment of the
+requirements for the award of the degree of \degree\ under APJ Abdul
+Kalam Technological University.
 
-\vspace{2.3cm}
+\vspace{2.0cm}
 \noindent
 \begin{tabularx}{\textwidth}{X X}
   \rule{5cm}{0.4pt} & \rule{5cm}{0.4pt}\\
-  Project Guide & Head of Department\\[1.8cm]
+  \guide & \hod\\
+  Faculty Guide & Head of the Department\\[1.8cm]
   \rule{5cm}{0.4pt} & \rule{5cm}{0.4pt}\\
   Internal Examiner & External Examiner
 \end{tabularx}
 
+\chapter*{Declaration}
+\addcontentsline{toc}{chapter}{Declaration}
+I hereby declare that this mini project report entitled
+\textit{\projecttitle} is a record of the project work carried out by me.
+The project implementation, analysis, and results described in this
+report are presented to the best of my knowledge and are based on the
+project repository and its saved evaluation outputs. This work has not
+formed the basis for the award of any other degree, diploma, or similar
+title. Any use of third-party datasets, libraries, or published material
+is acknowledged in the report.
+
+\vspace{1.2cm}
+\noindent Place: Kothamangalam\\
+Date: \hfill Signature of the Student
+
 \chapter*{Acknowledgement}
 \addcontentsline{toc}{chapter}{Acknowledgement}
-I express my sincere gratitude to \textbf{[Project guide]} for guidance
-and feedback during this project. I thank the faculty and staff of the
-\department\ at \collegename\ for their support. I also acknowledge the
-CERT Insider Threat Test Dataset authors and the developers of the open
-source tools used in the prototype. Finally, I thank my family and
-friends for their encouragement.
+I express my sincere gratitude to my mini project guide,
+\textbf{\guide}, for guidance and valuable suggestions during the
+development and documentation of this project. I thank
+\textbf{\hod}, Head of the Department of Computer Applications, and the
+faculty and staff of \collegename, Kothamangalam, for their support.
+
+I also acknowledge the creators of the CERT Insider Threat Test Dataset
+and the developers and maintainers of the open-source Python,
+scikit-learn, pandas, NumPy, and Streamlit tools used in this
+demonstration. Finally, I express my gratitude to my family and friends
+for their encouragement.
+
+\begin{flushright}
+- \studentname
+\end{flushright}
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
@@ -131,29 +183,15 @@ activity CSV files and presents ranked review leads. The report explains
 the data pipeline, modelling, software design, evaluation, constraints,
 and responsible-use safeguards.
 
-\chapter*{List of Tables}
+\clearpage
 \addcontentsline{toc}{chapter}{List of Tables}
-\begin{enumerate}[label=Table \arabic*.,leftmargin=*]
-  \item Activity source inventory
-  \item Data-cleaning summary
-  \item Employee-day feature definitions
-  \item Model configuration
-  \item Model evaluation on validation and test partitions
-  \item Random Forest test confusion matrix
-  \item Requirements traceability
-  \item Test cases and observed verification status
-\end{enumerate}
+\listoftables
 
-\chapter*{List of Figures}
+\clearpage
 \addcontentsline{toc}{chapter}{List of Figures}
-\begin{enumerate}[label=Figure \arabic*.,leftmargin=*]
-  \item High-level project pipeline
-  \item Use-case model
-  \item Activity flow for a dashboard review
-  \item Sequence of an analysis request
-  \item Logical class and component view
-\end{enumerate}
+\listoffigures
 
+\addcontentsline{toc}{chapter}{Contents}
 \tableofcontents
 \clearpage
 \pagenumbering{arabic}
@@ -182,7 +220,7 @@ and show investigators what activity contributed to a rank. Since only
 known incidents are labelled, a record outside a listed incident window
 must not be described as definitively normal.
 
-\section{Aim and objectives}
+\section{Objectives of the Project}
 \textbf{Aim:} Build and evaluate a local, explainable-at-the-signal-level
 prototype that ranks employee activity records for human review.
 
@@ -199,7 +237,7 @@ prototype that ranks employee activity records for human review.
         that ranks new activity records for human review.
 \end{enumerate}
 
-\section{Scope}
+\section{Scope of the Project}
 The implemented feature set contains daily event counts, after-hours
 counts, device connection counts, and email attachment totals when those
 fields exist. It does not analyse message bodies, web URLs, or file
@@ -209,16 +247,25 @@ monitoring system, identity-resolution system, case-management platform,
 or automated disciplinary tool. The React/Vite folder is a starter
 scaffold; the implemented demo interface is the Streamlit application.
 
-\section{Organisation of the report}
-Chapter 2 reviews the project context and approach. Chapter 3 documents
-the data, preprocessing, features, model design, feasibility, and
-environment. Chapter 4 describes system interactions and implementation.
-Chapter 5 records evaluation results and their interpretation. Chapters
-6--9 cover deployment, repository history, conclusions, and future work.
-Appendices provide operating instructions and verification detail.
+\section{Project Domain and Technology Stack}
+The project falls within applied data analysis, supervised classification,
+and anomaly detection. Python is used for feature preparation and model
+development. pandas and NumPy support tabular processing; scikit-learn
+provides the estimators, grouped splitting, and evaluation metrics; joblib
+stores the fitted models; and Streamlit provides the local interactive
+demonstration. Jupyter Notebook is used for the reproducible analysis.
+
+\section{Organisation of the Report}
+Chapter 2 reviews supporting literature and project proposals.
+Chapter 3 presents system analysis, including the dataset, preprocessing,
+algorithms, feasibility, and environment. Chapter 4 describes model
+building and system design. Chapter 5 reports evaluation results and
+discussion; Chapter 6 documents the local deployment. Chapter 7 records
+selected Git history and project challenges, followed by learning
+outcomes, conclusion, future work, references, and appendices.
 
 \chapter{Supporting Literature}
-\section{Literature review}
+\section{Literature Review}
 Insider-threat detection is difficult because legitimate and harmful
 activity can share the same systems and workflows. A single event such
 as a late login, removable-media connection, or large email attachment
@@ -257,7 +304,7 @@ This project additionally reports performance among the highest-scored
 five percent of employee-days, which corresponds to a fixed-size
 experimental review queue.
 
-\section{Literature review summary}
+\section{Literature Review Summary}
 The selected methods provide complementary baselines rather than a claim
 that one algorithm is universally best. Supervised algorithms can learn
 patterns represented in the known incident labels; an anomaly detector
@@ -266,7 +313,7 @@ quality of the labels, the feature design, the data split, and the
 review capacity constrain conclusions more strongly than the algorithm
 name alone.
 
-\section{Findings and proposals}
+\section{Findings and Proposals}
 \begin{itemize}
   \item Evaluate per-class precision and recall rather than relying on
         accuracy alone.
@@ -408,6 +455,34 @@ plots. The comparison visualizations should be read alongside the
 positive-class support and the top-five-percent capacity, since
 majority-class accuracy can obscure incident-class performance.
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/notebook-1.png}
+\caption{Total retained events by source in the saved analysis notebook}
+\label{fig:source-events}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/notebook-2.png}
+\caption{Daily recorded activity volume across the dataset period}
+\label{fig:daily-events}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/notebook-3.png}
+\caption{Ten synthetic users with the highest aggregate event counts}
+\label{fig:user-events}
+\end{figure}
+
+The first plot makes the scale imbalance among event sources visible:
+HTTP contributes most of the retained rows. The daily plot shows a
+recurring low-activity pattern alongside a declining baseline over
+time; it is a dataset overview, not evidence that any user is
+anomalous. The employee plot is descriptive only and does not adjust
+for working days, role, or tenure.
+
 \section{Analysis of architecture and algorithms}
 \subsection{Detailed study of proposed algorithms}
 \textbf{Logistic Regression:} A supervised baseline with median
@@ -445,7 +520,7 @@ ranking rule for evaluation.
         same thing as the single-model test comparison.
 \end{enumerate}
 
-\subsection{Project pipeline}
+\section{Project pipeline}
 \begin{figure}[H]
 \centering
 \fbox{\parbox{0.91\textwidth}{\centering
@@ -526,8 +601,109 @@ on the target deployment machine rather than inferred from this report.
         features; it does not make employment or disciplinary decisions.
 \end{description}
 
+\section{Functional and non-functional requirements}
+The requirements below describe the demonstrated prototype, not a
+production insider-risk service. Requirements that concern governance
+and operational assurance are stated as constraints because the current
+repository does not implement them.
+
+\begin{longtable}{p{0.11\textwidth}p{0.53\textwidth}p{0.24\textwidth}}
+\caption{Functional requirements and implementation evidence}
+\label{tab:functional-requirements}\\
+\toprule
+ID & Requirement & Evidence / limitation\\
+\midrule
+\endfirsthead
+\toprule
+ID & Requirement & Evidence / limitation\\
+\midrule
+\endhead
+FR01 & Accept the five named activity CSV files from a selected local folder & Folder validation in \texttt{app.py}\\
+FR02 & Read large files incrementally rather than loading each entire source at once & 25,000-row pandas chunks\\
+FR03 & Exclude rows without a usable user or parsed date and remove duplicates within each chunk & Notebook and dashboard preprocessing; cross-chunk duplicates may remain\\
+FR04 & Aggregate retained records by user and calendar day into numeric activity features & Notebook and \texttt{process\_activity\_file()}\\
+FR05 & Align dashboard features to the ordered feature list used at training time & Saved model bundle; missing expected columns are filled with zero\\
+FR06 & Produce comparative model scores and a ranked employee review list & Four estimators and consensus ranking in \texttt{score\_folder()}\\
+FR07 & Show signals and high-ranked activity days supporting a review lead & Streamlit interface; signal rules are descriptive, not causal explanations\\
+FR08 & Save review summaries as CSV artifacts & \texttt{dashboard\_report.csv} and \texttt{dashboard\_day\_scores.csv}\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{p{0.11\textwidth}p{0.53\textwidth}p{0.24\textwidth}}
+\caption{Non-functional requirements and current status}
+\label{tab:nonfunctional-requirements}\\
+\toprule
+ID & Requirement & Current status\\
+\midrule
+\endfirsthead
+\toprule
+ID & Requirement & Current status\\
+\midrule
+\endhead
+NFR01 & Keep the demonstration local and avoid sending activity data to an external service & Implemented for the demonstrated flow\\
+NFR02 & Handle large event files within workstation memory constraints & Chunked input is implemented; peak memory has not been measured\\
+NFR03 & Make outputs understandable and subject to human review & Caution text and activity context are shown; no case-management workflow\\
+NFR04 & Protect raw records and generated outputs from unauthorized access & Not implemented; local permissions remain the operator's responsibility\\
+NFR05 & Record access, analyst decisions, model versions, and retention actions & Not implemented\\
+NFR06 & Demonstrate generalization to operational data and acceptable review burden & Not established by the synthetic, employee-day experiment\\
+\bottomrule
+\end{longtable}
+
+The requirements highlight the boundary between a working prototype
+and a deployable decision-support system. File ingestion and ranking
+are present, but access control, auditability, retention, and evidence
+management require separate design and validation before operational
+use.
+
 \chapter{System Design}
-\section{Use-case model}
+\section{Model(s) Building}
+The implementation is divided between the analysis notebook and the
+Streamlit application. The notebook performs bulk preparation,
+incident-window labelling, grouped evaluation, and model serialization.
+The application loads the saved feature list and estimator bundle,
+rebuilds employee-day features from selected CSV files, and displays
+ranked review leads. The React/Vite directory is not part of this
+implemented path.
+
+\subsection{Implementation code}
+The notebook is the source of the training and evaluation workflow.
+The dashboard entry point is \texttt{app.py}; its main operations are
+folder selection, chunked CSV parsing, feature alignment, four-model
+scoring, employee ranking, and display of activity-day context. The
+appendix includes code-only listings captured from both project
+artifacts so the implementation can be inspected alongside this
+description.
+
+\subsection{Model planning and training/testing split}
+The labelled employee-day records are separated by employee identifier,
+not by randomly splitting individual days. This keeps one synthetic
+employee's records within a single partition and reduces leakage from
+repeated observations of the same employee. The training partition is
+used to fit the estimators; the validation partition is used to select a
+model by Average Precision; the test partition is reserved for final
+comparison. Partition sizes and positive-label counts are reported in
+Chapter~\ref{chap:results}.
+
+\subsection{Training}
+Logistic Regression, Decision Tree, Random Forest, and Isolation Forest
+are fitted using the configured preprocessing and estimator settings
+described in the system-analysis chapter. The first three use the
+training labels; Isolation Forest is fitted as an unsupervised anomaly
+detector without those labels. The notebook stores the model objects,
+their names, and ordered feature columns in a joblib bundle for the
+dashboard.
+
+\subsection{Testing}
+The held-out employee groups are scored after training. Supervised
+scores use the positive-class output; Isolation Forest scores are
+direction-adjusted so larger values correspond to more unusual
+observations. Model selection and the test metrics are kept distinct.
+The saved comparison and confusion-matrix counts are detailed in
+Chapter~\ref{chap:results}; the test-set results do not validate the
+dashboard's separate employee-level consensus rule.
+
+\section{System Design Diagrams}
+\subsection{Use-case model}
 \begin{figure}[H]
 \centering
 \fbox{\parbox{0.91\textwidth}{\centering
@@ -543,7 +719,7 @@ Human investigator $\longrightarrow$ Corroborate or dismiss a lead
 \caption{Use-case model for the prototype}
 \end{figure}
 
-\section{Activity diagram}
+\subsection{Activity diagram}
 \begin{figure}[H]
 \centering
 \fbox{\parbox{0.91\textwidth}{\centering
@@ -559,7 +735,7 @@ $\rightarrow$ End
 \caption{Activity flow for one dashboard review}
 \end{figure}
 
-\section{Sequence diagram}
+\subsection{Sequence diagram}
 \begin{figure}[H]
 \centering
 \fbox{\parbox{0.91\textwidth}{\ttfamily\small
@@ -576,7 +752,7 @@ Streamlit UI $\rightarrow$ Output folder: write generated CSV summaries
 \caption{Sequence of an analysis request}
 \end{figure}
 
-\section{Class and component design}
+\subsection{Class and component design}
 \begin{figure}[H]
 \centering
 \fbox{\parbox{0.91\textwidth}{\centering
@@ -635,7 +811,15 @@ file, email, and web counts) rather than raw message content. The React
 application currently remains the default Vite demonstration and should
 not be represented as the implemented forensic dashboard.
 
-\chapter{Testing, Results, and Discussion}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth]{ui_landing.png}
+\caption{Local Streamlit dashboard landing screen before an activity folder is selected}
+\label{fig:dashboard-landing}
+\end{figure}
+
+\chapter{Results and Discussion}
+\label{chap:results}
 \section{Testing approach}
 The repository contains no dedicated automated test suite. Verification
 for this report consisted of reading the actual source and saved
@@ -739,6 +923,38 @@ and weighted averages can look strong even when positive-class
 precision is low. Macro average gives equal weight to class-level scores
 but should not replace inspection of each class.
 
+For a selected queue size \(k\), let \(Q_k\) be the set of the \(k\)
+highest-scored test employee-days and let \(P\) be the set of all
+employee-days labelled as overlapping a known incident window. The
+reported capacity metrics are:
+\[
+\operatorname{Precision@}k = \frac{|Q_k \cap P|}{k},
+\qquad
+\operatorname{Recall@}k = \frac{|Q_k \cap P|}{|P|}.
+\]
+Here \(k=\lceil 0.05N\rceil\), where \(N\) is the number of test
+employee-days. These definitions make the review-capacity assumption
+explicit: increasing \(k\) increases the number of records presented
+for review and can change both precision and recall. The top-five-percent
+rule is recalculated within each partition and should not be mistaken
+for a transferable probability threshold.
+
+For the dashboard, let \(r_{u,d,m}\) be model \(m\)'s percentile rank
+for user \(u\) on day \(d\). The interface averages the four model
+percentile ranks for each employee-day and then uses that employee's
+maximum daily consensus value for its employee ranking:
+\[
+c_{u,d} = \frac{1}{4}\sum_{m=1}^{4} r_{u,d,m},
+\qquad
+C_u = \max_d c_{u,d}.
+\]
+This is an application ranking rule, not a calibrated probability and
+not the model-selection rule used in the offline evaluation. The
+dashboard also uses a top-five-percent consensus cutoff and a
+two-of-four model-agreement condition for its ``SUSPICIOUS'' display
+status; those employee-level rules have not been evaluated by the
+employee-day test metrics in this report.
+
 \section{Confusion matrix}
 \begin{table}[H]
 \centering
@@ -753,6 +969,21 @@ Actual in known window & 126 & 163\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Figure~\ref{fig:threshold-matrices} reproduces the notebook's
+estimator-label confusion-matrix visualization. Those matrices use the
+estimators' class-prediction defaults and are not the same operating
+point as the top-five-percent ranked review queue in Tables
+\ref{tab:comparison} and \ref{tab:matrix}. The integer counts in
+Table~\ref{tab:matrix} and Appendix~\ref{app:test-counts} are the
+authoritative values for the fixed-capacity evaluation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/notebook-4.png}
+\caption{Notebook confusion matrices from estimator class predictions; not the top-five-percent review rule}
+\label{fig:threshold-matrices}
+\end{figure}
 
 The selected model places 163 known positive employee-days in the
 3,306-record review queue, corresponding to 4.93\% precision and 56.40\%
@@ -805,7 +1036,7 @@ R07 & Establish real-world validity and operational threshold & Not satisfied; f
 \end{tabularx}
 \end{table}
 
-\chapter{Deployment}
+\chapter{Model Deployment}
 \section{Local demonstration setup}
 The implemented demo is launched from the project root using:
 \begin{lstlisting}
@@ -820,6 +1051,33 @@ selects ``Analyze folder''. The application saves dashboard CSV outputs
 under \texttt{sprint1\_output}. The environment activation and launch
 steps should be adapted to the operator's local Python setup.
 
+\subsection{Analyst workflow}
+\begin{enumerate}
+  \item Start the local Streamlit application from the project
+        environment.
+  \item Confirm that the saved four-model bundle is present and contains
+        all four expected estimator names and the ordered feature list.
+  \item Select the folder containing the five required CSV files using
+        the macOS folder picker.
+  \item Start analysis. The application validates required files,
+        parses the usable columns in 25,000-row chunks, and aggregates
+        the records to employee-days.
+  \item Review the ranked list, the relative model ranks, the model
+        agreement count, and the listed activity signals. A display
+        status is a review priority, not a finding of misconduct.
+  \item Select an employee to inspect that employee's highest-ranked
+        activity days and the associated feature counts.
+  \item Retrieve the two generated CSV files from
+        \texttt{sprint1\_output} and handle them under the same access
+        and retention rules as the source logs.
+\end{enumerate}
+
+If required files are missing, the application reports an error and
+does not proceed with scoring. The folder picker uses AppleScript and
+therefore requires macOS in its current form. Cancelling the picker
+leaves the analysis idle. No analyst-authentication step or explicit
+confirmation of data authorization is implemented.
+
 \section{Deployment limitations}
 This is a local proof of concept. It has no login, role-based access,
 network service controls, encrypted database, audit log, scheduled
@@ -829,18 +1087,64 @@ loaded from untrusted sources. Input logs and outputs may contain
 sensitive identifiers and must remain access-controlled. A public or
 production deployment is outside the verified scope.
 
-\chapter{Git History}
-Repository history shows iterative work on notebook evaluation and
-project structure. Commits visible during report preparation include
-the completion of the initial project sprints, setup of the React/Vite
-starter, notebook execution-count and report-cell updates, and a later
-code-structure refactor. The repository state also contains local,
-uncommitted notebook changes when this report is prepared. The PDF
-report template is an untracked input file. These details are included
-for provenance; this report does not claim that every historical change
-was separately reviewed or released.
+\chapter{Git History and Project Challenges}
+The following selected entries are taken from the repository history.
+They record the sequence of notebook and application changes visible in
+Git; the entries are not a complete project diary.
 
-\chapter{Conclusions}
+\begin{table}[H]
+\centering
+\caption{Selected repository history}
+\label{tab:git-history}
+\begin{tabularx}{\textwidth}{l l X}
+\toprule
+Commit & Date & Recorded message\\
+\midrule
+\texttt{da720e68} & 2026-10-11 & Refactor code structure for improved readability and maintainability\\
+\texttt{8b99ad0e} & 2026-10-11 & Implement code changes to enhance functionality and improve performance\\
+\texttt{c7b28395} & 2026-10-10 & Fix execution counts and update table IDs in forensic notebook; resolve NameError in classification report output\\
+\texttt{513f90d8} & 2026-10-10 & Fix NameError in classification report output and add empty code cell\\
+\texttt{5c060878} & 2026-10-07 & Add React and Vite setup with initial assets and styles\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Implementation challenges include processing a very large web-activity
+file, aligning activity from multiple sources to one employee-day
+record, handling severe class imbalance, selecting a model without
+using the test set for selection, and presenting scores without
+implying that a flag establishes wrongdoing. The current frontend
+folder remains a default React/Vite scaffold; the working review
+demonstration is implemented in Streamlit.
+
+\chapter{Learning Outcomes}
+This project provided practical experience with a complete tabular
+machine-learning workflow: data inspection, chunked CSV processing,
+feature aggregation, label construction, grouped model evaluation,
+class-imbalance-aware metrics, model serialization, and local dashboard
+development. It also highlights the importance of distinguishing a
+known-positive label from an unverified negative, separating validation
+from test data, and communicating uncertainty in an investigation
+support tool.
+
+\section{Technical Skills Acquired}
+The implementation applies Python, pandas, NumPy, scikit-learn,
+Jupyter Notebook, joblib, Streamlit, Git, and CSV-based data interchange.
+It uses Logistic Regression, Decision Tree, Random Forest, and Isolation
+Forest; grouped train/validation/test splits; Average Precision;
+precision, recall, and F1; and confusion-matrix analysis.
+
+\section{Analytical and Professional Learning}
+The project demonstrates that a high overall accuracy is not sufficient
+for a rare-event use case. Review capacity, false-alert burden, incomplete
+labels, and the unit of evaluation must be considered together. The
+dashboard must be used as a human-review aid, with original records and
+independent context checked before drawing conclusions. These are
+project-derived learning points; this report does not make claims about
+unverified internship activities or personal performance.
+
+\chapter{Conclusion}
+\section{Summary of the Project}
 The project successfully demonstrates a data path from raw activity
 logs to employee-day features, known-window labels, model comparison,
 and a local multi-model review dashboard. Chunked processing keeps
@@ -887,83 +1191,9 @@ essential before any real-world use.
         the actual Streamlit demo.
 \end{enumerate}
 
-\appendix
-\chapter{Appendix A: Minimum Software and Hardware Requirements}
-\section{Minimum software requirements}
-\begin{itemize}
-  \item A supported Python installation with pandas, NumPy,
-        scikit-learn, joblib, and Streamlit.
-  \item Jupyter Notebook or Visual Studio Code with Jupyter support to
-        run the analysis notebook.
-  \item macOS for the current AppleScript folder picker. Porting the
-        picker is required for Windows/Linux operation.
-  \item The five input CSVs and the trained model bundle for the
-        dashboard; the answer file is required to reproduce supervised
-        training/evaluation, not for scoring a new activity folder.
-\end{itemize}
-
-\section{Minimum hardware requirements}
-No measured minimum CPU, RAM, or free disk specification is available in
-the project. The operator needs enough memory and storage for the
-selected source logs, intermediate daily aggregates, and generated
-outputs. Because the HTTP file contains over 28 million rows in the
-provided run, available disk and memory should be checked before
-processing. Establish formal minimum hardware requirements through
-runtime and peak-memory measurements on the intended machine.
-
-\chapter{Appendix B: Output Artifact Guide}
-\begin{description}
-  \item[\texttt{model\_comparison.csv}] Validation and test metrics for
-        all four models.
-  \item[\texttt{confusion\_matrix\_counts.csv}] Integer confusion-matrix
-        values under the top-five-percent rule.
-  \item[\texttt{evaluation\_employee\_day\_scores.csv}] Test employee-day
-        labels, raw scores, and top-five-percent flags.
-  \item[\texttt{evaluation\_employee\_ranking.csv}] Employee-level
-        aggregation for the evaluation records.
-  \item[\texttt{insider\_investigation\_model.joblib}] Saved four-model
-        bundle and ordered feature columns for the dashboard.
-  \item[\texttt{dashboard\_report.csv}] Employee ranking generated by
-        the interactive demonstration.
-  \item[\texttt{dashboard\_day\_scores.csv}] Employee-day scores
-        generated by the interactive demonstration.
-\end{description}
-
-\chapter{Appendix C: Selected Test Counts}
-\begin{table}[H]
-\centering
-\caption{Confusion-matrix counts for all evaluated models}
-\begin{tabular}{lrrrr}
-\toprule
-Model & TN & FP relative to known labels & FN & TP\\
-\midrule
-Logistic Regression & 62,644 & 3,185 & 168 & 121\\
-Decision Tree & 62,640 & 3,189 & 172 & 117\\
-Random Forest & 62,686 & 3,143 & 126 & 163\\
-Isolation Forest & 62,583 & 3,246 & 229 & 60\\
-\bottomrule
-\end{tabular}
-\end{table}
-FP denotes a predicted positive without a matching known-window label;
-given the incompleteness of the answer labels, this must not be
-interpreted as proof the record is benign.
-
-\chapter{Appendix D: Responsible Use Checklist}
-\begin{enumerate}
-  \item Confirm lawful authorization and purpose before processing any
-        activity data.
-  \item Restrict access to raw input and generated output files.
-  \item Present model outputs as leads, never as findings of misconduct.
-  \item Review original source records and independent context before
-        taking action.
-  \item Document analyst decisions and allow correction of inaccurate
-        or incomplete records.
-  \item Define a review capacity, retention period, and deletion process.
-  \item Assess bias, disparate impact, and performance drift before any
-        operational deployment.
-\end{enumerate}
-
-\chapter*{References}
+\renewcommand{\bibname}{References}
+\clearpage
+\phantomsection
 \addcontentsline{toc}{chapter}{References}
 \begin{thebibliography}{9}
 \bibitem{cert}
@@ -1004,5 +1234,97 @@ The pandas development team, ``pandas documentation,''
 Streamlit, ``Streamlit documentation,''
 \url{https://docs.streamlit.io/}. Accessed October 2026.
 \end{thebibliography}
+
+\chapter{Appendix}
+\label{chap:appendix}
+\section{Minimum Software and Hardware Requirements}
+\subsection{Minimum software requirements}
+\begin{itemize}
+  \item A supported Python installation with pandas, NumPy,
+        scikit-learn, joblib, and Streamlit.
+  \item Jupyter Notebook or Visual Studio Code with Jupyter support to
+        run the analysis notebook.
+  \item macOS for the current AppleScript folder picker. Porting the
+        picker is required for Windows/Linux operation.
+  \item The five input CSVs and the trained model bundle for the
+        dashboard; the answer file is required to reproduce supervised
+        training/evaluation, not for scoring a new activity folder.
+\end{itemize}
+
+\subsection{Minimum hardware requirements}
+No measured minimum CPU, RAM, or free disk specification is available in
+the project. The operator needs enough memory and storage for the
+selected source logs, intermediate daily aggregates, and generated
+outputs. Because the HTTP file contains over 28 million rows in the
+provided run, available disk and memory should be checked before
+processing. Establish formal minimum hardware requirements through
+runtime and peak-memory measurements on the intended machine.
+
+\section{Output Artifact Guide}
+\begin{description}
+  \item[\texttt{model\_comparison.csv}] Validation and test metrics for
+        all four models.
+  \item[\texttt{confusion\_matrix\_counts.csv}] Integer confusion-matrix
+        values under the top-five-percent rule.
+  \item[\texttt{evaluation\_employee\_day\_scores.csv}] Test employee-day
+        labels, raw scores, and top-five-percent flags.
+  \item[\texttt{evaluation\_employee\_ranking.csv}] Employee-level
+        aggregation for the evaluation records.
+  \item[\texttt{insider\_investigation\_model.joblib}] Saved four-model
+        bundle and ordered feature columns for the dashboard.
+  \item[\texttt{dashboard\_report.csv}] Employee ranking generated by
+        the interactive demonstration.
+  \item[\texttt{dashboard\_day\_scores.csv}] Employee-day scores
+        generated by the interactive demonstration.
+\end{description}
+
+\section{Selected Test Counts}
+\label{app:test-counts}
+\begin{table}[H]
+\centering
+\caption{Confusion-matrix counts for all evaluated models}
+\begin{tabular}{lrrrr}
+\toprule
+Model & TN & FP relative to known labels & FN & TP\\
+\midrule
+Logistic Regression & 62,644 & 3,185 & 168 & 121\\
+Decision Tree & 62,640 & 3,189 & 172 & 117\\
+Random Forest & 62,686 & 3,143 & 126 & 163\\
+Isolation Forest & 62,583 & 3,246 & 229 & 60\\
+\bottomrule
+\end{tabular}
+\end{table}
+FP denotes a predicted positive without a matching known-window label;
+given the incompleteness of the answer labels, this must not be
+interpreted as proof the record is benign.
+
+\section{Responsible Use Checklist}
+\begin{enumerate}
+  \item Confirm lawful authorization and purpose before processing any
+        activity data.
+  \item Restrict access to raw input and generated output files.
+  \item Present model outputs as leads, never as findings of misconduct.
+  \item Review original source records and independent context before
+        taking action.
+  \item Document analyst decisions and allow correction of inaccurate
+        or incomplete records.
+  \item Define a review capacity, retention period, and deletion process.
+  \item Assess bias, disparate impact, and performance drift before any
+        operational deployment.
+\end{enumerate}
+
+\section{Dashboard Code Listing}
+This listing is a code-only snapshot of the Streamlit dashboard at the
+time this report was prepared. It is included to document the
+application behavior, not to imply that the dashboard has passed an
+automated end-to-end acceptance test.
+\lstinputlisting[language=Python,caption={Streamlit application source listing},label={lst:app-source}]{app_code_listing.txt}
+
+\section{Analysis Notebook Code Listing}
+This listing contains the Python code cells from
+\texttt{notebook/forensic.ipynb}; notebook outputs and rendered tables
+are omitted. It preserves the analysis workflow used to prepare the
+reported artifacts.
+\lstinputlisting[language=Python,caption={Python code cells from the analysis notebook},label={lst:notebook-source}]{notebook_code_listing.txt}
 
 \end{document}
