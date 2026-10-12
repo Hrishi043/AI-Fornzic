@@ -17,6 +17,7 @@
 \usepackage{caption}
 \usepackage{float}
 \usepackage{titlesec}
+\usepackage{etoolbox}
 
 \onehalfspacing
 \setcounter{secnumdepth}{3}
@@ -26,7 +27,28 @@
   {\Large\thechapter}
   {0.5ex}
   {\LARGE\MakeUppercase}
-\titlespacing*{\chapter}{0pt}{-10pt}{28pt}
+\titleformat{\section}
+  {\normalfont\Large\bfseries}
+  {\thesection}{0.8em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}
+  {\thesubsection}{0.8em}{}
+\titlespacing*{\chapter}{0pt}{-10pt}{18pt}
+\titlespacing*{\section}{0pt}{1.8ex plus 0.3ex minus 0.2ex}{0.8ex plus 0.1ex}
+\titlespacing*{\subsection}{0pt}{1.4ex plus 0.2ex minus 0.2ex}{0.6ex plus 0.1ex}
+\titlespacing*{\subsubsection}{0pt}{1.2ex plus 0.2ex minus 0.2ex}{0.5ex plus 0.1ex}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{2pt}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{6pt}
+\AtBeginEnvironment{table}{\singlespacing}
+\AtBeginEnvironment{longtable}{\singlespacing}
+\captionsetup[table]{skip=4pt}
 \hypersetup{
   colorlinks=true,
   linkcolor=black,
@@ -340,7 +362,7 @@ dashboard's user-selected activity folder does not need the answer file.
 \centering
 \caption{Activity source inventory}
 \label{tab:sources}
-\begin{tabularx}{\textwidth}{lX}
+\begin{tabularx}{\textwidth}{@{}p{0.30\textwidth}X@{}}
 \toprule
 Source & Fields used by the first-stage pipeline\\
 \midrule
@@ -373,7 +395,7 @@ verify if exact global deduplication is required.
 \centering
 \caption{Data-cleaning summary from saved quality output}
 \label{tab:clean}
-\begin{tabular}{lrrr}
+\begin{tabularx}{\textwidth}{@{}l*{3}{>{\raggedleft\arraybackslash}X}@{}}
 \toprule
 Source & Rows read & Rows kept & Duplicates removed\\
 \midrule
@@ -385,7 +407,7 @@ HTTP & 28,434,423 & 28,085,484 & 348,939\\
 \midrule
 Total & 32,770,222 & 32,409,354 & 360,868\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 The positive class is highly sparse. The 1,364 positive days belong to
@@ -412,7 +434,7 @@ model excludes user ID, date, scenario, and the target label.
 \centering
 \caption{Employee-day feature definitions}
 \label{tab:features}
-\begin{tabularx}{\textwidth}{lX}
+\begin{tabularx}{\textwidth}{@{}p{0.38\textwidth}X@{}}
 \toprule
 Feature & Meaning\\
 \midrule
@@ -607,7 +629,7 @@ production insider-risk service. Requirements that concern governance
 and operational assurance are stated as constraints because the current
 repository does not implement them.
 
-\begin{longtable}{p{0.11\textwidth}p{0.53\textwidth}p{0.24\textwidth}}
+\begin{longtable}{@{}p{0.08\textwidth}p{0.54\textwidth}p{0.38\textwidth}@{}}
 \caption{Functional requirements and implementation evidence}
 \label{tab:functional-requirements}\\
 \toprule
@@ -629,7 +651,7 @@ FR08 & Save review summaries as CSV artifacts & \texttt{dashboard\_report.csv} a
 \bottomrule
 \end{longtable}
 
-\begin{longtable}{p{0.11\textwidth}p{0.53\textwidth}p{0.24\textwidth}}
+\begin{longtable}{@{}p{0.08\textwidth}p{0.54\textwidth}p{0.38\textwidth}@{}}
 \caption{Non-functional requirements and current status}
 \label{tab:nonfunctional-requirements}\\
 \toprule
@@ -830,7 +852,7 @@ subjected to a documented end-to-end analyst acceptance test in this
 report. Table~\ref{tab:tests} distinguishes completed checks from
 recommended manual tests.
 
-\begin{longtable}{p{0.10\textwidth}p{0.53\textwidth}p{0.25\textwidth}}
+\begin{longtable}{@{}p{0.08\textwidth}p{0.57\textwidth}p{0.35\textwidth}@{}}
 \caption{Test cases and verification status}
 \label{tab:tests}\\
 \toprule
@@ -875,23 +897,23 @@ authoritative integer counts.
 \caption{Model evaluation from saved \texttt{model\_comparison.csv}}
 \label{tab:comparison}
 \small
-\begin{tabular}{lrrrrr}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.19\textwidth}*{5}{>{\centering\arraybackslash}X}@{}}
 \toprule
-Model & Validation AP & Validation P@5\% & Validation R@5\% & Test P@5\% & Test R@5\%\\
+Model & \shortstack{Validation\\AP} & \shortstack{Validation\\P@5\%} & \shortstack{Validation\\R@5\%} & \shortstack{Test\\P@5\%} & \shortstack{Test\\R@5\%}\\
 \midrule
 Random Forest & 0.214 & 0.054 & 0.681 & 0.049 & 0.564\\
 Decision Tree & 0.185 & 0.055 & 0.704 & 0.035 & 0.405\\
 Logistic Regression & 0.027 & 0.037 & 0.465 & 0.037 & 0.419\\
 Isolation Forest & 0.016 & 0.008 & 0.096 & 0.018 & 0.208\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \begin{table}[H]
 \centering
 \caption{Additional test metrics from saved evaluation}
 \label{tab:testextra}
-\begin{tabular}{lrrr}
+\begin{tabularx}{\textwidth}{@{}l*{3}{>{\centering\arraybackslash}X}@{}}
 \toprule
 Model & Test AP & Test F1 & Test accuracy\\
 \midrule
@@ -900,7 +922,7 @@ Decision Tree & 0.104 & 0.065 & 0.949\\
 Logistic Regression & 0.027 & 0.067 & 0.949\\
 Isolation Forest & 0.027 & 0.033 & 0.947\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 Random Forest was selected by the highest validation Average Precision
@@ -960,14 +982,14 @@ employee-day test metrics in this report.
 \centering
 \caption{Random Forest confusion matrix on the held-out test set}
 \label{tab:matrix}
-\begin{tabular}{lrr}
+\begin{tabularx}{\textwidth}{@{}p{0.28\textwidth}*{2}{>{\centering\arraybackslash}X}@{}}
 \toprule
- & Predicted not listed & Predicted in known window\\
+ & \shortstack{Predicted\\not listed} & \shortstack{Predicted\\in known window}\\
 \midrule
 Actual not listed & 62,686 & 3,143\\
 Actual in known window & 126 & 163\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 Figure~\ref{fig:threshold-matrices} reproduces the notebook's
@@ -1021,7 +1043,7 @@ effectiveness.
 \caption{Requirements traceability}
 \label{tab:req}
 \small
-\begin{tabularx}{\textwidth}{lXl}
+\begin{tabularx}{\textwidth}{@{}p{0.08\textwidth}p{0.54\textwidth}p{0.38\textwidth}@{}}
 \toprule
 ID & Requirement & Implementation / evidence\\
 \midrule
@@ -1096,7 +1118,7 @@ Git; the entries are not a complete project diary.
 \centering
 \caption{Selected repository history}
 \label{tab:git-history}
-\begin{tabularx}{\textwidth}{l l X}
+\begin{tabularx}{\textwidth}{@{}p{0.16\textwidth}p{0.14\textwidth}X@{}}
 \toprule
 Commit & Date & Recorded message\\
 \midrule
