@@ -14,30 +14,30 @@ PROJECT_DIR = Path(__file__).resolve().parent
 MODEL_PATH = PROJECT_DIR / "sprint1_output" / "insider_investigation_model.joblib"
 RESULTS_DIR = PROJECT_DIR / "sprint1_output"
 
-st.set_page_config(page_title="Insider Risk Review", page_icon="🔎", layout="wide")
+st.set_page_config(page_title="Forensio", page_icon="🔎", layout="wide")
 st.markdown("""
 <style>
-.stApp { background: #f3f6fb; color: #172338; }
-[data-testid="stSidebar"] { background: #142238; }
-[data-testid="stSidebar"] * { color: #eff6ff !important; }
+.stApp { background: #f3f6fa; color: #202a35; }
+[data-testid="stSidebar"] { background: #10243b; }
+[data-testid="stSidebar"] * { color: #f0f4f8 !important; }
 .block-container { max-width: 1380px; padding-top: 1.8rem; }
-h1, h2, h3 { color: #15243a; letter-spacing: -.02em; }
-[data-testid="stMetric"] { background: white; border: 1px solid #dce5ef;
+h1, h2, h3 { color: #172330; letter-spacing: -.02em; }
+[data-testid="stMetric"] { background: #ffffff; border: 1px solid #e2e9f0;
   border-radius: 14px; padding: 1rem; box-shadow: 0 3px 12px #1720330c; }
-[data-testid="stMetricValue"] { color: #087e8b; }
-.stButton > button[kind="primary"] { background: #087e8b; border: 0;
+[data-testid="stMetricValue"] { color: #315f91; }
+.stButton > button[kind="primary"] { background: #396a9e; border: 0;
   border-radius: 9px; font-weight: 650; }
-[data-testid="stDataFrame"] { border: 1px solid #dce5ef; border-radius: 10px; }
-.report-card { background: white; border: 1px solid #dce5ef;
-  border-left: 5px solid #d97706; border-radius: 12px; padding: 1rem 1.2rem;
+[data-testid="stDataFrame"] { border: 1px solid #e2e9f0; border-radius: 10px; }
+.report-card { background: #ffffff; border: 1px solid #e2e9f0;
+  border-left: 5px solid #4779ad; border-radius: 12px; padding: 1rem 1.2rem;
   margin: .65rem 0; }
-.report-status { color: #b45309; font-weight: 750; letter-spacing: .04em; }
+.report-status { color: #315f91; font-weight: 750; letter-spacing: .04em; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("Insider Risk Review")
+st.title("Forensio")
 st.caption("Four-model results prioritize investigation. A flag is not proof of wrongdoing.")
-st.sidebar.markdown("### 🔎 Risk Review")
+st.sidebar.markdown("### 🔎 Forensio")
 st.sidebar.caption("Decision Tree · Random Forest · Logistic Regression · Isolation Forest")
 
 if not MODEL_PATH.is_file():

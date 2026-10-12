@@ -1,4 +1,4 @@
-# Insider Risk Review
+# Forensio
 
 The project includes a React review dashboard and a Python API. The existing
 Streamlit interface remains available as an alternative.

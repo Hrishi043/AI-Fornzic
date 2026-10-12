@@ -1,0 +1,356 @@
+:root {
+  color: #202a35;
+  background: #f5f3ee;
+  --ink: #172330;
+  --muted: #78828a;
+  --line: #e8e3d9;
+  --teal: #b3925a;
+  --teal-dark: #967342;
+  --surface: #fffefa;
+}
+
+body,
+.app-shell {
+  background: #f5f3ee;
+}
+
+.sidebar {
+  background: #111c27;
+  color: #e8e3d8;
+}
+
+.brand-mark {
+  background: #b3925a;
+  color: #172330;
+}
+
+.brand-light {
+  color: #c9b78f;
+}
+
+.workspace-label,
+.side-caption {
+  color: #9a9c99;
+}
+
+.nav-item {
+  color: #c2c7c9;
+}
+
+.nav-item.active {
+  background: #26313a;
+  box-shadow: inset 3px 0 #c3a36c;
+}
+
+.side-rule,
+.sidebar-bottom {
+  border-color: #2d3942;
+}
+
+.privacy-icon {
+  background: #26313a;
+  color: #cfb783;
+}
+
+.sidebar-bottom b {
+  color: #f0ede5;
+}
+
+.sidebar-bottom small {
+  color: #a5acae;
+}
+
+.main-content {
+  background: #f5f3ee;
+}
+
+.topbar {
+  background: #fffefa;
+  border-color: #e8e3d9;
+}
+
+.local-badge {
+  background: #f0eee7;
+  color: #59645f;
+}
+
+.local-badge i {
+  background: #72927f;
+}
+
+.avatar {
+  background: #eee8d9;
+  color: #806b43;
+}
+
+.eyebrow {
+  color: #9a8154;
+}
+
+.page-heading h1,
+.section-heading h2,
+.directory-heading h2,
+.detail-heading h2,
+.welcome-card h2 {
+  color: #172330;
+}
+
+.date-chip,
+.source-card,
+.metric-card,
+.flag-card,
+.directory-card,
+.detail-card,
+.model-guide,
+.welcome-card {
+  background: #fffefa;
+  border-color: #e8e3d9;
+}
+
+.date-chip {
+  color: #666e70;
+}
+
+.source-card,
+.metric-card,
+.directory-card,
+.detail-card,
+.welcome-card {
+  box-shadow: 0 8px 24px rgb(30 37 41 / 4%);
+}
+
+.source-icon,
+.metric-icon.teal {
+  background: #f0eadc;
+  color: #967342;
+}
+
+.source-copy b,
+.metric-card strong,
+.employee-name,
+.section-heading h2,
+.directory-heading h2 {
+  color: #202a35;
+}
+
+.source-controls input {
+  background: #fffefa;
+  border-color: #ded9cf;
+}
+
+.source-controls input:focus,
+.search-box:focus-within {
+  border-color: #b3925a;
+  box-shadow: 0 0 0 3px rgb(179 146 90 / 15%);
+}
+
+.primary-button {
+  background: #a98954;
+  color: #fffefa;
+  box-shadow: 0 3px 8px rgb(117 91 48 / 18%);
+}
+
+.primary-button:hover {
+  background: #8f7141;
+}
+
+.flag-card:hover,
+.flag-card.chosen {
+  border-color: #c5aa78;
+  box-shadow: 0 8px 22px rgb(74 62 39 / 9%);
+}
+
+.queue-count {
+  background: #f6efe2;
+  color: #896a39;
+  border-color: #eadcc2;
+}
+
+.model-guide > summary {
+  color: #25313b;
+}
+
+.flow-step,
+.model-explain {
+  border-color: #e9e4da;
+}
+
+.guide-rule {
+  background: #f7f4ed;
+  border-color: #e9e2d5;
+}
+
+.guide-rule > span {
+  color: #8f7141;
+}
+
+.guide-action,
+.welcome-steps b,
+.footer-note > span {
+  color: #967342;
+}
+
+.welcome-art {
+  background: #f1ebdf;
+  color: #a98954;
+  border-color: #c8b489;
+}
+
+.welcome-art > span,
+.orbit {
+  color: #967342;
+  border-color: #c6b58f;
+}
+
+.welcome-steps b {
+  background: #f0eadc;
+}
+
+.footer-note > span {
+  background: #f0eadc;
+}
+
+.empty-state,
+.table-empty {
+  background: #fffefa;
+  border-color: #e8e3d9;
+}
+
+::selection {
+  color: #172330;
+  background: #e9dec7;
+}
+
+:root {
+  background: #f3f6fa;
+  --line: #e2e9f0;
+  --teal: #4779ad;
+  --teal-dark: #315f91;
+  --surface: #fff;
+}
+
+body,
+.app-shell,
+.main-content {
+  background: #f3f6fa;
+}
+
+.sidebar {
+  background: #10243b;
+}
+
+.brand-mark {
+  background: #4779ad;
+  color: #fff;
+}
+
+.brand-light {
+  color: #aec5dc;
+}
+
+.nav-item.active {
+  background: #1d3550;
+  box-shadow: inset 3px 0 #79a6d2;
+}
+
+.privacy-icon {
+  background: #1d3550;
+  color: #9fc0e0;
+}
+
+.topbar,
+.date-chip,
+.source-card,
+.metric-card,
+.flag-card,
+.directory-card,
+.detail-card,
+.model-guide,
+.welcome-card,
+.empty-state,
+.table-empty {
+  background: #fff;
+  border-color: #e2e9f0;
+}
+
+.local-badge {
+  background: #edf2f7;
+}
+
+.avatar {
+  background: #e4edf6;
+  color: #315f91;
+}
+
+.eyebrow {
+  color: #547ba3;
+}
+
+.source-icon,
+.metric-icon.teal,
+.welcome-steps b,
+.footer-note > span {
+  background: #e9f0f7;
+  color: #396a9e;
+}
+
+.source-controls input {
+  background: #fff;
+  border-color: #d8e1eb;
+}
+
+.source-controls input:focus,
+.search-box:focus-within {
+  border-color: #6d99c3;
+  box-shadow: 0 0 0 3px rgb(71 121 173 / 14%);
+}
+
+.primary-button {
+  background: #396a9e;
+  box-shadow: 0 3px 8px rgb(49 95 145 / 20%);
+}
+
+.primary-button:hover {
+  background: #2d5785;
+}
+
+.queue-count {
+  background: #edf3f9;
+  color: #315f91;
+  border-color: #d7e3ef;
+}
+
+.flag-card:hover,
+.flag-card.chosen {
+  border-color: #8eaccb;
+  box-shadow: 0 8px 22px rgb(37 73 110 / 9%);
+}
+
+.guide-rule {
+  background: #f2f6fa;
+  border-color: #dfe8f1;
+}
+
+.guide-rule > span,
+.guide-action,
+.welcome-steps b,
+.footer-note > span {
+  color: #315f91;
+}
+
+.welcome-art {
+  background: #eaf1f8;
+  color: #4779ad;
+  border-color: #a9c1d9;
+}
+
+.welcome-art > span,
+.orbit {
+  color: #315f91;
+  border-color: #a9c1d9;
+}
+
+::selection {
+  color: #10243b;
+  background: #d8e6f3;
+}

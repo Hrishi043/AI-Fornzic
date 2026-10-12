@@ -17,7 +17,7 @@ PROJECT_DIR = Path(__file__).resolve().parent
 MODEL_PATH = PROJECT_DIR / "sprint1_output" / "insider_investigation_model.joblib"
 RESULTS_DIR = PROJECT_DIR / "sprint1_output"
 
-app = FastAPI(title="Insider Risk Review API", docs_url=None, redoc_url=None)
+app = FastAPI(title="Forensio API", docs_url=None, redoc_url=None)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],

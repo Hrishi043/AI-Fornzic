@@ -82,7 +82,7 @@ function App() {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand"><span className="brand-mark">◎</span><span>Signal<span className="brand-light">Review</span></span></div>
+        <div className="brand"><span className="brand-mark">◎</span><span>Forensio</span></div>
         <div className="workspace-label">WORKSPACE</div>
         <button className="nav-item active"><span className="nav-icon">▦</span>Overview</button>
         <div className="side-rule" />
