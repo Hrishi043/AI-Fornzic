@@ -25,3 +25,5 @@ __pycache__/
 
 
 sprint1_output/
+frontend/node_modules/
+frontend/dist/
