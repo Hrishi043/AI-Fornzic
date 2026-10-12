@@ -1,11 +1,11 @@
 \documentclass[12pt,a4paper,oneside]{report}
 
-\usepackage[a4paper,margin=1in,headheight=15pt]{geometry}
+\usepackage[a4paper,margin=1in,headheight=15pt,headsep=10pt]{geometry}
 \usepackage{amsmath}
 \usepackage{newtxtext,newtxmath}
 \usepackage{setspace}
 \usepackage{graphicx}
-\usepackage{booktabs}
+\graphicspath{{figures/}{./}}
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{tabularx}
@@ -18,37 +18,45 @@
 \usepackage{float}
 \usepackage{titlesec}
 \usepackage{etoolbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
 
-\onehalfspacing
+\setstretch{1.3}
+\raggedbottom
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
-\titleformat{\chapter}[display]
-  {\normalfont\bfseries\centering}
-  {\Large\thechapter}
-  {0.5ex}
-  {\LARGE\MakeUppercase}
+\titleformat{\chapter}[block]
+  {\normalfont\LARGE\bfseries\upshape\centering}
+  {}
+  {0pt}
+  {\MakeUppercase}
 \titleformat{\section}
-  {\normalfont\Large\bfseries}
+  {\normalfont\Large\bfseries\upshape}
   {\thesection}{0.8em}{}
 \titleformat{\subsection}
-  {\normalfont\large\bfseries}
+  {\normalfont\large\bfseries\upshape}
   {\thesubsection}{0.8em}{}
-\titlespacing*{\chapter}{0pt}{-10pt}{18pt}
-\titlespacing*{\section}{0pt}{1.8ex plus 0.3ex minus 0.2ex}{0.8ex plus 0.1ex}
-\titlespacing*{\subsection}{0pt}{1.4ex plus 0.2ex minus 0.2ex}{0.6ex plus 0.1ex}
-\titlespacing*{\subsubsection}{0pt}{1.2ex plus 0.2ex minus 0.2ex}{0.5ex plus 0.1ex}
-\setlength{\floatsep}{10pt plus 2pt minus 2pt}
-\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{3pt}
-\setlength{\belowcaptionskip}{2pt}
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.05}
-\setlength{\LTpre}{6pt}
-\setlength{\LTpost}{6pt}
+\titlespacing*{\chapter}{0pt}{-6pt}{8pt}
+\titlespacing*{\section}{0pt}{1.0ex plus 0.15ex minus 0.1ex}{0.35ex}
+\titlespacing*{\subsection}{0pt}{0.75ex plus 0.1ex minus 0.1ex}{0.25ex}
+\titlespacing*{\subsubsection}{0pt}{0.6ex plus 0.1ex minus 0.1ex}{0.2ex}
+\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{5pt plus 1pt minus 1pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{2pt}
+\setlength{\belowcaptionskip}{1pt}
+\setlength{\abovedisplayskip}{6pt plus 1pt minus 1pt}
+\setlength{\belowdisplayskip}{6pt plus 1pt minus 1pt}
+\setlength{\abovedisplayshortskip}{4pt plus 1pt minus 1pt}
+\setlength{\belowdisplayshortskip}{4pt plus 1pt minus 1pt}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.0}
+\setlength{\LTpre}{3pt}
+\setlength{\LTpost}{3pt}
 \AtBeginEnvironment{table}{\singlespacing}
 \AtBeginEnvironment{longtable}{\singlespacing}
 \captionsetup[table]{skip=4pt}
+\captionsetup[figure]{skip=3pt}
 \hypersetup{
   colorlinks=true,
   linkcolor=black,
@@ -64,15 +72,28 @@
 \fancyfoot[L]{Department of Computer Applications}
 \fancyfoot[R]{\thepage}
 \renewcommand{\footrulewidth}{0.4pt}
+\fancypagestyle{plain}{\fancyhf{}}
 \lstset{
-  basicstyle=\ttfamily\small,
+  basicstyle=\ttfamily\scriptsize,
   breaklines=true,
   frame=single,
   columns=fullflexible,
-  keepspaces=true
+  keepspaces=true,
+  aboveskip=2pt,
+  belowskip=2pt
 }
-\setlist[itemize]{topsep=3pt,itemsep=2pt}
-\setlist[enumerate]{topsep=3pt,itemsep=2pt}
+\setlist[itemize,enumerate]{
+  topsep=0.5pt,
+  itemsep=0pt,
+  parsep=0pt,
+  partopsep=0pt
+}
+\setlist[description]{
+  topsep=1pt,
+  itemsep=0pt,
+  parsep=0pt,
+  partopsep=0pt
+}
 
 \newcommand{\projecttitle}{AI Forensic Insider Risk Review System}
 \newcommand{\studentname}{HRISHIKESH P S}
@@ -81,13 +102,14 @@
 \newcommand{\collegename}{Mar Athanasius College of Engineering}
 \newcommand{\collegeplace}{Kothamangalam}
 \newcommand{\collegestatus}{Government Aided Autonomous Institution}
-\newcommand{\guide}{Prof. Nisha Markose}
-\newcommand{\hod}{Prof. Sonia Abraham}
+\newcommand{\guide}{Dr. Manu John}
+\newcommand{\hod}{Dr. Sonia Abraham}
 \newcommand{\degree}{Master of Computer Applications}
 \newcommand{\academicyear}{2025--2027}
 
 \begin{document}
 
+\pagestyle{empty}
 \pagenumbering{roman}
 \begin{titlepage}
 \centering
@@ -217,6 +239,15 @@ and responsible-use safeguards.
 \tableofcontents
 \clearpage
 \pagenumbering{arabic}
+\pagestyle{fancy}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyhead[R]{AI Forensic Insider Risk Review}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \fancyfoot[L]{Department of Computer Applications}
+  \fancyfoot[R]{\thepage}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
 
 \chapter{Introduction}
 \section{Background}
@@ -266,8 +297,8 @@ fields exist. It does not analyse message bodies, web URLs, or file
 contents. The model target is whether an employee-day overlaps a listed
 incident window in the r4.2 answer file. The prototype is not a live
 monitoring system, identity-resolution system, case-management platform,
-or automated disciplinary tool. The React/Vite folder is a starter
-scaffold; the implemented demo interface is the Streamlit application.
+or automated disciplinary tool. The implemented demonstration interface
+is the local Streamlit application.
 
 \section{Project Domain and Technology Stack}
 The project falls within applied data analysis, supervised classification,
@@ -362,17 +393,22 @@ dashboard's user-selected activity folder does not need the answer file.
 \centering
 \caption{Activity source inventory}
 \label{tab:sources}
-\begin{tabularx}{\textwidth}{@{}p{0.30\textwidth}X@{}}
-\toprule
+\begin{tabularx}{\textwidth}{|p{0.30\textwidth}|X|}
+\hline
 Source & Fields used by the first-stage pipeline\\
-\midrule
+\hline
 \texttt{logon.csv} & Timestamp, user, activity records\\
+\hline
 \texttt{device.csv} & Timestamp, user, activity; connection events counted\\
+\hline
 \texttt{file.csv} & Timestamp, user, file activity records\\
+\hline
 \texttt{email.csv} & Timestamp, user, attachment count\\
+\hline
 \texttt{http.csv} & Timestamp, user, web activity records\\
+\hline
 \texttt{answers/insiders.csv} & Dataset version, user, incident start/end, scenario\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -395,18 +431,22 @@ verify if exact global deduplication is required.
 \centering
 \caption{Data-cleaning summary from saved quality output}
 \label{tab:clean}
-\begin{tabularx}{\textwidth}{@{}l*{3}{>{\raggedleft\arraybackslash}X}@{}}
-\toprule
+\begin{tabularx}{\textwidth}{|l|*{3}{>{\raggedleft\arraybackslash}X|}}
+\hline
 Source & Rows read & Rows kept & Duplicates removed\\
-\midrule
+\hline
 Logon & 854,859 & 854,859 & 0\\
+\hline
 Device & 405,380 & 405,374 & 6\\
+\hline
 File & 445,581 & 445,581 & 0\\
+\hline
 Email & 2,629,979 & 2,618,056 & 11,923\\
+\hline
 HTTP & 28,434,423 & 28,085,484 & 348,939\\
-\midrule
+\hline
 Total & 32,770,222 & 32,409,354 & 360,868\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -434,23 +474,34 @@ model excludes user ID, date, scenario, and the target label.
 \centering
 \caption{Employee-day feature definitions}
 \label{tab:features}
-\begin{tabularx}{\textwidth}{@{}p{0.38\textwidth}X@{}}
-\toprule
+\begin{tabularx}{\textwidth}{|p{0.38\textwidth}|X|}
+\hline
 Feature & Meaning\\
-\midrule
+\hline
 \texttt{logon\_event\_count} & Number of retained logon events that day\\
+\hline
 \texttt{logon\_after\_hours\_count} & Logon events before 06:00 or at/after 18:00\\
+\hline
 \texttt{device\_event\_count} & Number of retained device events\\
+\hline
 \texttt{device\_after\_hours\_count} & Device events in the defined after-hours interval\\
+\hline
 \texttt{device\_device\_connect\_count} & Device activity records marked ``connect''\\
+\hline
 \texttt{file\_event\_count} & Number of retained file events\\
+\hline
 \texttt{file\_after\_hours\_count} & File events in the defined after-hours interval\\
+\hline
 \texttt{email\_event\_count} & Number of retained email events\\
+\hline
 \texttt{email\_after\_hours\_count} & Email events in the defined after-hours interval\\
+\hline
 \texttt{email\_attachment\_count} & Sum of parsed email attachment counts\\
+\hline
 \texttt{http\_event\_count} & Number of retained web events\\
+\hline
 \texttt{http\_after\_hours\_count} & Web events in the defined after-hours interval\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -479,21 +530,21 @@ majority-class accuracy can obscure incident-class performance.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{figures/notebook-1.png}
+\includegraphics[width=0.9\textwidth]{notebook-1.png}
 \caption{Total retained events by source in the saved analysis notebook}
 \label{fig:source-events}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{figures/notebook-2.png}
+\includegraphics[width=0.95\textwidth]{notebook-2.png}
 \caption{Daily recorded activity volume across the dataset period}
 \label{fig:daily-events}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{figures/notebook-3.png}
+\includegraphics[width=0.95\textwidth]{notebook-3.png}
 \caption{Ten synthetic users with the highest aggregate event counts}
 \label{fig:user-events}
 \end{figure}
@@ -545,17 +596,24 @@ ranking rule for evaluation.
 \section{Project pipeline}
 \begin{figure}[H]
 \centering
-\fbox{\parbox{0.91\textwidth}{\centering
-Five local activity CSVs\\[2mm]
-$\Downarrow$ chunked parsing, cleaning, duplicate removal\\[2mm]
-Employee-day activity aggregates\\[2mm]
-$\Downarrow$ match answer-file incident windows for training/evaluation\\[2mm]
-Grouped train / validation / test partitions\\[2mm]
-$\Downarrow$ four model scores; validation-based selection\\[2mm]
-Test metrics and ranked review list\\[2mm]
-$\Downarrow$ save model bundle; local Streamlit demo on activity CSVs\\[2mm]
-Human review against original records and independent context
-}}
+\begin{tikzpicture}[
+  stage/.style={draw,rounded corners,align=center,text width=9.4cm,minimum height=0.58cm,font=\small},
+  flow/.style={-{Stealth},thin}
+]
+\node[stage] (sources) {Five local CERT activity CSV files};
+\node[stage,below=0.35cm of sources] (clean) {Chunked parsing, cleaning, duplicate removal, and daily aggregation};
+\node[stage,below=0.35cm of clean] (label) {Match answer-file incident windows to create research labels};
+\node[stage,below=0.35cm of label] (split) {Create employee-grouped training, validation, and test partitions};
+\node[stage,below=0.35cm of split] (models) {Train and compare four models; select using validation Average Precision};
+\node[stage,below=0.35cm of models] (outputs) {Evaluate the held-out test set and save the model bundle};
+\node[stage,below=0.35cm of outputs] (review) {Score new activity locally and present ranked leads for human review};
+\draw[flow] (sources) -- (clean);
+\draw[flow] (clean) -- (label);
+\draw[flow] (label) -- (split);
+\draw[flow] (split) -- (models);
+\draw[flow] (models) -- (outputs);
+\draw[flow] (outputs) -- (review);
+\end{tikzpicture}
 \caption{High-level project pipeline}
 \end{figure}
 
@@ -598,8 +656,6 @@ implemented in this prototype.
   \item Streamlit 1.65.0; joblib is used to persist the estimator bundle.
   \item Jupyter notebook: \texttt{notebook/forensic.ipynb}.
   \item Demo entry point: \texttt{app.py}.
-  \item React/Vite frontend: present as an uncustomized starter and not
-        part of the implemented demo path.
 \end{itemize}
 
 \subsection{Hardware environment}
@@ -629,46 +685,58 @@ production insider-risk service. Requirements that concern governance
 and operational assurance are stated as constraints because the current
 repository does not implement them.
 
-\begin{longtable}{@{}p{0.08\textwidth}p{0.54\textwidth}p{0.38\textwidth}@{}}
+\begin{longtable}{|p{0.09\textwidth}|p{0.52\textwidth}|p{0.34\textwidth}|}
 \caption{Functional requirements and implementation evidence}
 \label{tab:functional-requirements}\\
-\toprule
+\hline
 ID & Requirement & Evidence / limitation\\
-\midrule
+\hline
 \endfirsthead
-\toprule
+\hline
 ID & Requirement & Evidence / limitation\\
-\midrule
+\hline
 \endhead
 FR01 & Accept the five named activity CSV files from a selected local folder & Folder validation in \texttt{app.py}\\
+\hline
 FR02 & Read large files incrementally rather than loading each entire source at once & 25,000-row pandas chunks\\
+\hline
 FR03 & Exclude rows without a usable user or parsed date and remove duplicates within each chunk & Notebook and dashboard preprocessing; cross-chunk duplicates may remain\\
+\hline
 FR04 & Aggregate retained records by user and calendar day into numeric activity features & Notebook and \texttt{process\_activity\_file()}\\
+\hline
 FR05 & Align dashboard features to the ordered feature list used at training time & Saved model bundle; missing expected columns are filled with zero\\
+\hline
 FR06 & Produce comparative model scores and a ranked employee review list & Four estimators and consensus ranking in \texttt{score\_folder()}\\
+\hline
 FR07 & Show signals and high-ranked activity days supporting a review lead & Streamlit interface; signal rules are descriptive, not causal explanations\\
+\hline
 FR08 & Save review summaries as CSV artifacts & \texttt{dashboard\_report.csv} and \texttt{dashboard\_day\_scores.csv}\\
-\bottomrule
+\hline
 \end{longtable}
 
-\begin{longtable}{@{}p{0.08\textwidth}p{0.54\textwidth}p{0.38\textwidth}@{}}
+\begin{longtable}{|p{0.09\textwidth}|p{0.52\textwidth}|p{0.34\textwidth}|}
 \caption{Non-functional requirements and current status}
 \label{tab:nonfunctional-requirements}\\
-\toprule
+\hline
 ID & Requirement & Current status\\
-\midrule
+\hline
 \endfirsthead
-\toprule
+\hline
 ID & Requirement & Current status\\
-\midrule
+\hline
 \endhead
 NFR01 & Keep the demonstration local and avoid sending activity data to an external service & Implemented for the demonstrated flow\\
+\hline
 NFR02 & Handle large event files within workstation memory constraints & Chunked input is implemented; peak memory has not been measured\\
+\hline
 NFR03 & Make outputs understandable and subject to human review & Caution text and activity context are shown; no case-management workflow\\
+\hline
 NFR04 & Protect raw records and generated outputs from unauthorized access & Not implemented; local permissions remain the operator's responsibility\\
+\hline
 NFR05 & Record access, analyst decisions, model versions, and retention actions & Not implemented\\
+\hline
 NFR06 & Demonstrate generalization to operational data and acceptable review burden & Not established by the synthetic, employee-day experiment\\
-\bottomrule
+\hline
 \end{longtable}
 
 The requirements highlight the boundary between a working prototype
@@ -684,8 +752,7 @@ Streamlit application. The notebook performs bulk preparation,
 incident-window labelling, grouped evaluation, and model serialization.
 The application loads the saved feature list and estimator bundle,
 rebuilds employee-day features from selected CSV files, and displays
-ranked review leads. The React/Vite directory is not part of this
-implemented path.
+ranked review leads.
 
 \subsection{Implementation code}
 The notebook is the source of the training and evaluation workflow.
@@ -728,69 +795,99 @@ dashboard's separate employee-level consensus rule.
 \subsection{Use-case model}
 \begin{figure}[H]
 \centering
-\fbox{\parbox{0.91\textwidth}{\centering
-Analyst $\longrightarrow$ Select local activity folder\\
-Analyst $\longrightarrow$ Validate required CSV files\\
-Analyst $\longrightarrow$ Run preprocessing and model scoring\\
-Analyst $\longrightarrow$ Inspect ranked employees and model agreement\\
-Analyst $\longrightarrow$ Inspect high-ranked activity days\\
-Analyst $\longrightarrow$ Export generated review CSVs\\
-Administrator $\longrightarrow$ Authorize data use and define retention\\
-Human investigator $\longrightarrow$ Corroborate or dismiss a lead
-}}
+\begin{tikzpicture}[
+  usecase/.style={draw,ellipse,align=center,minimum width=4.1cm,minimum height=0.75cm,font=\small},
+  actor/.style={draw,rounded corners,align=center,minimum width=2.8cm,minimum height=0.9cm,font=\normalsize\bfseries},
+  link/.style={-{Stealth},thin}
+]
+\node[actor] (analyst) at (-5.2,0) {Analyst};
+\node[actor] (admin) at (5.2,1.2) {Administrator};
+\node[actor] (reviewer) at (5.2,-3.5) {Human investigator};
+\node[usecase] (select) at (0,0) {Select folder and validate CSV files};
+\node[usecase] (score) at (0,-1.15) {Preprocess and score activity};
+\node[usecase] (inspect) at (0,-2.3) {Inspect ranking and activity signals};
+\node[usecase] (review) at (0,-3.5) {Corroborate or dismiss a lead};
+\node[usecase] (govern) at (0,1.2) {Authorize use and define retention};
+\draw[link] (analyst) -- (select);
+\draw[link] (analyst) -- (score);
+\draw[link] (analyst) -- (inspect);
+\draw[link] (admin.west) -- (govern.east);
+\draw[link] (reviewer) -- (review);
+\end{tikzpicture}
 \caption{Use-case model for the prototype}
 \end{figure}
 
 \subsection{Activity diagram}
 \begin{figure}[H]
 \centering
-\fbox{\parbox{0.91\textwidth}{\centering
-Start $\rightarrow$ Load model bundle $\rightarrow$ Choose folder\\
-$\rightarrow$ Are all five required files present?\\
-No: display error and stop \qquad Yes: read and aggregate in chunks\\
-$\rightarrow$ Align columns and score each employee-day\\
-$\rightarrow$ Rank employees and calculate review indicators\\
-$\rightarrow$ Display report and activity days\\
-$\rightarrow$ Analyst checks original logs and corroborating context\\
-$\rightarrow$ End
-}}
+\begin{tikzpicture}[
+  step/.style={draw,rounded corners,align=center,text width=8.0cm,minimum height=0.58cm,font=\small},
+  decision/.style={draw,diamond,aspect=3,align=center,text width=3.2cm,minimum height=0.8cm,font=\small},
+  flow/.style={-{Stealth},thin}
+]
+\node[step] (start) {Start and load the saved model bundle};
+\node[step,below=0.42cm of start] (folder) {Choose the folder containing the five activity CSV files};
+\node[decision,below=0.5cm of folder] (valid) {Are all required files present?};
+\node[step,below=0.62cm of valid] (parse) {Read in chunks, clean rows, and aggregate employee-days};
+\node[step,below=0.42cm of parse] (score) {Align features, score with four models, and rank employees};
+\node[step,below=0.42cm of score] (review) {Display review leads; analyst checks original logs and context};
+\node[step,right=1.1cm of valid,text width=2.5cm] (error) {Show missing-file error and stop};
+\draw[flow] (start) -- (folder);
+\draw[flow] (folder) -- (valid);
+\draw[flow] (valid) -- node[right,font=\scriptsize]{Yes} (parse);
+\draw[flow] (parse) -- (score);
+\draw[flow] (score) -- (review);
+\draw[flow] (valid) -- node[above,font=\scriptsize]{No} (error);
+\end{tikzpicture}
 \caption{Activity flow for one dashboard review}
 \end{figure}
 
 \subsection{Sequence diagram}
 \begin{figure}[H]
 \centering
-\fbox{\parbox{0.91\textwidth}{\ttfamily\small
-Analyst $\rightarrow$ Streamlit UI: choose folder and request analysis\\
-Streamlit UI $\rightarrow$ Model loader: load saved joblib bundle\\
-Streamlit UI $\rightarrow$ CSV processor: validate and aggregate five CSVs\\
-CSV processor $\rightarrow$ Feature builder: align employee-day columns\\
-Feature builder $\rightarrow$ Four estimators: compute risk scores\\
-Estimators $\rightarrow$ Ranking service: return scores\\
-Ranking service $\rightarrow$ Streamlit UI: report, status, activity signals\\
-Streamlit UI $\rightarrow$ Analyst: render review queue and details\\
-Streamlit UI $\rightarrow$ Output folder: write generated CSV summaries
-}}
+\begin{tikzpicture}[
+  participant/.style={draw,rounded corners,align=center,text width=1.75cm,minimum height=0.7cm,font=\scriptsize},
+  message/.style={-{Stealth},thin},
+  return/.style={-{Stealth},thin,dashed}
+]
+\node[participant] (user) at (0,0) {Analyst};
+\node[participant] (ui) at (2.7,0) {Streamlit UI};
+\node[participant] (csv) at (5.4,0) {CSV processor};
+\node[participant] (model) at (8.1,0) {Four models};
+\node[participant] (store) at (10.8,0) {Output files};
+\foreach \x in {user,ui,csv,model,store}
+  \draw[densely dashed,gray] (\x.south) -- ++(0,-6.1);
+\draw[message] (0,-1.0) -- node[above,font=\scriptsize]{Choose folder; analyze} (2.7,-1.0);
+\draw[message] (2.7,-1.7) -- node[above,font=\scriptsize]{Validate and read files} (5.4,-1.7);
+\draw[return] (5.4,-2.4) -- node[above,font=\scriptsize]{Employee-day features} (2.7,-2.4);
+\draw[message] (2.7,-3.1) -- node[above,font=\scriptsize]{Score feature matrix} (8.1,-3.1);
+\draw[return] (8.1,-3.8) -- node[above,font=\scriptsize]{Four sets of scores} (2.7,-3.8);
+\draw[message] (2.7,-4.5) -- node[above,font=\scriptsize]{Write ranked summaries} (10.8,-4.5);
+\draw[return] (2.7,-5.2) -- node[above,font=\scriptsize]{Render review results} (0,-5.2);
+\end{tikzpicture}
 \caption{Sequence of an analysis request}
 \end{figure}
 
 \subsection{Class and component design}
 \begin{figure}[H]
 \centering
-\fbox{\parbox{0.91\textwidth}{\centering
-\texttt{app.py}\\
-\quad \texttt{choose\_data\_folder()}\\
-\quad \texttt{process\_activity\_file()}\\
-\quad \texttt{load\_model\_bundle()}\\
-\quad \texttt{score\_folder()}\\
-\quad \texttt{friendly\_activity\_table()}\\[2mm]
-\texttt{score\_folder()} depends on\\
-\quad \texttt{model bundle: models + feature\_columns}\\
-\quad \texttt{activity files: logon, device, file, email, http}\\
-\quad \texttt{returns: employee-day scores + employee ranking}\\[2mm]
-\texttt{notebook/forensic.ipynb}\\
-\quad preprocessing $\rightarrow$ labels $\rightarrow$ evaluation $\rightarrow$ model artifact
-}}
+\begin{tikzpicture}[
+  component/.style={draw,rounded corners,align=center,text width=3.1cm,minimum height=1.2cm,font=\small},
+  flow/.style={-{Stealth},thin}
+]
+\node[component] (data) at (0,0) {CERT r4.2 logs\\and incident answers};
+\node[component] (notebook) at (4,0) {Analysis notebook\\clean, aggregate, label, evaluate};
+\node[component] (bundle) at (8,0) {Joblib model bundle\\four models and features};
+\node[component] (app) at (8,-2.3) {Streamlit dashboard\\score and rank reviews};
+\node[component] (outputs) at (4,-2.3) {CSV summaries\\employee-day and employee rank};
+\draw[flow] (data) -- (notebook);
+\draw[flow] (notebook) -- (bundle);
+\draw[flow] (bundle) -- (app);
+\draw[flow] (app) -- (outputs);
+\draw[flow] (data.north) -- (0,1.2)
+  -- node[above,font=\scriptsize]{Selected activity CSVs} (10.2,1.2)
+  -- (10.2,-2.3) -- (app.east);
+\end{tikzpicture}
 \caption{Logical component view of the project}
 \end{figure}
 
@@ -829,15 +926,34 @@ button, a ranked investigation report, status and model-agreement
 indicators, a user selector, model rank scores, and a table of
 high-ranked activity days. Activity explanations are based on a small
 set of aggregated signals (after-hours activity, device connections,
-file, email, and web counts) rather than raw message content. The React
-application currently remains the default Vite demonstration and should
-not be represented as the implemented forensic dashboard.
+file, email, and web counts) rather than raw message content.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.72\textwidth]{ui_landing.png}
+\includegraphics[height=0.55\textheight,keepaspectratio]{ui_landing.png}
 \caption{Local Streamlit dashboard landing screen before an activity folder is selected}
 \label{fig:dashboard-landing}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{ui_flagged_employee.png}
+\caption{Dashboard review card from saved CERT r4.2 results. The status prioritizes human review and is not a finding of misconduct.}
+\label{fig:dashboard-review-card}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{ui_model_scores.png}
+\caption{Relative rank scores from the four models for the selected synthetic employee; the values are not probabilities.}
+\label{fig:dashboard-model-scores}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{ui_employee_activity.png}
+\caption{Highest-ranked activity days and event counts for the selected synthetic employee in the saved dashboard results.}
+\label{fig:dashboard-activity-details}
 \end{figure}
 
 \chapter{Results and Discussion}
@@ -852,27 +968,35 @@ subjected to a documented end-to-end analyst acceptance test in this
 report. Table~\ref{tab:tests} distinguishes completed checks from
 recommended manual tests.
 
-\begin{longtable}{@{}p{0.08\textwidth}p{0.57\textwidth}p{0.35\textwidth}@{}}
+\begin{longtable}{|p{0.09\textwidth}|p{0.55\textwidth}|p{0.31\textwidth}|}
 \caption{Test cases and verification status}
 \label{tab:tests}\\
-\toprule
+\hline
 ID & Test / expected behavior & Status\\
-\midrule
+\hline
 \endfirsthead
-\toprule
+\hline
 ID & Test / expected behavior & Status\\
-\midrule
+\hline
 \endhead
 T01 & Parse all notebook code cells; no syntax errors & Passed\\
+\hline
 T02 & Verify saved labelled table dimensions, users, date span, and positive count & Passed\\
+\hline
 T03 & Verify grouped train/validation/test partitions have positive labels and no user overlap & Passed\\
+\hline
 T04 & Refit the four configured estimators and calculate validation/test metrics on saved data & Passed\\
+\hline
 T05 & Confirm test predictions and confusion-matrix totals at top-five-percent capacity & Passed\\
+\hline
 T06 & Select a folder missing a required CSV; application should display a clear error & Recommended manual test\\
+\hline
 T07 & Analyze a valid folder and compare dashboard feature totals with notebook output & Recommended manual test\\
+\hline
 T08 & Test malformed dates, blank users, duplicate rows across chunk boundaries, and empty files & Recommended automated tests\\
+\hline
 T09 & Verify output permissions and deletion/retention for sensitive logs & Not implemented\\
-\bottomrule
+\hline
 \end{longtable}
 
 \section{Model planning and evaluation protocol}
@@ -897,15 +1021,18 @@ authoritative integer counts.
 \caption{Model evaluation from saved \texttt{model\_comparison.csv}}
 \label{tab:comparison}
 \small
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.19\textwidth}*{5}{>{\centering\arraybackslash}X}@{}}
-\toprule
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.19\textwidth}|*{5}{>{\centering\arraybackslash}X|}}
+\hline
 Model & \shortstack{Validation\\AP} & \shortstack{Validation\\P@5\%} & \shortstack{Validation\\R@5\%} & \shortstack{Test\\P@5\%} & \shortstack{Test\\R@5\%}\\
-\midrule
+\hline
 Random Forest & 0.214 & 0.054 & 0.681 & 0.049 & 0.564\\
+\hline
 Decision Tree & 0.185 & 0.055 & 0.704 & 0.035 & 0.405\\
+\hline
 Logistic Regression & 0.027 & 0.037 & 0.465 & 0.037 & 0.419\\
+\hline
 Isolation Forest & 0.016 & 0.008 & 0.096 & 0.018 & 0.208\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -913,15 +1040,18 @@ Isolation Forest & 0.016 & 0.008 & 0.096 & 0.018 & 0.208\\
 \centering
 \caption{Additional test metrics from saved evaluation}
 \label{tab:testextra}
-\begin{tabularx}{\textwidth}{@{}l*{3}{>{\centering\arraybackslash}X}@{}}
-\toprule
+\begin{tabularx}{\textwidth}{|l|*{3}{>{\centering\arraybackslash}X|}}
+\hline
 Model & Test AP & Test F1 & Test accuracy\\
-\midrule
+\hline
 Random Forest & 0.088 & 0.091 & 0.951\\
+\hline
 Decision Tree & 0.104 & 0.065 & 0.949\\
+\hline
 Logistic Regression & 0.027 & 0.067 & 0.949\\
+\hline
 Isolation Forest & 0.027 & 0.033 & 0.947\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -982,13 +1112,14 @@ employee-day test metrics in this report.
 \centering
 \caption{Random Forest confusion matrix on the held-out test set}
 \label{tab:matrix}
-\begin{tabularx}{\textwidth}{@{}p{0.28\textwidth}*{2}{>{\centering\arraybackslash}X}@{}}
-\toprule
+\begin{tabularx}{\textwidth}{|p{0.28\textwidth}|*{2}{>{\centering\arraybackslash}X|}}
+\hline
  & \shortstack{Predicted\\not listed} & \shortstack{Predicted\\in known window}\\
-\midrule
+\hline
 Actual not listed & 62,686 & 3,143\\
+\hline
 Actual in known window & 126 & 163\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -1002,7 +1133,7 @@ authoritative values for the fixed-capacity evaluation.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/notebook-4.png}
+\includegraphics[width=\textwidth]{notebook-4.png}
 \caption{Notebook confusion matrices from estimator class predictions; not the top-five-percent review rule}
 \label{fig:threshold-matrices}
 \end{figure}
@@ -1043,18 +1174,24 @@ effectiveness.
 \caption{Requirements traceability}
 \label{tab:req}
 \small
-\begin{tabularx}{\textwidth}{@{}p{0.08\textwidth}p{0.54\textwidth}p{0.38\textwidth}@{}}
-\toprule
+\begin{tabularx}{\textwidth}{|p{0.08\textwidth}|p{0.52\textwidth}|X|}
+\hline
 ID & Requirement & Implementation / evidence\\
-\midrule
+\hline
 R01 & Read five activity sources & \texttt{app.py}; notebook ingestion\\
+\hline
 R02 & Create employee-day numeric features & notebook and \texttt{process\_activity\_file}\\
+\hline
 R03 & Keep answer labels out of inference upload & answer file used in notebook only\\
+\hline
 R04 & Compare four models & saved comparison table and bundle\\
+\hline
 R05 & Hold user groups apart in evaluation & nested grouped train/validation/test split\\
+\hline
 R06 & Present human-review context & Streamlit report, activity indicators, caution text\\
+\hline
 R07 & Establish real-world validity and operational threshold & Not satisfied; future work\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -1118,16 +1255,18 @@ Git; the entries are not a complete project diary.
 \centering
 \caption{Selected repository history}
 \label{tab:git-history}
-\begin{tabularx}{\textwidth}{@{}p{0.16\textwidth}p{0.14\textwidth}X@{}}
-\toprule
+\begin{tabularx}{\textwidth}{|p{0.16\textwidth}|p{0.14\textwidth}|X|}
+\hline
 Commit & Date & Recorded message\\
-\midrule
+\hline
 \texttt{da720e68} & 2026-10-11 & Refactor code structure for improved readability and maintainability\\
+\hline
 \texttt{8b99ad0e} & 2026-10-11 & Implement code changes to enhance functionality and improve performance\\
+\hline
 \texttt{c7b28395} & 2026-10-10 & Fix execution counts and update table IDs in forensic notebook; resolve NameError in classification report output\\
+\hline
 \texttt{513f90d8} & 2026-10-10 & Fix NameError in classification report output and add empty code cell\\
-\texttt{5c060878} & 2026-10-07 & Add React and Vite setup with initial assets and styles\\
-\bottomrule
+\hline
 \end{tabularx}
 \end{table}
 
@@ -1135,8 +1274,7 @@ Implementation challenges include processing a very large web-activity
 file, aligning activity from multiple sources to one employee-day
 record, handling severe class imbalance, selecting a model without
 using the test set for selection, and presenting scores without
-implying that a flag establishes wrongdoing. The current frontend
-folder remains a default React/Vite scaffold; the working review
+implying that a flag establishes wrongdoing. The working review
 demonstration is implemented in Streamlit.
 
 \chapter{Learning Outcomes}
@@ -1208,9 +1346,6 @@ essential before any real-world use.
   \item Add authenticated access, audit trails, secure storage,
         retention/deletion controls, model versioning, and documented
         analyst procedures before wider deployment.
-  \item Either implement the React/Vite interface or remove/clearly
-        separate the unused starter so the project presentation matches
-        the actual Streamlit demo.
 \end{enumerate}
 
 \renewcommand{\bibname}{References}
@@ -1305,16 +1440,20 @@ runtime and peak-memory measurements on the intended machine.
 \begin{table}[H]
 \centering
 \caption{Confusion-matrix counts for all evaluated models}
-\begin{tabular}{lrrrr}
-\toprule
-Model & TN & FP relative to known labels & FN & TP\\
-\midrule
+\small
+\begin{tabularx}{\textwidth}{|p{0.23\textwidth}|*{4}{>{\centering\arraybackslash}X|}}
+\hline
+Model & TN & \shortstack{FP\\(unmatched label)} & FN & TP\\
+\hline
 Logistic Regression & 62,644 & 3,185 & 168 & 121\\
+\hline
 Decision Tree & 62,640 & 3,189 & 172 & 117\\
+\hline
 Random Forest & 62,686 & 3,143 & 126 & 163\\
+\hline
 Isolation Forest & 62,583 & 3,246 & 229 & 60\\
-\bottomrule
-\end{tabular}
+\hline
+\end{tabularx}
 \end{table}
 FP denotes a predicted positive without a matching known-window label;
 given the incompleteness of the answer labels, this must not be
@@ -1335,18 +1474,68 @@ interpreted as proof the record is benign.
         operational deployment.
 \end{enumerate}
 
-\section{Dashboard Code Listing}
-This listing is a code-only snapshot of the Streamlit dashboard at the
-time this report was prepared. It is included to document the
-application behavior, not to imply that the dashboard has passed an
-automated end-to-end acceptance test.
-\lstinputlisting[language=Python,caption={Streamlit application source listing},label={lst:app-source}]{app_code_listing.txt}
+\section{Selected Code Excerpts}
+These excerpts illustrate daily feature aggregation, incident-window
+labelling, employee-grouped evaluation, dashboard score normalization,
+and consensus ranking. They are selected portions of the project source;
+the complete implementation remains in the code listings.
 
-\section{Analysis Notebook Code Listing}
-This listing contains the Python code cells from
-\texttt{notebook/forensic.ipynb}; notebook outputs and rendered tables
-are omitted. It preserves the analysis workflow used to prepare the
-reported artifacts.
-\lstinputlisting[language=Python,caption={Python code cells from the analysis notebook},label={lst:notebook-source}]{notebook_code_listing.txt}
+\lstinputlisting[
+  language=Python,
+  firstline=111,
+  lastline=137,
+  caption={Daily event features aggregated by user and date},
+  label={lst:daily-feature-excerpt}
+]{notebook_code_listing.txt}
+
+\lstinputlisting[
+  language=Python,
+  firstline=280,
+  lastline=295,
+  caption={Known incident-window labels matched to employee-days},
+  label={lst:incident-label-excerpt}
+]{notebook_code_listing.txt}
+
+\lstinputlisting[
+  language=Python,
+  firstline=137,
+  lastline=143,
+  caption={Dashboard score normalization for supervised and anomaly models},
+  label={lst:app-score-excerpt}
+]{app_code_listing.txt}
+
+\lstinputlisting[
+  language=Python,
+  firstline=161,
+  lastline=175,
+  caption={Dashboard feature alignment and four-model consensus ranking},
+  label={lst:consensus-excerpt}
+]{app_code_listing.txt}
+
+\begin{lstlisting}[
+  language=Python,
+  caption={Condensed employee-grouped training, validation, and test split},
+  label={lst:grouped-split-excerpt}
+]
+outer_splitter = StratifiedGroupKFold(
+    n_splits=5, shuffle=True, random_state=42
+)
+train_validation_indices, test_indices = next(
+    outer_splitter.split(X, y, groups=groups)
+)
+
+inner_splitter = StratifiedGroupKFold(
+    n_splits=4, shuffle=True, random_state=43
+)
+train_relative_indices, validation_relative_indices = next(
+    inner_splitter.split(
+        X.iloc[train_validation_indices],
+        y.iloc[train_validation_indices],
+        groups=groups.iloc[train_validation_indices],
+    )
+)
+train_indices = train_validation_indices[train_relative_indices]
+validation_indices = train_validation_indices[validation_relative_indices]
+\end{lstlisting}
 
 \end{document}

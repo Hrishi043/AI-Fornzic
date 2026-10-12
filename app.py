@@ -348,10 +348,10 @@ if st.session_state.analysis_done:
     else:
         st.markdown("### Top 10 employees flagged for review")
         for _, row in top_ten.iterrows():
+            employee_name = row.get("name")
             name_line = (
-                f"<p><b>Name:</b> {row['name']}</p>"
-                if "name" in row and row["name"] is not None and str(row["name"]).strip()
-                and str(row["name"]).lower() != "<na>"
+                f"<p><b>Name:</b> {employee_name}</p>"
+                if pd.notna(employee_name) and str(employee_name).strip()
                 else ""
             )
             st.markdown(
@@ -395,7 +395,7 @@ if st.session_state.analysis_done:
     st.subheader(f"Activity details: {selected}")
     st.write(f"**Status:** {selected_report['status']}")
     st.write(f"**Flagged for:** {selected_report['why_flagged']}")
-    if selected_report["name"] is not None and str(selected_report["name"]).strip() not in ("", "<NA>"):
+    if pd.notna(selected_report["name"]) and str(selected_report["name"]).strip():
         st.write(f"**Name:** {selected_report['name']}")
 
     model_columns = [
