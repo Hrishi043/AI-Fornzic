@@ -194,9 +194,9 @@ faculty and staff of \collegename, Kothamangalam, for their support.
 
 I also acknowledge the creators of the CERT Insider Threat Test Dataset
 and the developers and maintainers of the open-source Python,
-scikit-learn, pandas, NumPy, and Streamlit tools used in this
-demonstration. Finally, I express my gratitude to my family and friends
-for their encouragement.
+scikit-learn, pandas, NumPy, FastAPI, React, Vite, and Streamlit tools
+used in this demonstration. Finally, I express my gratitude to my family
+and friends for their encouragement.
 
 \begin{flushright}
 - \studentname
@@ -214,16 +214,18 @@ incident windows supplied in the CERT answer file. Four models are
 compared: Logistic Regression, Decision Tree, Random Forest, and
 Isolation Forest. A grouped train/validation/test design keeps each
 employee in only one split. Models are compared using Average Precision
-and precision and recall within a fixed top-five-percent review queue.
-The saved evaluation shows Random Forest selected by validation Average
-Precision; on the held-out test records its top-five-percent queue
-contains 163 records in known incident windows among 3,306 reviewed
-records (precision 4.93\%, recall 56.40\%). This is a useful ranking
+and precision and recall at fixed review capacities. Random Forest is
+selected by validation Average Precision; a one-percent review capacity
+is selected using validation F1 from a predeclared candidate grid. On
+held-out test records this gives Random Forest an F1 of 0.130 (precision
+9.37\%, recall 21.45\%). The five-percent operating point remains as a
+reference and gives higher recall but lower precision. This is a useful
 signal for a research demonstration, but not evidence of wrongdoing:
 unlabelled records are not confirmed benign, incident labels are
 incomplete, and the tested threshold produces many records requiring
-human review. A local Streamlit demonstration scores user-supplied
-activity CSV files and presents ranked review leads. The report explains
+human review. A local React dashboard, backed by a FastAPI service,
+scores selected activity CSV files and presents ranked review leads.
+The report explains
 the data pipeline, modelling, software design, evaluation, constraints,
 and responsible-use safeguards.
 
@@ -284,10 +286,11 @@ prototype that ranks employee activity records for human review.
   \item Create a binary known-incident-window label from the answer file.
   \item Compare three supervised classifiers and one unsupervised anomaly
         detector using employee-grouped data splits.
-  \item Evaluate ranking quality and a fixed top-five-percent review
-        capacity, including incident-class precision and recall.
-  \item Save model artifacts and expose a local Streamlit demonstration
-        that ranks new activity records for human review.
+  \item Evaluate ranking quality at fixed review capacities, selecting
+        the reported one-percent operating point using validation F1 and
+        retaining five percent as a comparison.
+  \item Save model artifacts and expose a local React dashboard with a
+        FastAPI service for human review of new activity records.
 \end{enumerate}
 
 \section{Scope of the Project}
@@ -297,16 +300,19 @@ fields exist. It does not analyse message bodies, web URLs, or file
 contents. The model target is whether an employee-day overlaps a listed
 incident window in the r4.2 answer file. The prototype is not a live
 monitoring system, identity-resolution system, case-management platform,
-or automated disciplinary tool. The implemented demonstration interface
-is the local Streamlit application.
+or automated disciplinary tool. The primary demonstration interface is
+a local React dashboard backed by FastAPI. The earlier Streamlit
+interface remains available as an alternative.
 
 \section{Project Domain and Technology Stack}
 The project falls within applied data analysis, supervised classification,
 and anomaly detection. Python is used for feature preparation and model
 development. pandas and NumPy support tabular processing; scikit-learn
 provides the estimators, grouped splitting, and evaluation metrics; joblib
-stores the fitted models; and Streamlit provides the local interactive
-demonstration. Jupyter Notebook is used for the reproducible analysis.
+stores the fitted models; React and FastAPI provide the local interactive
+demonstration \cite{reactdocs,fastapidocs}; and Streamlit remains
+available as an alternative. Jupyter Notebook is used for the
+reproducible analysis.
 
 \section{Organisation of the Report}
 Chapter 2 reviews supporting literature and project proposals.
@@ -353,9 +359,9 @@ recall measures how many known positives were retrieved. Average
 Precision summarizes precision over ranked thresholds and is useful for
 rare-positive ranking tasks. The scikit-learn documentation describes
 these metrics and their averaging conventions \cite{sklearnmetrics}.
-This project additionally reports performance among the highest-scored
-five percent of employee-days, which corresponds to a fixed-size
-experimental review queue.
+This project reports results at a validation-selected one-percent
+employee-day capacity and retains the five-percent queue as a larger
+fixed-size comparison.
 
 \section{Literature Review Summary}
 The selected methods provide complementary baselines rather than a claim
@@ -525,8 +531,9 @@ and can miss relevant activity outside its listed interval.
 The notebook includes source event-count plots, employee activity
 summaries, label counts, a model comparison table, and confusion-matrix
 plots. The comparison visualizations should be read alongside the
-positive-class support and the top-five-percent capacity, since
-majority-class accuracy can obscure incident-class performance.
+positive-class support and both the selected one-percent capacity and
+five-percent reference, since majority-class accuracy can obscure
+incident-class performance.
 
 \begin{figure}[H]
 \centering
@@ -575,8 +582,8 @@ averages tree predictions to produce a positive-class score.
 trees, automatic contamination handling, and parallel fitting. The
 negative decision function is used so larger values rank as more
 unusual. The contamination setting controls the estimator's outlier
-decision threshold; the project separately imposes a top-five-percent
-ranking rule for evaluation.
+decision threshold; the project separately evaluates a validation-
+selected one-percent queue and retains five percent as a reference.
 
 \subsection{Step-by-step model workflow}
 \begin{enumerate}
@@ -586,8 +593,10 @@ ranking rule for evaluation.
   \item Fit all models on training records only and score validation and
         test records.
   \item Select the best model by validation Average Precision.
-  \item Compare top-five-percent precision and recall on validation and
-        test partitions; print a final classification report on test.
+  \item Select review capacity by validation F1 from a coarse candidate
+        grid, then compare precision and recall on held-out test employees.
+        The selected rate is one percent; keep five percent as a
+        larger-capacity reference.
   \item Retrain the saved dashboard bundle using the labelled table after
         evaluation. The dashboard's multi-model review scores are not the
         same thing as the single-model test comparison.
@@ -619,13 +628,15 @@ ranking rule for evaluation.
 
 \section{Feasibility analysis}
 \subsection{Technical feasibility}
-The pipeline is implemented in Python using pandas, NumPy, scikit-learn,
-joblib, and Streamlit. Chunked CSV processing makes the main event
+The analysis pipeline is implemented in Python using pandas, NumPy,
+scikit-learn, and joblib. FastAPI serves the local analysis service; the
+React client is built with Vite, and Streamlit remains an alternative
+interface. Chunked CSV processing makes the main event
 ingestion feasible on a developer workstation. The repository includes
 the dataset directory locally, while generated outputs are ignored by
 Git. The demonstrated environment is macOS on Apple silicon with Python
-3.14.8, pandas 3.0.6, NumPy 2.5.3, scikit-learn 1.9.1, and Streamlit
-1.65.0. These versions describe the checked environment and are not a
+3.14.8, pandas 3.0.6, NumPy 2.5.3, scikit-learn 1.9.1, FastAPI, and
+React. These versions describe the checked environment and are not a
 claim of a fully reproducible environment lockfile.
 
 \subsection{Economic feasibility}
@@ -653,9 +664,13 @@ implemented in this prototype.
         silicon.
   \item Python: 3.14.8.
   \item pandas 3.0.6; NumPy 2.5.3; scikit-learn 1.9.1.
-  \item Streamlit 1.65.0; joblib is used to persist the estimator bundle.
+  \item FastAPI and Uvicorn for the local API; React and Vite for the
+        primary web client; Streamlit 1.65.0 for the alternative client.
+        Joblib persists the estimator bundle.
   \item Jupyter notebook: \texttt{notebook/forensic.ipynb}.
-  \item Demo entry point: \texttt{app.py}.
+  \item Primary demo entry points: \texttt{api.py} and
+        \texttt{frontend/}; alternative entry point:
+        \texttt{app.py}.
 \end{itemize}
 
 \subsection{Hardware environment}
@@ -696,7 +711,7 @@ ID & Requirement & Evidence / limitation\\
 ID & Requirement & Evidence / limitation\\
 \hline
 \endhead
-FR01 & Accept the five named activity CSV files from a selected local folder & Folder validation in \texttt{app.py}\\
+FR01 & Accept the five named activity CSV files from a selected local folder & React folder picker and required-file validation in \texttt{api.py}\\
 \hline
 FR02 & Read large files incrementally rather than loading each entire source at once & 25,000-row pandas chunks\\
 \hline
@@ -708,7 +723,7 @@ FR05 & Align dashboard features to the ordered feature list used at training tim
 \hline
 FR06 & Produce comparative model scores and a ranked employee review list & Four estimators and consensus ranking in \texttt{score\_folder()}\\
 \hline
-FR07 & Show signals and high-ranked activity days supporting a review lead & Streamlit interface; signal rules are descriptive, not causal explanations\\
+FR07 & Show signals and high-ranked activity days supporting a review lead & React interface; signal rules are descriptive, not causal explanations\\
 \hline
 FR08 & Save review summaries as CSV artifacts & \texttt{dashboard\_report.csv} and \texttt{dashboard\_day\_scores.csv}\\
 \hline
@@ -748,7 +763,7 @@ use.
 \chapter{System Design}
 \section{Model(s) Building}
 The implementation is divided between the analysis notebook and the
-Streamlit application. The notebook performs bulk preparation,
+React/FastAPI application. The notebook performs bulk preparation,
 incident-window labelling, grouped evaluation, and model serialization.
 The application loads the saved feature list and estimator bundle,
 rebuilds employee-day features from selected CSV files, and displays
@@ -756,12 +771,12 @@ ranked review leads.
 
 \subsection{Implementation code}
 The notebook is the source of the training and evaluation workflow.
-The dashboard entry point is \texttt{app.py}; its main operations are
-folder selection, chunked CSV parsing, feature alignment, four-model
-scoring, employee ranking, and display of activity-day context. The
-appendix includes code-only listings captured from both project
-artifacts so the implementation can be inspected alongside this
-description.
+The primary dashboard uses \texttt{frontend/src/App.jsx} for the React
+interface, \texttt{api.py} for its FastAPI endpoints, and
+\texttt{forensic\_core.py} for CSV parsing, feature alignment,
+four-model scoring, and employee ranking. The Streamlit alternative is
+implemented in \texttt{app.py}. Selected source excerpts are included in
+the appendix; the full source files remain in the project repository.
 
 \subsection{Model planning and training/testing split}
 The labelled employee-day records are separated by employee identifier,
@@ -851,19 +866,21 @@ dashboard's separate employee-level consensus rule.
   return/.style={-{Stealth},thin,dashed}
 ]
 \node[participant] (user) at (0,0) {Analyst};
-\node[participant] (ui) at (2.7,0) {Streamlit UI};
-\node[participant] (csv) at (5.4,0) {CSV processor};
-\node[participant] (model) at (8.1,0) {Four models};
-\node[participant] (store) at (10.8,0) {Output files};
-\foreach \x in {user,ui,csv,model,store}
+\node[participant] (ui) at (2.3,0) {React UI};
+\node[participant] (api) at (4.6,0) {FastAPI};
+\node[participant] (csv) at (6.9,0) {CSV processor};
+\node[participant] (model) at (9.2,0) {Four models};
+\node[participant] (store) at (11.5,0) {Output files};
+\foreach \x in {user,ui,api,csv,model,store}
   \draw[densely dashed,gray] (\x.south) -- ++(0,-6.1);
-\draw[message] (0,-1.0) -- node[above,font=\scriptsize]{Choose folder; analyze} (2.7,-1.0);
-\draw[message] (2.7,-1.7) -- node[above,font=\scriptsize]{Validate and read files} (5.4,-1.7);
-\draw[return] (5.4,-2.4) -- node[above,font=\scriptsize]{Employee-day features} (2.7,-2.4);
-\draw[message] (2.7,-3.1) -- node[above,font=\scriptsize]{Score feature matrix} (8.1,-3.1);
-\draw[return] (8.1,-3.8) -- node[above,font=\scriptsize]{Four sets of scores} (2.7,-3.8);
-\draw[message] (2.7,-4.5) -- node[above,font=\scriptsize]{Write ranked summaries} (10.8,-4.5);
-\draw[return] (2.7,-5.2) -- node[above,font=\scriptsize]{Render review results} (0,-5.2);
+\draw[message] (0,-1.0) -- node[above,font=\scriptsize]{Choose folder; analyze} (2.3,-1.0);
+\draw[message] (2.3,-1.7) -- node[above,font=\scriptsize]{Send selected files} (4.6,-1.7);
+\draw[message] (4.6,-2.4) -- node[above,font=\scriptsize]{Stage in temporary folder} (6.9,-2.4);
+\draw[return] (6.9,-3.1) -- node[above,font=\scriptsize]{Employee-day features} (4.6,-3.1);
+\draw[message] (4.6,-3.8) -- node[above,font=\scriptsize]{Score feature matrix} (9.2,-3.8);
+\draw[return] (9.2,-4.5) -- node[above,font=\scriptsize]{Four model scores} (4.6,-4.5);
+\draw[message] (4.6,-5.2) -- node[above,font=\scriptsize]{Save ranked summaries} (11.5,-5.2);
+\draw[return] (2.3,-5.9) -- node[above,font=\scriptsize]{Render review results} (0,-5.9);
 \end{tikzpicture}
 \caption{Sequence of an analysis request}
 \end{figure}
@@ -878,23 +895,25 @@ dashboard's separate employee-level consensus rule.
 \node[component] (data) at (0,0) {CERT r4.2 logs\\and incident answers};
 \node[component] (notebook) at (4,0) {Analysis notebook\\clean, aggregate, label, evaluate};
 \node[component] (bundle) at (8,0) {Joblib model bundle\\four models and features};
-\node[component] (app) at (8,-2.3) {Streamlit dashboard\\score and rank reviews};
-\node[component] (outputs) at (4,-2.3) {CSV summaries\\employee-day and employee rank};
+\node[component] (ui) at (0,-2.3) {React dashboard\\select folder and review};
+\node[component] (api) at (4,-2.3) {FastAPI service\\stage, score, and serve details};
+\node[component] (outputs) at (8,-2.3) {CSV summaries\\employee-day and employee rank};
 \draw[flow] (data) -- (notebook);
 \draw[flow] (notebook) -- (bundle);
-\draw[flow] (bundle) -- (app);
-\draw[flow] (app) -- (outputs);
+\draw[flow] (bundle) -- (api);
+\draw[flow] (ui) -- (api);
+\draw[flow] (api) -- (outputs);
 \draw[flow] (data.north) -- (0,1.2)
   -- node[above,font=\scriptsize]{Selected activity CSVs} (10.2,1.2)
-  -- (10.2,-2.3) -- (app.east);
+  -- (10.2,-2.3) -- (api.east);
 \end{tikzpicture}
 \caption{Logical component view of the project}
 \end{figure}
 
 \section{Project pipeline and output design}
 The training notebook writes a model bundle containing the estimator
-dictionary, feature names, and model names. The Streamlit application
-loads this bundle, creates the same daily numeric feature columns from
+dictionary, feature names, and model names. The FastAPI service loads
+this bundle, creates the same daily numeric feature columns from
 the five input sources, fills absent columns with zero, and calculates
 four model scores. Scores are converted to within-dataset percentile
 ranks and averaged for a consensus employee ranking. The dashboard
@@ -920,40 +939,38 @@ version should define explicit schemas, provenance, retention controls,
 and access logs before introducing persistent case data.
 
 \section{UI design}
-The implemented interface uses Streamlit. It contains a project title
-and non-accusatory warning, a folder-selection action, an analysis
-button, a ranked investigation report, status and model-agreement
-indicators, a user selector, model rank scores, and a table of
-high-ranked activity days. Activity explanations are based on a small
-set of aggregated signals (after-hours activity, device connections,
-file, email, and web counts) rather than raw message content.
+The primary interface is a React dashboard served locally by Vite and
+connected to a FastAPI service on the same computer. The landing view
+includes the activity-folder picker, model names, a human-review
+caution, and an expandable guide that shows how the five activity
+sources become employee-day features, pass through four independent
+models, and become a percentile-ranked queue. The guide explains the
+distinct roles of Isolation Forest, Logistic Regression, Decision Tree,
+and Random Forest. After analysis, the dashboard presents summary
+counts, prioritized review cards, a searchable and filterable employee
+directory, model-agreement signals, relative model ranks, and each
+selected employee's highest-ranked activity days. Explanations use
+aggregated counts and timing signals rather than message bodies, URLs,
+or file contents. The visual design uses a dark navy sidebar, cool
+neutral surfaces, and distinct restrained accents for the four model
+views. The selected CSV files are sent to the local API,
+staged in a temporary folder, and removed from that staging folder after
+analysis; the generated dashboard summaries are saved under
+\texttt{sprint1\_output}. The previous Streamlit interface remains
+available as an alternative.
 
 \begin{figure}[H]
 \centering
-\includegraphics[height=0.55\textheight,keepaspectratio]{ui_landing.png}
-\caption{Local Streamlit dashboard landing screen before an activity folder is selected}
+\includegraphics[height=0.50\textheight,keepaspectratio]{ui_react_landing.png}
+\caption{React dashboard before an activity folder is selected; the local model service is available.}
 \label{fig:dashboard-landing}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{ui_flagged_employee.png}
-\caption{Dashboard review card from saved CERT r4.2 results. The status prioritizes human review and is not a finding of misconduct.}
-\label{fig:dashboard-review-card}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\textwidth]{ui_model_scores.png}
-\caption{Relative rank scores from the four models for the selected synthetic employee; the values are not probabilities.}
-\label{fig:dashboard-model-scores}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\textwidth]{ui_employee_activity.png}
-\caption{Highest-ranked activity days and event counts for the selected synthetic employee in the saved dashboard results.}
-\label{fig:dashboard-activity-details}
+\includegraphics[height=0.66\textheight,keepaspectratio]{ui_react_model_guide.png}
+\caption{Expanded guide from the React dashboard, showing the activity-to-review flow, each model's role, and the live employee-level review rule.}
+\label{fig:dashboard-model-guide}
 \end{figure}
 
 \chapter{Results and Discussion}
@@ -965,8 +982,10 @@ artifacts, checking the saved schema and quality summaries, running the
 grouped split and model evaluation against the saved labelled CSV, and
 checking Python syntax for notebook code cells. The dashboard was not
 subjected to a documented end-to-end analyst acceptance test in this
-report. Table~\ref{tab:tests} distinguishes completed checks from
-recommended manual tests.
+report. The React landing screen and expanded model guide were captured
+while the local API reported the model bundle as ready; no folder
+analysis was run for those screenshots. Table~\ref{tab:tests}
+distinguishes completed checks from recommended manual tests.
 
 \begin{longtable}{|p{0.09\textwidth}|p{0.55\textwidth}|p{0.31\textwidth}|}
 \caption{Test cases and verification status}
@@ -987,7 +1006,7 @@ T03 & Verify grouped train/validation/test partitions have positive labels and n
 \hline
 T04 & Refit the four configured estimators and calculate validation/test metrics on saved data & Passed\\
 \hline
-T05 & Confirm test predictions and confusion-matrix totals at top-five-percent capacity & Passed\\
+T05 & Confirm test predictions and confusion-matrix totals at the validation-selected capacity & Passed\\
 \hline
 T06 & Select a folder missing a required CSV; application should display a clear error & Recommended manual test\\
 \hline
@@ -1000,22 +1019,56 @@ T09 & Verify output permissions and deletion/retention for sensitive logs & Not 
 \end{longtable}
 
 \section{Model planning and evaluation protocol}
-The saved evaluation artifact records four measures at two stages.
-Average Precision and top-five-percent validation precision/recall
-support model selection and capacity comparison. Test metrics are
-reported for final comparison after the selected pipeline is fixed. The
-split groups records by user: the saved split contains 198,259 training
+The saved evaluation artifact records ranking and fixed-capacity
+metrics. Average Precision selects the model. A review rate is selected
+by validation F1 for that model from the candidate capacities 1\%, 2\%,
+3\%, 5\%, 7.5\%, 10\%, 15\%, and 20\%; test data is not used to choose
+the rate. Test metrics are reported after the model and operating
+capacity are fixed. The saved split groups records by user and contains
+198,259 training
 rows with 815 positive labels, 66,075 validation rows with 260 positive
 labels, and 66,118 test rows with 289 positive labels. The three user
 sets are disjoint.
 
-For each partition, the top five percent is selected by sorting scores.
+For each partition, scores are sorted to select the chosen proportion.
 This is a ranking-based operating point, not a fixed score threshold.
-The test queue therefore includes 3,306 employee-days. Metrics are
-rounded in the table, so counts from the confusion matrix are the
-authoritative integer counts.
+The selected one-percent test queue contains 662 employee-days; the
+five-percent comparison queue contains 3,306. Metrics are rounded in
+the tables, so counts from the confusion matrices are authoritative.
 
 \section{Comparison of models}
+At the validation-selected one-percent review capacity, the results are:
+\begin{table}[H]
+\centering
+\caption{Metrics at the 1\% queue rate selected by validation F1}
+\label{tab:selected-capacity}
+\small
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{0.20\textwidth}|*{5}{>{\centering\arraybackslash}X|}}
+\hline
+Model & Validation F1 & Test P@1\% & Test R@1\% & Test F1 & Test AP\\
+\hline
+Random Forest & 0.235 & 0.094 & 0.215 & 0.130 & 0.088\\
+\hline
+Decision Tree & 0.185 & 0.121 & 0.277 & 0.168 & 0.104\\
+\hline
+Logistic Regression & 0.011 & 0.003 & 0.007 & 0.004 & 0.027\\
+\hline
+Isolation Forest & 0.015 & 0.027 & 0.062 & 0.038 & 0.027\\
+\hline
+\end{tabularx}
+\end{table}
+
+Random Forest remains selected because it has the highest validation AP
+(0.214). The one-percent rate is the best F1 among the predeclared
+validation capacities for that model. On the held-out test split, its F1
+increases from 0.091 at five percent to 0.130 at one percent; recall
+falls from 56.40\% to 21.45\%, while precision rises from 4.93\% to
+9.37\%. Average Precision is unchanged by the queue cutoff. Decision
+Tree's higher test F1 is reported for comparison only and is not used to
+select the model or capacity.
+
+The original five-percent results remain useful as a larger-capacity
+reference:
 \begin{table}[H]
 \centering
 \caption{Model evaluation from saved \texttt{model\_comparison.csv}}
@@ -1042,7 +1095,7 @@ Isolation Forest & 0.016 & 0.008 & 0.096 & 0.018 & 0.208\\
 \label{tab:testextra}
 \begin{tabularx}{\textwidth}{|l|*{3}{>{\centering\arraybackslash}X|}}
 \hline
-Model & Test AP & Test F1 & Test accuracy\\
+Model & Test AP & Test F1 @ 5\% & Test accuracy @ 5\%\\
 \hline
 Random Forest & 0.088 & 0.091 & 0.951\\
 \hline
@@ -1060,7 +1113,9 @@ Random Forest was selected by the highest validation Average Precision
 but choosing a model after inspecting test results would use the held-out
 test to tune the selection. The report therefore retains Random Forest
 as the validation-selected model and treats test AP as an estimate, not
-as another selection criterion.
+as another selection criterion. The queue rate is also selected on the
+validation partition only; test AP does not change when the review rate
+changes.
 
 \section{Evaluation metrics}
 \textbf{Precision at 5\%} is the fraction of the fixed-size top-ranked
@@ -1084,12 +1139,13 @@ reported capacity metrics are:
 \qquad
 \operatorname{Recall@}k = \frac{|Q_k \cap P|}{|P|}.
 \]
-Here \(k=\lceil 0.05N\rceil\), where \(N\) is the number of test
-employee-days. These definitions make the review-capacity assumption
-explicit: increasing \(k\) increases the number of records presented
-for review and can change both precision and recall. The top-five-percent
-rule is recalculated within each partition and should not be mistaken
-for a transferable probability threshold.
+For the capacity-reference results, \(k=\lceil 0.05N\rceil\). The
+validation-selected operating point instead uses \(k=\lceil 0.01N\rceil\).
+These definitions make the review-capacity assumption explicit:
+increasing \(k\) increases the number of records presented for review
+and can change both precision and recall. Both rates are recalculated
+within each partition and should not be mistaken for transferable
+probability thresholds.
 
 For the dashboard, let \(r_{u,d,m}\) be model \(m\)'s percentile rank
 for user \(u\) on day \(d\). The interface averages the four model
@@ -1110,43 +1166,38 @@ employee-day test metrics in this report.
 \section{Confusion matrix}
 \begin{table}[H]
 \centering
-\caption{Random Forest confusion matrix on the held-out test set}
+\caption{Random Forest confusion matrix at the validation-selected 1\% queue rate}
 \label{tab:matrix}
 \begin{tabularx}{\textwidth}{|p{0.28\textwidth}|*{2}{>{\centering\arraybackslash}X|}}
 \hline
  & \shortstack{Predicted\\not listed} & \shortstack{Predicted\\in known window}\\
 \hline
-Actual not listed & 62,686 & 3,143\\
+Actual not listed & 65,229 & 600\\
 \hline
-Actual in known window & 126 & 163\\
+Actual in known window & 227 & 62\\
 \hline
 \end{tabularx}
 \end{table}
 
-Figure~\ref{fig:threshold-matrices} reproduces the notebook's
-estimator-label confusion-matrix visualization. Those matrices use the
-estimators' class-prediction defaults and are not the same operating
-point as the top-five-percent ranked review queue in Tables
-\ref{tab:comparison} and \ref{tab:matrix}. The integer counts in
-Table~\ref{tab:matrix} and Appendix~\ref{app:test-counts} are the
-authoritative values for the fixed-capacity evaluation.
+Figure~\ref{fig:threshold-matrices} reproduces the notebook's earlier
+five-percent reference confusion matrices. The integer counts in
+Table~\ref{tab:matrix} and Appendix~\ref{app:test-counts} show the
+validation-selected one-percent operating point.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{notebook-4.png}
-\caption{Notebook confusion matrices from estimator class predictions; not the top-five-percent review rule}
+\caption{Previously saved notebook confusion matrices at the 5\% reference capacity}
 \label{fig:threshold-matrices}
 \end{figure}
 
-The selected model places 163 known positive employee-days in the
-3,306-record review queue, corresponding to 4.93\% precision and 56.40\%
-recall. It leaves 126 known positive employee-days outside the queue.
-The 3,143 predicted positives that do not match known incident labels
-are false positives relative to this incomplete label set; they are not
-proven benign. Operationally, all 3,306 records would require review at
-this capacity. The result indicates a useful ranking signal in this
-synthetic experiment, but poor alert precision and a substantial review
-burden.
+At the selected one-percent capacity, the Random Forest places 62 known
+positive employee-days in the 662-record queue and leaves 227 known
+positives outside it. The other 600 records do not match a known label;
+they are not proven benign. At the five-percent reference capacity, the
+model places 163 known positives in 3,306 records and leaves 126 known
+positives outside. The lower-capacity option improves test F1 in this
+synthetic experiment while retrieving fewer known positives overall.
 
 \section{Discussion}
 The model comparison illustrates that unsupervised anomaly detection
@@ -1156,7 +1207,7 @@ supervised Random Forest catches more known positives in the saved test
 partition, but its 4.9\% precision means the queue is still dominated by
 records without a matching known label. The Decision Tree has a higher
 test AP than Random Forest, but its validation AP is lower and its test
-top-five-percent recall is 40.5\%. This difference emphasizes why
+recall at the five-percent reference capacity is 40.5\%. This difference emphasizes why
 validation-based selection and a one-time test evaluation should be
 kept separate.
 
@@ -1178,7 +1229,7 @@ effectiveness.
 \hline
 ID & Requirement & Implementation / evidence\\
 \hline
-R01 & Read five activity sources & \texttt{app.py}; notebook ingestion\\
+R01 & Read five activity sources & React folder picker and \texttt{api.py}; notebook ingestion\\
 \hline
 R02 & Create employee-day numeric features & notebook and \texttt{process\_activity\_file}\\
 \hline
@@ -1188,7 +1239,7 @@ R04 & Compare four models & saved comparison table and bundle\\
 \hline
 R05 & Hold user groups apart in evaluation & nested grouped train/validation/test split\\
 \hline
-R06 & Present human-review context & Streamlit report, activity indicators, caution text\\
+R06 & Present human-review context & React report, activity indicators, model guide, and caution text\\
 \hline
 R07 & Establish real-world validity and operational threshold & Not satisfied; future work\\
 \hline
@@ -1197,28 +1248,44 @@ R07 & Establish real-world validity and operational threshold & Not satisfied; f
 
 \chapter{Model Deployment}
 \section{Local demonstration setup}
-The implemented demo is launched from the project root using:
+The primary React demonstration uses two local processes. Start the API
+from the project root after installing the Python requirements if needed:
 \begin{lstlisting}
-source .forensic/bin/activate
-python -m streamlit run app.py
+./.forensic/bin/python -m pip install -r requirements.txt
+./.forensic/bin/python -m uvicorn api:app --host 127.0.0.1 --port 8000
+\end{lstlisting}
+Then start the web client in a second terminal:
+\begin{lstlisting}
+cd frontend
+npm install
+npm run dev
 \end{lstlisting}
 The model bundle is expected at
 \texttt{sprint1\_output/insider\_investigation\_model.joblib}. The user
-selects a folder containing \texttt{logon.csv}, \texttt{device.csv},
+opens the Vite URL (normally \texttt{http://127.0.0.1:5173}), selects
+the folder containing \texttt{logon.csv}, \texttt{device.csv},
 \texttt{file.csv}, \texttt{email.csv}, and \texttt{http.csv}, then
-selects ``Analyze folder''. The application saves dashboard CSV outputs
-under \texttt{sprint1\_output}. The environment activation and launch
-steps should be adapted to the operator's local Python setup.
+selects ``Analyze folder''. The browser sends the selected CSV files to
+the API bound to loopback. The API stages them in a temporary directory,
+scores them, removes the temporary directory, and saves dashboard CSV
+outputs under \texttt{sprint1\_output}. Run notebook Cell 31 first if
+the model bundle is missing.
+
+The Streamlit alternative can be started from the project root with:
+\begin{lstlisting}
+./.forensic/bin/streamlit run app.py
+\end{lstlisting}
 
 \subsection{Analyst workflow}
 \begin{enumerate}
-  \item Start the local Streamlit application from the project
-        environment.
+  \item Start the FastAPI service and React development server in
+        separate terminals.
   \item Confirm that the saved four-model bundle is present and contains
         all four expected estimator names and the ordered feature list.
-  \item Select the folder containing the five required CSV files using
-        the macOS folder picker.
-  \item Start analysis. The application validates required files,
+  \item Select the folder containing the five required CSV files with
+        the browser's folder picker. The browser passes those files to
+        the API over the local interface.
+  \item Start analysis. The API validates required files,
         parses the usable columns in 25,000-row chunks, and aggregates
         the records to employee-days.
   \item Review the ranked list, the relative model ranks, the model
@@ -1231,11 +1298,12 @@ steps should be adapted to the operator's local Python setup.
         and retention rules as the source logs.
 \end{enumerate}
 
-If required files are missing, the application reports an error and
-does not proceed with scoring. The folder picker uses AppleScript and
-therefore requires macOS in its current form. Cancelling the picker
-leaves the analysis idle. No analyst-authentication step or explicit
-confirmation of data authorization is implemented.
+If required files are missing, the API reports an error and does not
+proceed with scoring. The React client uses a browser folder picker and
+the API is configured for local development origins on port 5173. The
+Streamlit alternative uses an AppleScript folder picker and requires
+macOS. No analyst-authentication step or explicit confirmation of data
+authorization is implemented.
 
 \section{Deployment limitations}
 This is a local proof of concept. It has no login, role-based access,
@@ -1274,22 +1342,25 @@ Implementation challenges include processing a very large web-activity
 file, aligning activity from multiple sources to one employee-day
 record, handling severe class imbalance, selecting a model without
 using the test set for selection, and presenting scores without
-implying that a flag establishes wrongdoing. The working review
-demonstration is implemented in Streamlit.
+implying that a flag establishes wrongdoing. The primary working review
+demonstration uses a React client and a local FastAPI service; a
+Streamlit alternative remains in the repository.
 
 \chapter{Learning Outcomes}
 This project provided practical experience with a complete tabular
 machine-learning workflow: data inspection, chunked CSV processing,
 feature aggregation, label construction, grouped model evaluation,
-class-imbalance-aware metrics, model serialization, and local dashboard
-development. It also highlights the importance of distinguishing a
+class-imbalance-aware metrics, model serialization, a React/Vite client,
+a FastAPI service, and local dashboard development. It also highlights
+the importance of distinguishing a
 known-positive label from an unverified negative, separating validation
 from test data, and communicating uncertainty in an investigation
 support tool.
 
 \section{Technical Skills Acquired}
 The implementation applies Python, pandas, NumPy, scikit-learn,
-Jupyter Notebook, joblib, Streamlit, Git, and CSV-based data interchange.
+Jupyter Notebook, joblib, FastAPI, React, Vite, Streamlit, Git, and
+CSV-based data interchange.
 It uses Logistic Regression, Decision Tree, Random Forest, and Isolation
 Forest; grouped train/validation/test splits; Average Precision;
 precision, recall, and F1; and confusion-matrix analysis.
@@ -1307,12 +1378,13 @@ unverified internship activities or personal performance.
 \section{Summary of the Project}
 The project successfully demonstrates a data path from raw activity
 logs to employee-day features, known-window labels, model comparison,
-and a local multi-model review dashboard. Chunked processing keeps
+and a local React dashboard backed by FastAPI. Chunked processing keeps
 large logs tractable, and grouped splits avoid putting the same user in
 both model-development and held-out partitions. On the saved evaluation,
-Random Forest is the model selected by validation AP. At a top-five
-percent review capacity, it finds 163 of 289 known test positives,
-while 3,143 records in that queue do not match known labels.
+Random Forest is selected by validation AP, and a one-percent queue
+capacity is chosen by validation F1. On the held-out test split this
+capacity finds 62 of 289 known positives in 662 records; the five-percent
+reference capacity finds 163 positives in 3,306 records.
 
 The central conclusion is therefore cautious: the prototype can
 prioritise synthetic records for investigation, but it does not provide
@@ -1390,6 +1462,14 @@ The pandas development team, ``pandas documentation,''
 \bibitem{streamlit}
 Streamlit, ``Streamlit documentation,''
 \url{https://docs.streamlit.io/}. Accessed October 2026.
+
+\bibitem{reactdocs}
+Meta Open Source, ``React documentation,''
+\url{https://react.dev/}. Accessed October 2026.
+
+\bibitem{fastapidocs}
+FastAPI contributors, ``FastAPI documentation,''
+\url{https://fastapi.tiangolo.com/}. Accessed October 2026.
 \end{thebibliography}
 
 \chapter{Appendix}
@@ -1398,11 +1478,14 @@ Streamlit, ``Streamlit documentation,''
 \subsection{Minimum software requirements}
 \begin{itemize}
   \item A supported Python installation with pandas, NumPy,
-        scikit-learn, joblib, and Streamlit.
+        scikit-learn, joblib, FastAPI, and Uvicorn.
+  \item Node.js and npm to run the React/Vite client. Streamlit is
+        needed only for the alternative interface.
   \item Jupyter Notebook or Visual Studio Code with Jupyter support to
         run the analysis notebook.
-  \item macOS for the current AppleScript folder picker. Porting the
-        picker is required for Windows/Linux operation.
+  \item A modern browser that supports selecting a folder and the local
+        development setup. macOS is required only for the Streamlit
+        alternative's AppleScript folder picker.
   \item The five input CSVs and the trained model bundle for the
         dashboard; the answer file is required to reproduce supervised
         training/evaluation, not for scoring a new activity folder.
@@ -1422,9 +1505,10 @@ runtime and peak-memory measurements on the intended machine.
   \item[\texttt{model\_comparison.csv}] Validation and test metrics for
         all four models.
   \item[\texttt{confusion\_matrix\_counts.csv}] Integer confusion-matrix
-        values under the top-five-percent rule.
+        values at the validation-selected queue rate.
   \item[\texttt{evaluation\_employee\_day\_scores.csv}] Test employee-day
-        labels, raw scores, and top-five-percent flags.
+        labels, raw scores, validation-selected one-percent queue flags,
+        and top-five-percent reference flags.
   \item[\texttt{evaluation\_employee\_ranking.csv}] Employee-level
         aggregation for the evaluation records.
   \item[\texttt{insider\_investigation\_model.joblib}] Saved four-model
@@ -1439,19 +1523,19 @@ runtime and peak-memory measurements on the intended machine.
 \label{app:test-counts}
 \begin{table}[H]
 \centering
-\caption{Confusion-matrix counts for all evaluated models}
+\caption{Confusion-matrix counts at the validation-selected 1\% queue rate}
 \small
 \begin{tabularx}{\textwidth}{|p{0.23\textwidth}|*{4}{>{\centering\arraybackslash}X|}}
 \hline
 Model & TN & \shortstack{FP\\(unmatched label)} & FN & TP\\
 \hline
-Logistic Regression & 62,644 & 3,185 & 168 & 121\\
+Logistic Regression & 65,169 & 660 & 287 & 2\\
 \hline
-Decision Tree & 62,640 & 3,189 & 172 & 117\\
+Decision Tree & 65,247 & 582 & 209 & 80\\
 \hline
-Random Forest & 62,686 & 3,143 & 126 & 163\\
+Random Forest & 65,229 & 600 & 227 & 62\\
 \hline
-Isolation Forest & 62,583 & 3,246 & 229 & 60\\
+Isolation Forest & 65,185 & 644 & 271 & 18\\
 \hline
 \end{tabularx}
 \end{table}
@@ -1476,9 +1560,10 @@ interpreted as proof the record is benign.
 
 \section{Selected Code Excerpts}
 These excerpts illustrate daily feature aggregation, incident-window
-labelling, employee-grouped evaluation, dashboard score normalization,
-and consensus ranking. They are selected portions of the project source;
-the complete implementation remains in the code listings.
+labelling, employee-grouped evaluation, API file staging, model scoring,
+and consensus ranking. They are selected portions of the current
+implementation; the full source files remain in the project repository.
+The separate Streamlit app listing is an alternative interface.
 
 \lstinputlisting[
   language=Python,
@@ -1498,19 +1583,19 @@ the complete implementation remains in the code listings.
 
 \lstinputlisting[
   language=Python,
-  firstline=137,
-  lastline=143,
-  caption={Dashboard score normalization for supervised and anomaly models},
-  label={lst:app-score-excerpt}
-]{app_code_listing.txt}
+  firstline=92,
+  lastline=116,
+  caption={Local API staging and cleanup for selected activity files},
+  label={lst:api-upload-excerpt}
+]{api_code_listing.txt}
 
 \lstinputlisting[
   language=Python,
-  firstline=161,
+  firstline=136,
   lastline=175,
-  caption={Dashboard feature alignment and four-model consensus ranking},
+  caption={Four-model scoring, percentile alignment, and consensus ranking},
   label={lst:consensus-excerpt}
-]{app_code_listing.txt}
+]{forensic_core_code_listing.txt}
 
 \begin{lstlisting}[
   language=Python,

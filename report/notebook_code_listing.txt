@@ -465,170 +465,231 @@ from sklearn.metrics import (
     ConfusionMatrixDisplay,
 )
 
-results = []
-confusion_matrices = {}
-
+# Choose a practical review capacity on validation data only. Selecting from a
+# coarse grid is less sensitive to one exact cutoff than searching every row.
+candidate_review_rates = [0.01, 0.02, 0.03, 0.05, 0.075, 0.10, 0.15, 0.20]
 validation_labels = y_validation.to_numpy()
 actual_labels = y_test.to_numpy()
+
+# Preserve model selection by validation Average Precision.
+selected_model_for_rate = max(
+    validation_risk_scores,
+    key=lambda name: average_precision_score(
+        validation_labels, np.asarray(validation_risk_scores[name])
+    ),
+)
+selected_model_validation_scores = np.asarray(
+    validation_risk_scores[selected_model_for_rate]
+)
+
+best_rate = None
+best_validation_f1 = -1.0
+for candidate_rate in candidate_review_rates:
+    candidate_count = max(
+        1, int(np.ceil(len(validation_labels) * candidate_rate))
+    )
+    candidate_indices = np.argsort(selected_model_validation_scores)[-candidate_count:]
+    candidate_predictions = np.zeros(len(validation_labels), dtype=int)
+    candidate_predictions[candidate_indices] = 1
+    candidate_f1 = f1_score(
+        validation_labels, candidate_predictions, zero_division=0
+    )
+    # Rates are ascending, so retaining the first tie favors the smaller queue.
+    if candidate_f1 > best_validation_f1:
+        best_validation_f1 = candidate_f1
+        best_rate = candidate_rate
+
+selected_queue_rate = float(best_rate)
 validation_top_count = max(
+    1, int(np.ceil(len(validation_labels) * selected_queue_rate))
+)
+test_top_count = max(1, int(np.ceil(len(actual_labels) * selected_queue_rate)))
+validation_five_percent_count = max(
     1, int(np.ceil(len(validation_labels) * 0.05))
 )
-test_top_count = max(1, int(np.ceil(len(actual_labels) * 0.05)))
+test_five_percent_count = max(1, int(np.ceil(len(actual_labels) * 0.05)))
 
+print(
+    f"Selected model: {selected_model_for_rate}; "
+    f"validation-F1 queue capacity: {selected_queue_rate:.1%} "
+    f"({validation_top_count:,} of {len(validation_labels):,} employee-days); "
+    f"validation F1: {best_validation_f1:.3f}"
+)
+
+results = []
+confusion_matrices = {}
 for name, test_scores in risk_scores.items():
     validation_scores = np.asarray(validation_risk_scores[name])
     test_scores = np.asarray(test_scores)
 
-    # Compare a fixed 5% review capacity on validation and test data.
     validation_top_indices = np.argsort(validation_scores)[-validation_top_count:]
     validation_predictions = np.zeros(len(validation_labels), dtype=int)
     validation_predictions[validation_top_indices] = 1
-
     test_top_indices = np.argsort(test_scores)[-test_top_count:]
     test_predictions = np.zeros(len(actual_labels), dtype=int)
     test_predictions[test_top_indices] = 1
 
+    # Keep the original 5% capacity as a reference for the precision/recall tradeoff.
+    validation_five_indices = np.argsort(validation_scores)[-validation_five_percent_count:]
+    validation_five_predictions = np.zeros(len(validation_labels), dtype=int)
+    validation_five_predictions[validation_five_indices] = 1
+    test_five_indices = np.argsort(test_scores)[-test_five_percent_count:]
+    test_five_predictions = np.zeros(len(actual_labels), dtype=int)
+    test_five_predictions[test_five_indices] = 1
+
     test_matrix = confusion_matrix(
-        actual_labels,
-        test_predictions,
-        labels=[0, 1],
+        actual_labels, test_predictions, labels=[0, 1]
     )
     confusion_matrices[name] = test_matrix
 
     results.append({
         "Model": name,
+        "Selected queue rate": selected_queue_rate,
         "Validation AP": average_precision_score(
             validation_labels, validation_scores
         ),
-        "Validation precision @ 5%": precision_score(
+        "Validation precision @ selected queue": precision_score(
             validation_labels, validation_predictions, zero_division=0
+        ),
+        "Validation recall @ selected queue": recall_score(
+            validation_labels, validation_predictions, zero_division=0
+        ),
+        "Validation F1 @ selected queue": f1_score(
+            validation_labels, validation_predictions, zero_division=0
+        ),
+        "Test precision @ selected queue": precision_score(
+            actual_labels, test_predictions, zero_division=0
+        ),
+        "Test recall @ selected queue": recall_score(
+            actual_labels, test_predictions, zero_division=0
+        ),
+        "Test F1 @ selected queue": f1_score(
+            actual_labels, test_predictions, zero_division=0
+        ),
+        "Test false alerts @ selected queue": int(test_matrix[0, 1]),
+        "Test AP": average_precision_score(actual_labels, test_scores),
+        "Validation precision @ 5%": precision_score(
+            validation_labels, validation_five_predictions, zero_division=0
         ),
         "Validation recall @ 5%": recall_score(
-            validation_labels, validation_predictions, zero_division=0
+            validation_labels, validation_five_predictions, zero_division=0
         ),
         "Test precision @ 5%": precision_score(
-            actual_labels, test_predictions, zero_division=0
+            actual_labels, test_five_predictions, zero_division=0
         ),
         "Test recall @ 5%": recall_score(
-            actual_labels, test_predictions, zero_division=0
+            actual_labels, test_five_predictions, zero_division=0
         ),
-        "Test false alerts @ 5%": int(test_matrix[0, 1]),
-        "Test accuracy": accuracy_score(actual_labels, test_predictions),
-        "Test F1": f1_score(actual_labels, test_predictions, zero_division=0),
-        "Test AP": average_precision_score(actual_labels, test_scores),
+        "Test accuracy @ 5%": accuracy_score(actual_labels, test_five_predictions),
+        "Test F1 @ 5%": f1_score(
+            actual_labels, test_five_predictions, zero_division=0
+        ),
     })
 
-# Choose a model using validation data only; keep test data for final reporting.
+# Select the model using validation AP; never use test metrics for selection.
 model_comparison = (
     pd.DataFrame(results)
     .sort_values("Validation AP", ascending=False)
     .reset_index(drop=True)
 )
+display(model_comparison.style.format({
+    "Selected queue rate": "{:.1%}",
+    "Validation AP": "{:.3f}",
+    "Validation precision @ selected queue": "{:.3f}",
+    "Validation recall @ selected queue": "{:.3f}",
+    "Validation F1 @ selected queue": "{:.3f}",
+    "Test precision @ selected queue": "{:.3f}",
+    "Test recall @ selected queue": "{:.3f}",
+    "Test F1 @ selected queue": "{:.3f}",
+    "Test AP": "{:.3f}",
+    "Validation precision @ 5%": "{:.3f}",
+    "Validation recall @ 5%": "{:.3f}",
+    "Test precision @ 5%": "{:.3f}",
+    "Test recall @ 5%": "{:.3f}",
+    "Test accuracy @ 5%": "{:.3f}",
+    "Test F1 @ 5%": "{:.3f}",
+}))
 
-display(
-    model_comparison.style.format({
-        "Validation AP": "{:.3f}",
-        "Validation precision @ 5%": "{:.3f}",
-        "Validation recall @ 5%": "{:.3f}",
-        "Test precision @ 5%": "{:.3f}",
-        "Test recall @ 5%": "{:.3f}",
-        "Test accuracy": "{:.3f}",
-        "Test F1": "{:.3f}",
-        "Test AP": "{:.3f}",
-    })
-)
-
-# Show one confusion matrix per model.
 fig, axes = plt.subplots(2, 2, figsize=(12, 10))
 axes = axes.flatten()
-
 for ax, (name, matrix) in zip(axes, confusion_matrices.items()):
     display_matrix = ConfusionMatrixDisplay(
         confusion_matrix=matrix,
         display_labels=["Not in incident window", "In incident window"],
     )
-    display_matrix.plot(
-        ax=ax,
-        colorbar=False,
-        values_format="d",
-    )
-    ax.set_title(name)
+    display_matrix.plot(ax=ax, colorbar=False, values_format="d")
+    ax.set_title(f"{name} — {selected_queue_rate:.1%} queue")
     ax.tick_params(axis="x", labelrotation=25)
-
 plt.tight_layout()
 plt.show()
 
+
 # Notebook code cell 30
-# Save the evaluation table.
+# Save the model comparison, including the validation-selected queue rate.
 comparison_path = output_dir / "model_comparison.csv"
 model_comparison.to_csv(comparison_path, index=False)
 
-# Save one row per evaluated employee-day, including each model's score
-# and whether it flagged that day in its top 5%.
+# Preserve test labels and scores, plus flags at both selected and 5% capacity.
+comparison_best_model = model_comparison.iloc[0]["Model"]
+selected_queue_rate = float(model_comparison.iloc[0]["Selected queue rate"])
+best_risk_column = comparison_best_model.lower().replace(" ", "_") + "_risk"
 scored_days = employee_daily.iloc[test_indices][
     ["user", "day", target_column]
 ].copy().reset_index(drop=True)
-
 actual_labels = y_test.to_numpy()
-top_count = max(1, int(np.ceil(len(actual_labels) * 0.05)))
+selected_top_count = max(1, int(np.ceil(len(actual_labels) * selected_queue_rate)))
+top_five_count = max(1, int(np.ceil(len(actual_labels) * 0.05)))
 
 for name, scores in risk_scores.items():
     scores = np.asarray(scores)
     model_column = name.lower().replace(" ", "_")
-
     scored_days[f"{model_column}_risk"] = scores
 
-    top_indices = np.argsort(scores)[-top_count:]
-    flagged = np.zeros(len(scores), dtype=int)
-    flagged[top_indices] = 1
-    scored_days[f"{model_column}_flagged_top_5_percent"] = flagged
+    selected_indices = np.argsort(scores)[-selected_top_count:]
+    selected_flags = np.zeros(len(scores), dtype=int)
+    selected_flags[selected_indices] = 1
+    scored_days[f"{model_column}_flagged_selected_queue"] = selected_flags
+
+    five_percent_indices = np.argsort(scores)[-top_five_count:]
+    five_percent_flags = np.zeros(len(scores), dtype=int)
+    five_percent_flags[five_percent_indices] = 1
+    scored_days[f"{model_column}_flagged_top_5_percent"] = five_percent_flags
 
 scores_path = output_dir / "evaluation_employee_day_scores.csv"
 scored_days.to_csv(scores_path, index=False)
 
-# Save the confusion matrix counts for each model.
+# Save confusion counts at the selected queue capacity.
 confusion_rows = []
-
 for name, matrix in confusion_matrices.items():
     tn, fp, fn, tp = matrix.ravel()
     confusion_rows.append({
         "model": name,
+        "review_queue_rate": selected_queue_rate,
         "true_negative": tn,
         "false_positive": fp,
         "false_negative": fn,
         "true_positive": tp,
     })
-
 confusion_path = output_dir / "confusion_matrix_counts.csv"
 pd.DataFrame(confusion_rows).to_csv(confusion_path, index=False)
 
-# Rank test employees using the model selected by validation Average Precision.
-best_model = model_comparison.iloc[0]["Model"]
-best_risk_column = best_model.lower().replace(" ", "_") + "_risk"
-
-risk_columns = [
-    column for column in scored_days.columns
-    if column.endswith("_risk")
-]
-
+risk_columns = [column for column in scored_days.columns if column.endswith("_risk")]
 employee_ranking = (
     scored_days.groupby("user")
-    .agg({
-        **{column: "max" for column in risk_columns},
-        target_column: "max",
-    })
+    .agg({**{column: "max" for column in risk_columns}, target_column: "max"})
     .sort_values(best_risk_column, ascending=False)
     .reset_index()
 )
-
 ranking_path = output_dir / "evaluation_employee_ranking.csv"
 employee_ranking.to_csv(ranking_path, index=False)
 
 print("Saved model comparison:", comparison_path)
-print("Saved employee-day scores and flags:", scores_path)
-print("Saved confusion matrix counts:", confusion_path)
+print("Saved employee-day scores and queue flags:", scores_path)
+print("Saved selected-capacity confusion matrix counts:", confusion_path)
 print("Saved employee ranking:", ranking_path)
-print("Ranking uses:", best_model)
+print("Model selected by validation AP:", comparison_best_model)
+print(f"Queue rate selected by validation F1: {selected_queue_rate:.1%}")
+
 
 # Notebook code cell 31
 baseline_rate = float(y_test.mean())

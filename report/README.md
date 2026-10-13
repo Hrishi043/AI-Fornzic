@@ -9,14 +9,13 @@ project report.
 
 The report content is based on the project source, the CERT r4.2
 synthetic activity data, and saved outputs in `sprint1_output/`. The
-dashboard and notebook listings are snapshots of the code at report
-preparation time. The four notebook plots are extracted from saved
-notebook outputs. `ui_landing.png` is a local capture of the dashboard
-before selecting an activity folder, cropped to remove unused space.
-The review-card, model-score, and activity-detail screenshots are from
-the running Streamlit app populated with its saved CERT r4.2 dashboard
-outputs; they illustrate the interface and are not a fresh end-to-end
-analysis run.
+notebook, API, and model-core listings are source snapshots prepared for
+the report; `app_code_listing.txt` is retained for the alternative
+Streamlit interface. The four notebook plots are extracted from saved
+notebook outputs. `ui_react_landing.png` and `ui_react_model_guide.png`
+are captures of the current React dashboard. The local API reported the
+saved model bundle as ready, but no folder analysis was run for these
+screenshots.
 
 ## Compile
 
@@ -30,11 +29,11 @@ pdflatex Project_Report.tex
 pdflatex Project_Report.tex
 ```
 
-For Overleaf, upload `Project_Report.tex`, `app_code_listing.txt`,
-`notebook_code_listing.txt`, `ui_landing.png`,
-`ui_flagged_employee.png`, `ui_model_scores.png`,
-`ui_employee_activity.png`, and the complete `figures/` folder,
-preserving these names and paths. Select pdfLaTeX as the compiler.
+For Overleaf, upload `Project_Report.tex`, `api_code_listing.txt`,
+`forensic_core_code_listing.txt`, `notebook_code_listing.txt`,
+`ui_react_landing.png`, `ui_react_model_guide.png`, and the complete
+`figures/` folder, preserving these names and paths. Select pdfLaTeX as
+the compiler.
 
 Body leading is set to 1.3 spacing, with compact paragraph lists and
 float spacing; chapter titles are displayed without chapter numbers and
@@ -53,8 +52,10 @@ The grouped-split excerpt retains both split stages and the index
 mapping.
 
 To refresh the source listings after project-code changes, run from the
-repository root. The first command renders the app's Unicode string
-literals as equivalent Python escapes for pdfLaTeX:
+repository root. These commands refresh the notebook, primary API/model
+core, and alternative Streamlit source snapshots. The Streamlit listing
+renders its Unicode string literals as equivalent Python escapes for
+pdfLaTeX:
 
 ```sh
 jq -r ' .cells | to_entries[] | select(.value.cell_type == "code") |
@@ -62,6 +63,8 @@ jq -r ' .cells | to_entries[] | select(.value.cell_type == "code") |
   "# Notebook code cell \(.key + 1)\n" +
   ((.value.source | if type == "array" then join("") else . end) + "\n")' \
   notebook/forensic.ipynb > report/notebook_code_listing.txt
+cp api.py report/api_code_listing.txt
+cp forensic_core.py report/forensic_core_code_listing.txt
 { printf '%s\n' '# LaTeX-safe listing derived from app.py; Unicode string literals use equivalent Python escapes.'; \
   perl -CSDA -pe 's/\x{1F50E}/\\U0001F50E/g; s/\x{00B7}/\\u00B7/g' app.py; \
 } > report/app_code_listing.txt
@@ -73,11 +76,10 @@ change.
 
 ## Before submission
 
-The template specifies a **minimum of 60 pages**. This source has been
-expanded with verified notebook plots, a local UI capture, and complete
-code-cell listings, but the resulting PDF page count has not been
-verified because no LaTeX engine is available in the current
-environment. Compile the report and check the page count and layout.
+The template specifies a **minimum of 60 pages**. This source includes
+notebook plots, two React UI captures, and selected code excerpts, but
+the resulting PDF page count has not been verified. Compile the report
+and check the page count and layout.
 If the result is below the department's minimum, add genuine, approved
 project evidence (for example, documented test runs or original
 screenshots); do not repeat content or invent results to reach the
