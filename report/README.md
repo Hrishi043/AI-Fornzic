@@ -20,10 +20,12 @@ screenshots.
 ## Compile
 
 The source uses A4 paper, one-inch margins, Times-style type, 12-point body
-text, 1.5 line spacing, a project-title header, and the department/page
-footer requested in the supplied format. Preliminary pages use Roman
-numbering; the contents pages are unnumbered and the main report uses
-Arabic numbering.
+text, 1.3 line spacing, a project-title header, and the department/page
+footer requested in the supplied format. The title and college certificate
+pages are omitted as requested. The declaration, acknowledgement, abstract,
+and lists before the contents use italic Roman page numbers without headers
+or footer rules; the contents pages are unnumbered and the main report uses
+Arabic numbering with the project header and department/page footer.
 
 The report expects the files in this folder to retain their relative
 paths. From this directory, run pdfLaTeX twice so the contents and

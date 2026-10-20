@@ -21,7 +21,8 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric}
 
-\setstretch{1.5}
+\setstretch{1.3}
+\setlength{\parskip}{0pt}
 \raggedbottom
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
@@ -108,7 +109,6 @@
 \newcommand{\department}{Department of Computer Applications}
 \newcommand{\collegename}{Mar Athanasius College of Engineering}
 \newcommand{\collegeplace}{Kothamangalam}
-\newcommand{\collegestatus}{Government Aided Autonomous Institution}
 \newcommand{\guide}{Dr. Manu John}
 \newcommand{\hod}{Dr. Sonia Abraham}
 \newcommand{\degree}{Master of Computer Applications}
@@ -116,71 +116,22 @@
 
 \begin{document}
 
-\pagestyle{empty}
 \pagenumbering{roman}
-\begin{titlepage}
-\centering
-\vspace*{0.8cm}
-{\Large\bfseries \MakeUppercase{\collegename}\par}
-\vspace{0.15cm}
-{\large \MakeUppercase{\collegeplace}\par}
-\vspace{0.15cm}
-{\normalsize (\collegestatus)\par}
-\vspace{0.4cm}
-{\large\bfseries \department\par}
-\vspace{1.4cm}
-{\large\bfseries MINI PROJECT REPORT\par}
-\vspace{0.45cm}
-ON\\[0.45cm]
-{\Large\bfseries \MakeUppercase{\projecttitle}\par}
-\vspace{1.2cm}
-Submitted in partial fulfilment of the requirements for the award of the
-degree of\\[0.3cm]
-{\large\bfseries \degree\par}
-\vspace{1.0cm}
-Done by\\[0.25cm]
-{\large\bfseries \studentname\par}
-Reg. No.: \registernumber
-\vspace{0.9cm}
-
-Under the guidance of\\[0.25cm]
-{\large\bfseries \guide\par}
-\vfill
-{\large \academicyear\par}
-\end{titlepage}
-\pagestyle{fancy}
-
-\chapter*{Certificate from College}
-\addcontentsline{toc}{chapter}{Certificate from College}
-\begin{center}
-{\Large\bfseries \MakeUppercase{\collegename}\par}
-{\large \MakeUppercase{\collegeplace}\par}
-(\collegestatus)\\[1.0cm]
-{\Large\bfseries CERTIFICATE\par}
-\vspace{0.5cm}
-{\large\bfseries \MakeUppercase{\projecttitle}\par}
-\end{center}
-\vspace{0.6cm}
-Certified that this is the bonafide record of mini project work carried
-out by \textbf{\studentname}, Reg. No. \textbf{\registernumber}, during
-the academic year \academicyear, in partial fulfilment of the
-requirements for the award of the degree of \degree\ under APJ Abdul
-Kalam Technological University.
-
-\vspace{2.0cm}
-\noindent
-\begin{tabularx}{\textwidth}{X X}
-  \rule{5cm}{0.4pt} & \rule{5cm}{0.4pt}\\
-  \guide & \hod\\
-  Faculty Guide & Head of the Department\\[1.8cm]
-  \rule{5cm}{0.4pt} & \rule{5cm}{0.4pt}\\
-  Internal Examiner & External Examiner
-\end{tabularx}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[R]{\textit{\thepage}}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\pagestyle{plain}
 
 \chapter*{Declaration}
 \addcontentsline{toc}{chapter}{Declaration}
-I hereby declare that this mini project report entitled
-\textit{\projecttitle} is a record of the project work carried out by me.
+I, \textbf{\studentname}, Reg. No. \textbf{\registernumber}, hereby
+declare that this mini project report entitled \textit{\projecttitle}
+is a record of the project work carried out by me and submitted to
+\collegename as part of the \degree programme during the academic year
+\academicyear.
 The project implementation, analysis, and results described in this
 report are presented to the best of my knowledge and are based on the
 project repository and its saved evaluation outputs. This work has not
@@ -198,7 +149,7 @@ I express my sincere gratitude to my mini project guide,
 \textbf{\guide}, for guidance and valuable suggestions during the
 development and documentation of this project. I thank
 \textbf{\hod}, Head of the Department of Computer Applications, and the
-faculty and staff of \collegename, Kothamangalam, for their support.
+faculty and staff of \collegename, \collegeplace, for their support.
 
 I also acknowledge the creators of the CERT Insider Threat Test Dataset
 and the developers and maintainers of the open-source Python,
