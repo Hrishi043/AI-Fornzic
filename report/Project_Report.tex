@@ -1,6 +1,6 @@
 \documentclass[12pt,a4paper,oneside]{report}
 
-\usepackage[a4paper,margin=1in,headheight=15pt,headsep=10pt]{geometry}
+\usepackage[a4paper,margin=1in,headheight=18pt,headsep=10pt]{geometry}
 \usepackage{amsmath}
 \usepackage{newtxtext,newtxmath}
 \usepackage{setspace}
@@ -119,7 +119,7 @@
 \pagenumbering{roman}
 \fancypagestyle{plain}{
   \fancyhf{}
-  \fancyfoot[R]{\textit{\thepage}}
+  \fancyfoot[C]{\textit{\thepage}}
   \renewcommand{\headrulewidth}{0pt}
   \renewcommand{\footrulewidth}{0pt}
 }
@@ -127,10 +127,10 @@
 
 \chapter*{Declaration}
 \addcontentsline{toc}{chapter}{Declaration}
-I, \textbf{\studentname}, Reg. No. \textbf{\registernumber}, hereby
-declare that this mini project report entitled \textit{\projecttitle}
+I, \studentname, Reg. No. \registernumber, hereby
+declare that this mini project report entitled \projecttitle\
 is a record of the project work carried out by me and submitted to
-\collegename as part of the \degree programme during the academic year
+\collegename\ as part of the \degree\ programme during the academic year
 \academicyear.
 The project implementation, analysis, and results described in this
 report are presented to the best of my knowledge and are based on the
@@ -146,9 +146,9 @@ Date: \hfill Signature of the Student
 \chapter*{Acknowledgement}
 \addcontentsline{toc}{chapter}{Acknowledgement}
 I express my sincere gratitude to my mini project guide,
-\textbf{\guide}, for guidance and valuable suggestions during the
+\guide, for guidance and valuable suggestions during the
 development and documentation of this project. I thank
-\textbf{\hod}, Head of the Department of Computer Applications, and the
+\hod, Head of the Department of Computer Applications, and the
 faculty and staff of \collegename, \collegeplace, for their support.
 
 I also acknowledge the creators of the CERT Insider Threat Test Dataset
@@ -205,7 +205,15 @@ and responsible-use safeguards.
 \tableofcontents
 \clearpage
 \pagenumbering{arabic}
-\pagestyle{fancy}
+\fancypagestyle{reportbody}{
+  \fancyhf{}
+  \fancyhead[R]{AI Forensic Insider Risk Review}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \fancyfoot[L]{Department of Computer Applications}
+  \fancyfoot[R]{\thepage}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+\pagestyle{reportbody}
 \fancypagestyle{plain}{
   \fancyhf{}
   \fancyhead[R]{AI Forensic Insider Risk Review}
@@ -214,6 +222,7 @@ and responsible-use safeguards.
   \fancyfoot[R]{\thepage}
   \renewcommand{\footrulewidth}{0.4pt}
 }
+\assignpagestyle{\chapter}{reportbody}
 
 \chapter{Introduction}
 \section{Background}
@@ -776,43 +785,46 @@ dashboard's separate employee-level consensus rule.
 \subsection{Use-case model}
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-  usecase/.style={draw,ellipse,align=center,minimum width=4.1cm,minimum height=0.75cm,font=\small},
-  actor/.style={draw,rounded corners,align=center,minimum width=2.8cm,minimum height=0.9cm,font=\normalsize\bfseries},
-  link/.style={-{Stealth},thin}
+  usecase/.style={draw,rounded corners=2pt,align=center,text width=4.4cm,minimum height=0.84cm,font=\small},
+  actor/.style={draw,rounded corners,align=center,text width=1.8cm,minimum height=0.75cm,font=\small\bfseries},
+  link/.style={-{Stealth[length=2.2mm,width=1.6mm]},semithick}
 ]
-\node[actor] (analyst) at (-5.2,0) {Analyst};
-\node[actor] (admin) at (5.2,1.2) {Administrator};
-\node[actor] (reviewer) at (5.2,-3.5) {Human investigator};
-\node[usecase] (select) at (0,0) {Select folder and validate CSV files};
-\node[usecase] (score) at (0,-1.15) {Preprocess and score activity};
-\node[usecase] (inspect) at (0,-2.3) {Inspect ranking and activity signals};
-\node[usecase] (review) at (0,-3.5) {Corroborate or dismiss a lead};
-\node[usecase] (govern) at (0,1.2) {Authorize use and define retention};
-\draw[link] (analyst) -- (select);
-\draw[link] (analyst) -- (score);
-\draw[link] (analyst) -- (inspect);
+\node[actor] (analyst) at (-5.2,-0.5) {Analyst};
+\node[actor] (admin) at (5.2,2.55) {Administrator};
+\node[actor] (reviewer) at (5.2,-3.45) {Human investigator};
+\node[usecase] (govern) at (0,2.55) {Authorize use and define retention};
+\node[usecase] (select) at (0,1.05) {Select folder and validate CSV files};
+\node[usecase] (score) at (0,-0.45) {Preprocess and score activity};
+\node[usecase] (inspect) at (0,-1.95) {Inspect ranking and activity signals};
+\node[usecase] (review) at (0,-3.45) {Corroborate or dismiss a lead};
+\draw[link] (analyst.north east) -- (select.west);
+\draw[link] (analyst.east) -- (score.west);
+\draw[link] (analyst.south east) -- (inspect.west);
 \draw[link] (admin.west) -- (govern.east);
-\draw[link] (reviewer) -- (review);
+\draw[link] (reviewer.west) -- (review.east);
 \end{tikzpicture}
+}%
 \caption{Use-case model for the prototype}
 \end{figure}
 
 \subsection{Activity diagram}
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-  step/.style={draw,rounded corners,align=center,text width=8.0cm,minimum height=0.58cm,font=\small},
+  activitybox/.style={draw,rounded corners,align=center,text width=8.0cm,minimum height=0.58cm,font=\small},
   decision/.style={draw,diamond,aspect=3,align=center,text width=3.2cm,minimum height=0.8cm,font=\small},
   flow/.style={-{Stealth},thin}
 ]
-\node[step] (start) {Start and load the saved model bundle};
-\node[step,below=0.42cm of start] (folder) {Choose the folder containing the five activity CSV files};
+\node[activitybox] (start) {Start and load the saved model bundle};
+\node[activitybox,below=0.42cm of start] (folder) {Choose the folder containing the five activity CSV files};
 \node[decision,below=0.5cm of folder] (valid) {Are all required files present?};
-\node[step,below=0.62cm of valid] (parse) {Read in chunks, clean rows, and aggregate employee-days};
-\node[step,below=0.42cm of parse] (score) {Align features, score with four models, and rank employees};
-\node[step,below=0.42cm of score] (review) {Display review leads; analyst checks original logs and context};
-\node[step,right=1.1cm of valid,text width=2.5cm] (error) {Show missing-file error and stop};
+\node[activitybox,below=0.62cm of valid] (parse) {Read in chunks, clean rows, and aggregate employee-days};
+\node[activitybox,below=0.42cm of parse] (score) {Align features, score with four models, and rank employees};
+\node[activitybox,below=0.42cm of score] (review) {Display review leads; analyst checks original logs and context};
+\node[activitybox,right=1.1cm of valid,text width=2.5cm] (error) {Show missing-file error and stop};
 \draw[flow] (start) -- (folder);
 \draw[flow] (folder) -- (valid);
 \draw[flow] (valid) -- node[right,font=\scriptsize]{Yes} (parse);
@@ -820,12 +832,14 @@ dashboard's separate employee-level consensus rule.
 \draw[flow] (score) -- (review);
 \draw[flow] (valid) -- node[above,font=\scriptsize]{No} (error);
 \end{tikzpicture}
+}%
 \caption{Activity flow for one dashboard review}
 \end{figure}
 
 \subsection{Sequence diagram}
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   participant/.style={draw,rounded corners,align=center,text width=1.75cm,minimum height=0.7cm,font=\scriptsize},
   message/.style={-{Stealth},thin},
@@ -848,32 +862,33 @@ dashboard's separate employee-level consensus rule.
 \draw[message] (4.6,-5.2) -- node[above,font=\scriptsize]{Save ranked summaries} (11.5,-5.2);
 \draw[return] (2.3,-5.9) -- node[above,font=\scriptsize]{Render review results} (0,-5.9);
 \end{tikzpicture}
+}%
 \caption{Sequence of an analysis request}
 \end{figure}
 
 \subsection{Class and component design}
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-  component/.style={draw,rounded corners,align=center,text width=3.1cm,minimum height=1.2cm,font=\small},
-  flow/.style={-{Stealth},thin}
+  component/.style={draw,rounded corners,align=center,text width=3.2cm,minimum height=1.05cm,font=\small},
+  flow/.style={-{Stealth[length=2.2mm,width=1.6mm]},semithick},
+  flowlabel/.style={font=\scriptsize,fill=white,inner sep=1.5pt}
 ]
-\node[component] (data) at (0,0) {CERT r4.2 logs\\and incident answers};
-\node[component] (notebook) at (4,0) {Analysis notebook\\clean, aggregate, label, evaluate};
-\node[component] (bundle) at (8,0) {Joblib model bundle\\four models and features};
-\node[component] (ui) at (0,-2.3) {React dashboard\\select folder and review};
-\node[component] (api) at (4,-2.3) {FastAPI service\\stage, score, and serve details};
-\node[component] (outputs) at (8,-2.3) {CSV summaries\\employee-day and employee rank};
-\draw[flow] (data) -- (notebook);
-\draw[flow] (notebook) -- (bundle);
-\draw[flow] (bundle) -- (api);
-\draw[flow] (ui) -- (api);
-\draw[flow] (api) -- (outputs);
-\draw[flow] (data.north) -- (0,1.2)
-  -- node[above,font=\scriptsize]{Selected activity CSVs} (10.2,1.2)
-  -- (10.2,-2.3) -- (api.east);
+\node[component] (data) at (-4.5,1.35) {CERT r4.2 logs\\and incident answers};
+\node[component] (notebook) at (0,1.35) {Analysis notebook\\clean, aggregate, label, evaluate};
+\node[component] (bundle) at (4.5,1.35) {Model bundle\\four estimators and features};
+\node[component] (ui) at (-4.5,-1.35) {React dashboard\\select folder and review};
+\node[component] (api) at (0,-1.35) {FastAPI service\\stage, score, and rank};
+\node[component] (outputs) at (4.5,-1.35) {CSV summaries\\employee and day scores};
+\draw[flow] (data.east) -- (notebook.west);
+\draw[flow] (notebook.east) -- (bundle.west);
+\draw[flow] (bundle.south) -- ++(0,-0.48) -| node[pos=0.78,flowlabel,below]{saved models} (api.north);
+\draw[flow] (ui.east) -- node[above,flowlabel]{selected CSVs} (api.west);
+\draw[flow] (api.east) -- (outputs.west);
 \end{tikzpicture}
-\caption{Logical component view of the project}
+}%
+\caption{Component design and data flow of the project}
 \end{figure}
 
 \section{Project pipeline and output design}
@@ -895,10 +910,10 @@ must be managed by the operator.
 
 \section{Database design}
 No relational database is implemented. The logical data entities are:
-\textbf{ActivityEvent} (source row), \textbf{EmployeeDay} (user, day,
-feature counts, target label for evaluation), \textbf{ModelArtifact}
-(model names and feature columns), \textbf{EmployeeRanking} (user,
-relative scores, review status), and \textbf{ReviewSignal} (reason and
+ActivityEvent (source row), EmployeeDay (user, day,
+feature counts, target label for evaluation), ModelArtifact
+(model names and feature columns), EmployeeRanking (user,
+relative scores, review status), and ReviewSignal (reason and
 supporting high-ranked activity day). CSV is used for tabular
 interchange, and joblib serializes Python estimators. A production
 version should define explicit schemas, provenance, retention controls,
@@ -938,18 +953,26 @@ how many model rankings place an employee among their respective top ten
 percent and that agreement is a review-prioritization signal, not a
 probability or proof of misconduct.
 
-\begin{figure}[H]
+\clearpage
+\begin{figure}[p]
 \centering
-\includegraphics[height=0.50\textheight,keepaspectratio]{ui_react_landing.png}
-\caption{React dashboard before an activity folder is selected; the local model service is available.}
+\begin{minipage}[t]{0.76\textwidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth,height=0.44\textheight,keepaspectratio]{ui_react_landing.png}
+\captionof{figure}{Landing screen with folder selection and the review guide collapsed.}
 \label{fig:dashboard-landing}
-\end{figure}
+\end{minipage}
 
-\begin{figure}[H]
+\vspace{2mm}
+
+\begin{minipage}[t]{0.76\textwidth}
+\vspace{0pt}
 \centering
-\includegraphics[height=0.66\textheight,keepaspectratio]{ui_react_model_guide.png}
-\caption{Expanded guide from the React dashboard, showing the activity-to-review flow, each model's role, and the live employee-level review rule.}
+\includegraphics[width=\linewidth,height=0.40\textheight,keepaspectratio,trim=0 17.1in 0 0,clip]{ui_react_model_guide.png}
+\captionof{figure}{Expanded scoring guide with model descriptions and the review rule.}
 \label{fig:dashboard-model-guide}
+\end{minipage}
 \end{figure}
 
 \chapter{Results and Discussion}
