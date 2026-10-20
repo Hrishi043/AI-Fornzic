@@ -2,11 +2,21 @@ import { useEffect, useMemo, useState } from 'react'
 
 const api = async (url, options) => {
   const isForm = options?.body instanceof FormData
-  const response = await fetch(url, {
-    ...options,
-    headers: { ...(isForm ? {} : { 'Content-Type': 'application/json' }), ...options?.headers },
-  })
-  const data = await response.json()
+  let response
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: { ...(isForm ? {} : { 'Content-Type': 'application/json' }), ...options?.headers },
+    })
+  } catch {
+    throw new Error('Cannot reach the local API at 127.0.0.1:8000. Start the app with “npm run dev” from the frontend folder.')
+  }
+  let data
+  try {
+    data = await response.json()
+  } catch {
+    throw new Error('The local API returned an unreadable response. Check the API terminal for details.')
+  }
   if (!response.ok) throw new Error(data.detail || 'Something went wrong.')
   return data
 }
@@ -103,7 +113,7 @@ function App() {
             <div className="source-icon">⌂</div><div className="source-copy"><b>Choose an activity data folder</b><span>Select the folder containing logon.csv, device.csv, file.csv, email.csv and http.csv.</span></div>
             <div className="source-controls"><label className="folder-picker"><span>▧ &nbsp; {folderName || 'Choose folder'}</span><input type="file" aria-label="Choose activity folder" webkitdirectory="" directory="" multiple onChange={(event) => { const files = Array.from(event.target.files || []); setSelectedFiles(files); setFolderName(files[0]?.webkitRelativePath?.split('/')[0] || '') }} /></label><button className="primary-button" disabled={busy || missingFiles.length > 0 || !health?.ready}>{busy ? <><span className="spinner" /> Analyzing…</> : <>Analyze folder <span>→</span></>}</button></div>
             {folderName && <div className="source-note">{missingFiles.length ? `Selected “${folderName}” · ${selectedFiles.length} files · missing ${missingFiles.join(', ')}` : `Selected “${folderName}” · ${selectedFiles.length} files · all required logs found. Files upload only to this local app.`}</div>}
-            {!health?.ready && <div className="source-note warning">{health?.available ? health.message : health ? 'Local API is not reachable. Start it from the project root with: ./.forensic/bin/python -m uvicorn api:app --host 127.0.0.1 --port 8000' : 'Checking the local analysis service…'}</div>}
+            {!health?.ready && <div className="source-note warning">{health?.available ? health.message : health ? error || 'Local API is not reachable. Start the app with “npm run dev” from the frontend folder.' : 'Checking the local analysis service…'}</div>}
           </form>
           <details className="model-guide">
             <summary><span><b>How the model ensemble works</b><small>See how activity records become a review priority.</small></span><span className="guide-action">Explore the scoring flow <i>＋</i></span></summary>

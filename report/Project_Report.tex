@@ -214,11 +214,14 @@ incident windows supplied in the CERT answer file. Four models are
 compared: Logistic Regression, Decision Tree, Random Forest, and
 Isolation Forest. A grouped train/validation/test design keeps each
 employee in only one split. Models are compared using Average Precision
-and precision and recall at fixed review capacities. Random Forest is
-selected by validation Average Precision; a one-percent review capacity
-is selected using validation F1 from a predeclared candidate grid. On
-held-out test records this gives Random Forest an F1 of 0.130 (precision
-9.37\%, recall 21.45\%). The five-percent operating point remains as a
+and precision and recall at fixed review capacities. A count-aware
+synthetic augmentation candidate for Random Forest is selected only when
+its validation Average Precision exceeds the real-data baseline; the
+one-percent review capacity is selected using validation F1 from a
+predeclared candidate grid. On held-out real test records, the selected
+Random Forest gives an F1 of 0.200 (precision 14.35\%, recall 32.87\%),
+compared with 0.130 (precision 9.37\%, recall 21.45\%) for the
+real-data baseline. The five-percent operating point remains as a
 reference and gives higher recall but lower precision. This is a useful
 signal for a research demonstration, but not evidence of wrongdoing:
 unlabelled records are not confirmed benign, incident labels are
@@ -286,6 +289,8 @@ prototype that ranks employee activity records for human review.
   \item Create a binary known-incident-window label from the answer file.
   \item Compare three supervised classifiers and one unsupervised anomaly
         detector using employee-grouped data splits.
+  \item Evaluate count-aware synthetic augmentation using training data
+        only, with variant selection on validation Average Precision.
   \item Evaluate ranking quality at fixed review capacities, selecting
         the reported one-percent operating point using validation F1 and
         retaining five percent as a comparison.
@@ -1030,8 +1035,13 @@ rows with 815 positive labels, 66,075 validation rows with 260 positive
 labels, and 66,118 test rows with 289 positive labels. The three user
 sets are disjoint.
 
-For each partition, scores are sorted to select the chosen proportion.
-This is a ranking-based operating point, not a fixed score threshold.
+The Random Forest augmentation creates count-perturbed variants of
+positive training employee-days using source-consistent Poisson and
+binomial resampling. It creates one synthetic row per positive training
+row (815 rows for the selected split). Synthetic rows are used only in
+model fitting; validation and test data remain real and unchanged. For
+each partition, scores are sorted to select the chosen proportion. This
+is a ranking-based operating point, not a fixed score threshold.
 The selected one-percent test queue contains 662 employee-days; the
 five-percent comparison queue contains 3,306. Metrics are rounded in
 the tables, so counts from the confusion matrices are authoritative.
@@ -1047,7 +1057,7 @@ At the validation-selected one-percent review capacity, the results are:
 \hline
 Model & Validation F1 & Test P@1\% & Test R@1\% & Test F1 & Test AP\\
 \hline
-Random Forest & 0.235 & 0.094 & 0.215 & 0.130 & 0.088\\
+Random Forest & 0.254 & 0.144 & 0.329 & 0.200 & 0.158\\
 \hline
 Decision Tree & 0.185 & 0.121 & 0.277 & 0.168 & 0.104\\
 \hline
@@ -1058,12 +1068,14 @@ Isolation Forest & 0.015 & 0.027 & 0.062 & 0.038 & 0.027\\
 \end{tabularx}
 \end{table}
 
-Random Forest remains selected because it has the highest validation AP
-(0.214). The one-percent rate is the best F1 among the predeclared
-validation capacities for that model. On the held-out test split, its F1
-increases from 0.091 at five percent to 0.130 at one percent; recall
-falls from 56.40\% to 21.45\%, while precision rises from 4.93\% to
-9.37\%. Average Precision is unchanged by the queue cutoff. Decision
+The augmented Random Forest remains selected because it has the highest
+validation AP (0.275). Its validation AP is higher than the real-data
+Random Forest baseline (0.214), so validation selects the augmented
+variant. On the held-out test split, the augmented model has AP 0.158
+versus 0.088 for the baseline, and F1 0.200 versus 0.130 at the
+validation-selected one-percent capacity. At five percent, augmented
+Random Forest F1 is 0.099; moving to one percent raises precision from
+5.38\% to 14.35\% while recall falls from 61.59\% to 32.87\%. Average Precision is unchanged by the queue cutoff. Decision
 Tree's higher test F1 is reported for comparison only and is not used to
 select the model or capacity.
 
@@ -1078,7 +1090,7 @@ reference:
 \hline
 Model & \shortstack{Validation\\AP} & \shortstack{Validation\\P@5\%} & \shortstack{Validation\\R@5\%} & \shortstack{Test\\P@5\%} & \shortstack{Test\\R@5\%}\\
 \hline
-Random Forest & 0.214 & 0.054 & 0.681 & 0.049 & 0.564\\
+Random Forest & 0.275 & 0.060 & 0.758 & 0.054 & 0.616\\
 \hline
 Decision Tree & 0.185 & 0.055 & 0.704 & 0.035 & 0.405\\
 \hline
@@ -1097,7 +1109,7 @@ Isolation Forest & 0.016 & 0.008 & 0.096 & 0.018 & 0.208\\
 \hline
 Model & Test AP & Test F1 @ 5\% & Test accuracy @ 5\%\\
 \hline
-Random Forest & 0.088 & 0.091 & 0.951\\
+Random Forest & 0.158 & 0.099 & 0.951\\
 \hline
 Decision Tree & 0.104 & 0.065 & 0.949\\
 \hline
@@ -1108,12 +1120,12 @@ Isolation Forest & 0.027 & 0.033 & 0.947\\
 \end{tabularx}
 \end{table}
 
-Random Forest was selected by the highest validation Average Precision
-(0.214). Decision Tree had the highest test Average Precision (0.104),
-but choosing a model after inspecting test results would use the held-out
-test to tune the selection. The report therefore retains Random Forest
-as the validation-selected model and treats test AP as an estimate, not
-as another selection criterion. The queue rate is also selected on the
+The augmented Random Forest was selected by the highest validation
+Average Precision (0.275). The real-data Random Forest baseline had test
+AP 0.088 and the validation-selected augmented model had test AP 0.158.
+Decision Tree's test AP is 0.104. Model selection used validation AP;
+test results are reported once as estimates and were not used to choose
+the augmentation. The queue rate is also selected on the
 validation partition only; test AP does not change when the review rate
 changes.
 
@@ -1172,30 +1184,23 @@ employee-day test metrics in this report.
 \hline
  & \shortstack{Predicted\\not listed} & \shortstack{Predicted\\in known window}\\
 \hline
-Actual not listed & 65,229 & 600\\
+Actual not listed & 65,262 & 567\\
 \hline
-Actual in known window & 227 & 62\\
+Actual in known window & 194 & 95\\
 \hline
 \end{tabularx}
 \end{table}
 
-Figure~\ref{fig:threshold-matrices} reproduces the notebook's earlier
-five-percent reference confusion matrices. The integer counts in
-Table~\ref{tab:matrix} and Appendix~\ref{app:test-counts} show the
-validation-selected one-percent operating point.
+The integer counts in Table~\ref{tab:matrix} and
+Appendix~\ref{app:test-counts} show the validation-selected one-percent
+operating point. Five-percent performance is summarized in
+Table~\ref{tab:comparison}.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{notebook-4.png}
-\caption{Previously saved notebook confusion matrices at the 5\% reference capacity}
-\label{fig:threshold-matrices}
-\end{figure}
-
-At the selected one-percent capacity, the Random Forest places 62 known
-positive employee-days in the 662-record queue and leaves 227 known
-positives outside it. The other 600 records do not match a known label;
+At the selected one-percent capacity, the augmented Random Forest places 95 known
+positive employee-days in the 662-record queue and leaves 194 known
+positives outside it. The other 567 records do not match a known label;
 they are not proven benign. At the five-percent reference capacity, the
-model places 163 known positives in 3,306 records and leaves 126 known
+model places 178 known positives in 3,306 records and leaves 111 known
 positives outside. The lower-capacity option improves test F1 in this
 synthetic experiment while retrieving fewer known positives overall.
 
@@ -1204,10 +1209,10 @@ The model comparison illustrates that unsupervised anomaly detection
 does not necessarily rank known incident examples well: Isolation Forest
 has test recall 20.8\% and precision 1.8\% at the same queue size. The
 supervised Random Forest catches more known positives in the saved test
-partition, but its 4.9\% precision means the queue is still dominated by
-records without a matching known label. The Decision Tree has a higher
-test AP than Random Forest, but its validation AP is lower and its test
-recall at the five-percent reference capacity is 40.5\%. This difference emphasizes why
+partition after training-only synthetic augmentation. Its 14.4\%
+precision still means most queued records do not match a known incident
+label. The Decision Tree has test AP 0.104, below augmented Random
+Forest's 0.158, and its validation AP is lower. This difference emphasizes why
 validation-based selection and a one-time test evaluation should be
 kept separate.
 
@@ -1533,7 +1538,7 @@ Logistic Regression & 65,169 & 660 & 287 & 2\\
 \hline
 Decision Tree & 65,247 & 582 & 209 & 80\\
 \hline
-Random Forest & 65,229 & 600 & 227 & 62\\
+Random Forest & 65,262 & 567 & 194 & 95\\
 \hline
 Isolation Forest & 65,185 & 644 & 271 & 18\\
 \hline

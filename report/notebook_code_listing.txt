@@ -315,6 +315,7 @@ print("Saved labeled employee-days to:", labeled_file)
 import numpy as np
 
 from sklearn.ensemble import IsolationForest, RandomForestClassifier
+from sklearn.base import clone
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score
@@ -412,14 +413,12 @@ models = {
             random_state=42,
         ),
     ),
-
     "Decision Tree": DecisionTreeClassifier(
         max_depth=10,
         min_samples_leaf=10,
         class_weight="balanced",
         random_state=42,
     ),
-
     "Random Forest": RandomForestClassifier(
         n_estimators=200,
         min_samples_leaf=5,
@@ -427,7 +426,6 @@ models = {
         n_jobs=-1,
         random_state=42,
     ),
-
     # This model learns what is unusual without using the incident labels.
     "Isolation Forest": IsolationForest(
         n_estimators=200,
@@ -437,22 +435,114 @@ models = {
     ),
 }
 
+
+def make_synthetic_positive_counts(X_source, y_source, random_state=2026):
+    """Create one count-perturbed positive example per real positive training row."""
+    rng = np.random.default_rng(random_state)
+    values = X_source.to_numpy(dtype=float)
+    positive_rows = values[np.asarray(y_source) == 1]
+    if len(positive_rows) == 0:
+        raise ValueError("Synthetic augmentation needs positive training examples.")
+
+    anchors = positive_rows[rng.integers(0, len(positive_rows), size=len(positive_rows))]
+    synthetic = np.zeros_like(anchors)
+    scale = rng.lognormal(mean=0.0, sigma=0.12, size=len(anchors))
+    columns = list(X_source.columns)
+
+    # Resample event counts first, then preserve the source-level count relationships.
+    for source in ("logon", "device", "file", "email", "http"):
+        event_column = f"{source}_event_count"
+        if event_column in columns:
+            event_index = columns.index(event_column)
+            synthetic[:, event_index] = rng.poisson(
+                np.maximum(anchors[:, event_index], 0) * scale
+            )
+
+        after_hours_column = f"{source}_after_hours_count"
+        if event_column in columns and after_hours_column in columns:
+            after_index = columns.index(after_hours_column)
+            event_index = columns.index(event_column)
+            rate = np.divide(
+                anchors[:, after_index],
+                anchors[:, event_index],
+                out=np.zeros(len(anchors), dtype=float),
+                where=anchors[:, event_index] > 0,
+            ).clip(0, 1)
+            synthetic[:, after_index] = rng.binomial(
+                synthetic[:, event_index].astype(int), rate
+            )
+
+    connect_column = "device_device_connect_count"
+    device_events = "device_event_count"
+    if connect_column in columns and device_events in columns:
+        connect_index = columns.index(connect_column)
+        device_index = columns.index(device_events)
+        connect_rate = np.divide(
+            anchors[:, connect_index],
+            anchors[:, device_index],
+            out=np.zeros(len(anchors), dtype=float),
+            where=anchors[:, device_index] > 0,
+        ).clip(0, 1)
+        synthetic[:, connect_index] = rng.binomial(
+            synthetic[:, device_index].astype(int), connect_rate
+        )
+
+    attachment_column = "email_attachment_count"
+    if attachment_column in columns:
+        attachment_index = columns.index(attachment_column)
+        synthetic[:, attachment_index] = rng.poisson(
+            np.maximum(anchors[:, attachment_index], 0) * scale
+        )
+
+    return pd.DataFrame(synthetic, columns=columns, index=None)
+
+
 validation_risk_scores = {}
 risk_scores = {}
+selected_synthetic_augmentation = {name: False for name in models}
+baseline_rf_model = None
+baseline_rf_test_scores = None
 
 for name, model in models.items():
     print(f"Training {name}...")
-    model.fit(X_train, y_train)
+    if name == "Random Forest":
+        # Keep a real-data baseline, then use validation AP to choose whether
+        # one synthetic count-perturbed row per positive training row helps.
+        baseline_rf_model = clone(model).fit(X_train, y_train)
+        baseline_validation = baseline_rf_model.predict_proba(X_validation)[:, 1]
+        synthetic_X = make_synthetic_positive_counts(X_train, y_train)
+        augmented_X = pd.concat([X_train.reset_index(drop=True), synthetic_X], ignore_index=True)
+        augmented_y = pd.concat(
+            [y_train.reset_index(drop=True), pd.Series(np.ones(len(synthetic_X), dtype=int))],
+            ignore_index=True,
+        )
+        augmented_model = clone(model).fit(augmented_X, augmented_y)
+        augmented_validation = augmented_model.predict_proba(X_validation)[:, 1]
+        if average_precision_score(y_validation, augmented_validation) > average_precision_score(
+            y_validation, baseline_validation
+        ):
+            model = augmented_model
+            selected_synthetic_augmentation[name] = True
+            print(f"  Validation selected synthetic augmentation ({len(synthetic_X):,} generated rows).")
+        else:
+            model = baseline_rf_model
+            print("  Validation retained the real-data baseline.")
+        baseline_rf_test_scores = baseline_rf_model.predict_proba(X_test)[:, 1]
+    elif name == "Isolation Forest":
+        model.fit(X_train)
+    else:
+        model.fit(X_train, y_train)
 
+    models[name] = model
     if name == "Isolation Forest":
-        # Larger scores should mean more unusual activity.
         validation_risk_scores[name] = -model.decision_function(X_validation)
         risk_scores[name] = -model.decision_function(X_test)
     else:
         validation_risk_scores[name] = model.predict_proba(X_validation)[:, 1]
         risk_scores[name] = model.predict_proba(X_test)[:, 1]
 
-print("All four models are trained and scored on validation and test employees.")
+print("Model variants were selected using validation data only.")
+
 
 # Notebook code cell 28
 from sklearn.metrics import (
@@ -542,6 +632,10 @@ for name, test_scores in risk_scores.items():
     )
     confusion_matrices[name] = test_matrix
 
+    baseline_rf_top_indices = np.argsort(baseline_rf_test_scores)[-test_top_count:]
+    baseline_rf_predictions = np.zeros(len(actual_labels), dtype=int)
+    baseline_rf_predictions[baseline_rf_top_indices] = 1
+
     results.append({
         "Model": name,
         "Selected queue rate": selected_queue_rate,
@@ -583,6 +677,25 @@ for name, test_scores in risk_scores.items():
         "Test accuracy @ 5%": accuracy_score(actual_labels, test_five_predictions),
         "Test F1 @ 5%": f1_score(
             actual_labels, test_five_predictions, zero_division=0
+        ),
+        "Synthetic rows added": (
+            int(y_train.sum()) if name == "Random Forest" and selected_synthetic_augmentation[name] else 0
+        ),
+        "RF baseline Test AP": (
+            average_precision_score(actual_labels, baseline_rf_test_scores)
+            if name == "Random Forest" else np.nan
+        ),
+        "RF baseline Test precision @ selected queue": (
+            precision_score(actual_labels, baseline_rf_predictions, zero_division=0)
+            if name == "Random Forest" else np.nan
+        ),
+        "RF baseline Test recall @ selected queue": (
+            recall_score(actual_labels, baseline_rf_predictions, zero_division=0)
+            if name == "Random Forest" else np.nan
+        ),
+        "RF baseline Test F1 @ selected queue": (
+            f1_score(actual_labels, baseline_rf_predictions, zero_division=0)
+            if name == "Random Forest" else np.nan
         ),
     })
 
@@ -726,20 +839,31 @@ else:
 # Notebook code cell 33
 import joblib
 
-print("Retraining all four models with the labeled employee-day data...")
+print("Retraining models on all labeled employee-day data...")
 
 for name, model in models.items():
     if name == "Isolation Forest":
-        # Isolation Forest detects unusual patterns without using the labels.
         model.fit(X)
+    elif name == "Random Forest" and selected_synthetic_augmentation[name]:
+        synthetic_X = make_synthetic_positive_counts(X, y, random_state=2027)
+        augmented_X = pd.concat([X.reset_index(drop=True), synthetic_X], ignore_index=True)
+        augmented_y = pd.concat(
+            [y.reset_index(drop=True), pd.Series(np.ones(len(synthetic_X), dtype=int))],
+            ignore_index=True,
+        )
+        model.fit(augmented_X, augmented_y)
+        print(f"Random Forest final fit includes {len(synthetic_X):,} synthetic training rows.")
     else:
-        # The other three models learn from the known incident labels.
         model.fit(X, y)
 
 model_bundle = {
     "models": models,
     "feature_columns": feature_columns,
     "model_names": list(models.keys()),
+    "synthetic_augmentation": {
+        "method": "Poisson/binomial count perturbation of positive training rows",
+        "selected_by_validation": selected_synthetic_augmentation,
+    },
 }
 
 model_path = output_dir / "insider_investigation_model.joblib"
@@ -747,6 +871,7 @@ joblib.dump(model_bundle, model_path)
 
 print("Saved all four models to:", model_path)
 print("Models saved:", ", ".join(model_bundle["model_names"]))
+
 
 # Notebook code cell 34
 from sklearn.metrics import classification_report

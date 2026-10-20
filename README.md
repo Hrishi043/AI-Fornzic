@@ -5,19 +5,19 @@ Streamlit interface remains available as an alternative.
 
 ## Run the React dashboard
 
-Open two terminals from the project root. Install Python dependencies if
-needed, then start the API:
+Install Python dependencies if needed, then start both the API and React app
+from the frontend directory:
 
 ```sh
 ./.forensic/bin/python -m pip install -r requirements.txt
-./.forensic/bin/python -m uvicorn api:app --host 127.0.0.1 --port 8000
-```
-
-```sh
 cd frontend
 npm install
 npm run dev
 ```
+
+`npm run dev` starts the API on `127.0.0.1:8000` and Vite on
+`127.0.0.1:5173`. If an API is already running on port 8000, it reuses it.
+Keep this terminal open while using the app; press Ctrl+C to stop the services.
 
 Open the URL printed by Vite (normally `http://127.0.0.1:5173`). Choose the
 folder containing `logon.csv`, `device.csv`, `file.csv`, `email.csv`, and
@@ -29,8 +29,7 @@ The analysis runs locally. The API writes
 
 The model bundle must be present at
 `sprint1_output/insider_investigation_model.joblib`; run notebook Cell 31 to
-create it if it is missing. Keep the API bound to `127.0.0.1` when using this
-path-based local data workflow.
+create it if it is missing. The local API stays bound to `127.0.0.1`.
 
 ## Run the Streamlit interface
 
