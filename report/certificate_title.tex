@@ -1,0 +1,126 @@
+\documentclass[12pt,a4paper,oneside]{report}
+
+\usepackage[a4paper,margin=0.8in]{geometry}
+\usepackage{newtxtext}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\graphicspath{{./}{report/}}
+
+\newcommand{\projecttitle}{AI Forensic Insider Risk Review System}
+\newcommand{\studentname}{HRISHIKESH P S}
+\newcommand{\registernumber}{MCA25MCA-2029}
+\newcommand{\department}{Department of Computer Applications}
+\newcommand{\collegename}{Mar Athanasius College of Engineering}
+\newcommand{\collegeplace}{Kothamangalam}
+\newcommand{\guide}{Dr. Manu John}
+\newcommand{\hod}{Dr. Sonia Abraham}
+\newcommand{\degree}{Master of Computer Applications}
+\newcommand{\academicyear}{2025--2027}
+
+% Looks for the logo beside this file or in the report folder.
+\newcommand{\collegelogo}[1]{%
+  \IfFileExists{report/logo.png}{\includegraphics[width=#1]{report/logo.png}}{%
+    \IfFileExists{logo.png}{\includegraphics[width=#1]{logo.png}}{}%
+  }%
+}
+
+\begin{document}
+
+%---------------------- TITLE PAGE ----------------------
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+\vspace*{0.35cm}
+
+{\Large\bfseries MAR ATHANASIUS COLLEGE OF ENGINEERING}\\[-0.02cm]
+{\Large\bfseries KOTHAMANGALAM}\\[0.18cm]
+{\large (Government Aided Autonomous Institution)}\\[0.65cm]
+
+\collegelogo{3.1cm}
+
+\vspace{0.75cm}
+
+{\Large\bfseries \department}
+
+\vspace{0.95cm}
+
+{\Large\bfseries MINI PROJECT REPORT}\\[0.35cm]
+{\large\bfseries ON}\\[0.45cm]
+{\Large\bfseries \projecttitle}
+
+\vspace{1.0cm}
+
+{\large Submitted by}\\[0.25cm]
+{\Large\bfseries \studentname}\\[0.15cm]
+{\large Reg. No.: \registernumber}
+
+\vspace{1.05cm}
+
+{\large Under the guidance of}\\[0.15cm]
+{\Large\bfseries \guide}
+
+\vspace{1.35cm}
+{\large \academicyear}
+\end{center}
+\end{titlepage}
+
+%---------------------- COLLEGE CERTIFICATE ----------------------
+\clearpage
+\thispagestyle{empty}
+
+\begin{center}
+\vspace*{0.35cm}
+
+{\Large\bfseries MAR ATHANASIUS COLLEGE OF ENGINEERING}\\[-0.02cm]
+{\Large\bfseries KOTHAMANGALAM}\\[0.15cm]
+{\large (Government Aided Autonomous Institution)}\\[0.3cm]
+
+\collegelogo{2.2cm}
+
+\vspace{0.25cm}
+{\Large\bfseries CERTIFICATE}
+
+\vspace{0.35cm}
+{\large\bfseries \projecttitle}
+
+\vspace{0.4cm}
+{\small Certified that this is the bonafide record of the mini project work carried out by}
+
+\vspace{0.18cm}
+{\Large\bfseries \studentname}\\[0.12cm]
+{\large Reg. No.: \registernumber}\\[0.2cm]
+{\small during the academic year \academicyear, in partial fulfilment of the requirements for the award of the degree of}\\[0.15cm]
+{\large\bfseries \degree}\\[0.12cm]
+{\small under APJ Abdul Kalam Technological University.}
+\end{center}
+
+\vspace{1.45cm}
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+{\small \guide}\\[0.12cm]
+{\small\bfseries Project Guide}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+{\small \hod}\\[0.12cm]
+{\small\bfseries Head of the Department}
+\end{minipage}
+
+\vspace{1.35cm}
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+{\small Project Coordinator}\\[0.12cm]
+{\small\bfseries Department of Computer Applications}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+\centering
+\vspace{0.12cm}
+{\small\bfseries External Examiner}
+\end{minipage}
+
+\end{document}

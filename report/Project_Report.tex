@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage{newtxtext,newtxmath}
 \usepackage{setspace}
+\usepackage{ragged2e}
 \usepackage{graphicx}
 \graphicspath{{figures/}{./}}
 \usepackage{array}
@@ -127,39 +128,83 @@
 
 \chapter*{Declaration}
 \addcontentsline{toc}{chapter}{Declaration}
-I, \studentname, Reg. No. \registernumber, hereby
-declare that this mini project report entitled \projecttitle\
-is a record of the project work carried out by me and submitted to
-\collegename\ as part of the \degree\ programme during the academic year
-\academicyear.
-The project implementation, analysis, and results described in this
-report are presented to the best of my knowledge and are based on the
-project repository and its saved evaluation outputs. This work has not
-formed the basis for the award of any other degree, diploma, or similar
-title. Any use of third-party datasets, libraries, or published material
-is acknowledged in the report.
+\begin{center}
+\begin{minipage}{0.85\textwidth}
+\justifying
+I, \studentname, Reg. No. \registernumber, hereby declare that this
+mini project report entitled \textit{\projecttitle} is a record of the
+project work carried out by me and submitted to \collegename\ as part
+of the \degree\ programme during the academic year \academicyear.
+
+\vspace{0.4cm}
+
+I further declare that the implementation, analysis, and results
+presented in this report are based on the project repository and its
+saved evaluation outputs, to the best of my knowledge. This work has
+not formed the basis for the award of any other degree, diploma, or
+similar title. Third-party datasets, libraries, and published material
+used in this project are acknowledged in the report.
 
 \vspace{1.2cm}
-\noindent Place: Kothamangalam\\
-Date: \hfill Signature of the Student
+
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+\textbf{Place:} Kothamangalam
+
+\vspace{0.5cm}
+
+\textbf{Date:} \rule{3cm}{0.4pt}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.38\textwidth}
+\centering
+\vspace{0.6cm}
+\textbf{Signature of the Student}
+\end{minipage}
+\end{minipage}
+\end{center}
+
+\clearpage
 
 \chapter*{Acknowledgement}
 \addcontentsline{toc}{chapter}{Acknowledgement}
-I express my sincere gratitude to my mini project guide,
-\guide, for guidance and valuable suggestions during the
-development and documentation of this project. I thank
-\hod, Head of the Department of Computer Applications, and the
-faculty and staff of \collegename, \collegeplace, for their support.
+\begin{center}
+\begin{minipage}{0.85\textwidth}
+\justifying
+I express my sincere gratitude to my mini project guide, \guide, for
+guidance, thoughtful feedback, and valuable suggestions throughout the
+development and documentation of this project. The guidance helped me
+organise the technical work and present its results and limitations
+clearly.
 
-I also acknowledge the creators of the CERT Insider Threat Test Dataset
-and the developers and maintainers of the open-source Python,
-scikit-learn, pandas, NumPy, FastAPI, React, Vite, and Streamlit tools
-used in this demonstration. Finally, I express my gratitude to my family
-and friends for their encouragement.
+\vspace{0.35cm}
 
+I thank \hod, Head of the Department of Computer Applications, and the
+faculty and staff of \collegename, \collegeplace, for their support and
+encouragement during the \degree\ programme and the completion of this
+mini project.
+
+\vspace{0.35cm}
+
+I acknowledge the creators of the CERT Insider Threat Test Dataset for
+making the synthetic activity records and scenario labels available for
+research and education. I also thank the developers and maintainers of
+Python, pandas, NumPy, scikit-learn, FastAPI, React, Vite, Streamlit,
+Jupyter, and the other open-source tools used in this project.
+
+\vspace{0.35cm}
+
+Finally, I am grateful to my family and friends for their patience,
+encouragement, and support throughout the project.
+
+\vspace{0.6cm}
 \begin{flushright}
-- \studentname
+\textbf{-- \studentname}
 \end{flushright}
+\end{minipage}
+\end{center}
+
+\clearpage
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
@@ -781,6 +826,7 @@ The saved comparison and confusion-matrix counts are detailed in
 Chapter~\ref{chap:results}; the test-set results do not validate the
 dashboard's separate employee-level consensus rule.
 
+\clearpage
 \section{System Design Diagrams}
 \subsection{Use-case model}
 \begin{figure}[H]
@@ -788,7 +834,7 @@ dashboard's separate employee-level consensus rule.
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
   usecase/.style={draw,rounded corners=2pt,align=center,text width=4.4cm,minimum height=0.84cm,font=\small},
-  actor/.style={draw,rounded corners,align=center,text width=1.8cm,minimum height=0.75cm,font=\small\bfseries},
+  actor/.style={draw,rounded corners,align=center,text width=3.3cm,minimum height=0.75cm,font=\small\bfseries},
   link/.style={-{Stealth[length=2.2mm,width=1.6mm]},semithick}
 ]
 \node[actor] (analyst) at (-5.2,-0.5) {Analyst};
@@ -812,19 +858,18 @@ dashboard's separate employee-level consensus rule.
 \subsection{Activity diagram}
 \begin{figure}[H]
 \centering
-\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-  activitybox/.style={draw,rounded corners,align=center,text width=8.0cm,minimum height=0.58cm,font=\small},
-  decision/.style={draw,diamond,aspect=3,align=center,text width=3.2cm,minimum height=0.8cm,font=\small},
+  activitybox/.style={draw,rounded corners,align=center,text width=6.8cm,minimum height=0.48cm,font=\small},
+  decision/.style={draw,diamond,aspect=3,align=center,text width=2.8cm,minimum height=0.7cm,font=\small},
   flow/.style={-{Stealth},thin}
 ]
 \node[activitybox] (start) {Start and load the saved model bundle};
-\node[activitybox,below=0.42cm of start] (folder) {Choose the folder containing the five activity CSV files};
-\node[decision,below=0.5cm of folder] (valid) {Are all required files present?};
-\node[activitybox,below=0.62cm of valid] (parse) {Read in chunks, clean rows, and aggregate employee-days};
-\node[activitybox,below=0.42cm of parse] (score) {Align features, score with four models, and rank employees};
-\node[activitybox,below=0.42cm of score] (review) {Display review leads; analyst checks original logs and context};
-\node[activitybox,right=1.1cm of valid,text width=2.5cm] (error) {Show missing-file error and stop};
+\node[activitybox,below=0.25cm of start] (folder) {Choose the folder containing the five activity CSV files};
+\node[decision,below=0.3cm of folder] (valid) {Are all required files present?};
+\node[activitybox,below=0.35cm of valid] (parse) {Read in chunks, clean rows, and aggregate employee-days};
+\node[activitybox,below=0.25cm of parse] (score) {Align features, score with four models, and rank employees};
+\node[activitybox,below=0.25cm of score] (review) {Display review leads; analyst checks original logs and context};
+\node[activitybox,right=0.5cm of valid,text width=3.2cm] (error) {Show missing-file error\\and stop};
 \draw[flow] (start) -- (folder);
 \draw[flow] (folder) -- (valid);
 \draw[flow] (valid) -- node[right,font=\scriptsize]{Yes} (parse);
@@ -832,7 +877,6 @@ dashboard's separate employee-level consensus rule.
 \draw[flow] (score) -- (review);
 \draw[flow] (valid) -- node[above,font=\scriptsize]{No} (error);
 \end{tikzpicture}
-}%
 \caption{Activity flow for one dashboard review}
 \end{figure}
 
@@ -1379,24 +1423,14 @@ project-derived learning points; this report does not make claims about
 unverified internship activities or personal performance.
 
 \section{Summary of the Project}
-The project successfully demonstrates a data path from raw activity
-logs to employee-day features, known-window labels, model comparison,
-and a local React dashboard backed by FastAPI. Chunked processing keeps
-large logs tractable, and grouped splits avoid putting the same user in
-both model-development and held-out partitions. On the saved evaluation,
-Random Forest is selected by validation AP, and a one-percent queue
-capacity is chosen by validation F1. On the held-out test split this
-capacity finds 62 of 289 known positives in 662 records; the five-percent
-reference capacity finds 163 positives in 3,306 records.
-
-The central conclusion is therefore cautious: the prototype can
-prioritise synthetic records for investigation, but it does not provide
-reliable proof of harmful behaviour. Positive-class precision is low,
-labels are incomplete and coarse at the day level, and model metrics
-for employee-day ranking do not directly validate the dashboard's
-employee-level consensus status. Human review, policy authorization,
-corroborating evidence, and clearer operational requirements are
-essential before any real-world use.
+This project demonstrates a local pipeline from activity logs to
+employee-day features, model evaluation, and a React/FastAPI review
+dashboard. The validation-selected Random Forest's one-percent test
+queue retrieves 62 of 289 known positives. These results rank synthetic
+records for review; incomplete labels and low precision mean they do not
+prove harmful behaviour or validate the dashboard's employee-level
+status. Any operational use requires authorization, corroborating
+evidence, and accountable human review.
 
 \chapter{Future Scope}
 \begin{enumerate}
@@ -1511,69 +1545,30 @@ interpreted as proof the record is benign.
         operational deployment.
 \end{enumerate}
 
-\section{Selected Code Excerpts}
-These excerpts illustrate daily feature aggregation, incident-window
-labelling, employee-grouped evaluation, API file staging, model scoring,
-and consensus ranking. They are selected portions of the current
-implementation; the full source files remain in the project repository.
-The separate Streamlit app listing is an alternative interface.
+\section{Code Snippets}
+The following short examples summarize feature aggregation, incident
+labelling, employee-grouped splitting, and model scoring. Full
+implementations are in the notebook, \texttt{api.py}, and
+\texttt{forensic\_core.py}.
 
-\lstinputlisting[
-  language=Python,
-  firstline=111,
-  lastline=137,
-  caption={Daily event features aggregated by user and date},
-  label={lst:daily-feature-excerpt}
-]{notebook_code_listing.txt}
+\begin{lstlisting}[language=Python,caption={Aggregate activity by user and day}]
+daily = events.groupby(["user", "day"])[feature_columns].sum()
+\end{lstlisting}
 
-\lstinputlisting[
-  language=Python,
-  firstline=280,
-  lastline=295,
-  caption={Known incident-window labels matched to employee-days},
-  label={lst:incident-label-excerpt}
-]{notebook_code_listing.txt}
+\begin{lstlisting}[language=Python,caption={Label days in known incident windows}]
+matches = (days.user == incident.user) & days.day.between(start, end)
+days.loc[matches, "known_incident_window"] = 1
+\end{lstlisting}
 
-\lstinputlisting[
-  language=Python,
-  firstline=92,
-  lastline=116,
-  caption={Local API staging and cleanup for selected activity files},
-  label={lst:api-upload-excerpt}
-]{api_code_listing.txt}
+\begin{lstlisting}[language=Python,caption={Keep each employee in one data split}]
+splitter = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
+train_idx, test_idx = next(splitter.split(X, y, groups=employee_ids))
+\end{lstlisting}
 
-\lstinputlisting[
-  language=Python,
-  firstline=136,
-  lastline=175,
-  caption={Four-model scoring, percentile alignment, and consensus ranking},
-  label={lst:consensus-excerpt}
-]{forensic_core_code_listing.txt}
-
-\begin{lstlisting}[
-  language=Python,
-  caption={Condensed employee-grouped training, validation, and test split},
-  label={lst:grouped-split-excerpt}
-]
-outer_splitter = StratifiedGroupKFold(
-    n_splits=5, shuffle=True, random_state=42
-)
-train_validation_indices, test_indices = next(
-    outer_splitter.split(X, y, groups=groups)
-)
-
-inner_splitter = StratifiedGroupKFold(
-    n_splits=4, shuffle=True, random_state=43
-)
-train_relative_indices, validation_relative_indices = next(
-    inner_splitter.split(
-        X.iloc[train_validation_indices],
-        y.iloc[train_validation_indices],
-        groups=groups.iloc[train_validation_indices],
-    )
-)
-train_indices = train_validation_indices[train_relative_indices]
-validation_indices = train_validation_indices[validation_relative_indices]
+\begin{lstlisting}[language=Python,caption={Combine model ranks into a review score}]
+for name, model in models.items():
+    ranks[name] = score(model, features).rank(pct=True)
+consensus = ranks.mean(axis=1)
 \end{lstlisting}
 
 \renewcommand{\bibname}{References}
