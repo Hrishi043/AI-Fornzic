@@ -13,11 +13,17 @@ notebook, API, and model-core listings are source snapshots prepared for
 the report; `app_code_listing.txt` is retained for the alternative
 Streamlit interface. The four notebook plots are extracted from saved
 notebook outputs. `ui_react_landing.png` and `ui_react_model_guide.png`
-are captures of the current React dashboard. The local API reported the
+are saved captures of the React dashboard. The local API reported the
 saved model bundle as ready, but no folder analysis was run for these
 screenshots.
 
 ## Compile
+
+The source uses A4 paper, one-inch margins, Times-style type, 12-point body
+text, 1.5 line spacing, a project-title header, and the department/page
+footer requested in the supplied format. Preliminary pages use Roman
+numbering; the contents pages are unnumbered and the main report uses
+Arabic numbering.
 
 The report expects the files in this folder to retain their relative
 paths. From this directory, run pdfLaTeX twice so the contents and
@@ -72,14 +78,19 @@ cp forensic_core.py report/forensic_core_code_listing.txt
 
 The notebook figures and UI screenshots are evidence snapshots.
 Re-capture them when the corresponding UI or notebook visualizations
-change.
+change. The React captures in this report predate the animated analysis
+card, live progress bar, remaining-time estimate, and review-queue model
+agreement note; these interactions are described in the UI design text
+but are not shown in the captured screens.
 
 ## Before submission
 
 The template specifies a **minimum of 60 pages**. This source includes
 notebook plots, two React UI captures, and selected code excerpts, but
-the resulting PDF page count has not been verified. Compile the report
-and check the page count and layout.
+the resulting PDF page count has not been verified. The LaTeX source was
+updated to document the current React analysis progress display and its
+approximate ETA, and the source-code snapshots were refreshed. Compile
+the report and check the page count and layout.
 If the result is below the department's minimum, add genuine, approved
 project evidence (for example, documented test runs or original
 screenshots); do not repeat content or invent results to reach the

@@ -28,6 +28,7 @@ app.add_middleware(
 analysis_lock = Lock()
 employee_days: pd.DataFrame | None = None
 ranking: pd.DataFrame | None = None
+analysis_progress = {"percent": 0, "stage": "Waiting to start", "active": False}
 
 
 class AnalyzeRequest(BaseModel):
@@ -44,20 +45,31 @@ def _records(frame: pd.DataFrame) -> list[dict]:
 
 
 def _analyze_folder(folder: Path) -> dict:
-    global employee_days, ranking
+    global employee_days, ranking, analysis_progress
     if not MODEL_PATH.is_file():
         raise HTTPException(status_code=503, detail="The four-model bundle is missing. Run notebook Cell 31 first.")
     try:
         with analysis_lock:
+            analysis_progress = {"percent": 15, "stage": "Preparing analysis", "active": True}
             bundle = load_model_bundle(MODEL_PATH)
-            days, report = score_folder(folder, bundle)
+            def update_progress(percent, stage):
+                global analysis_progress
+                analysis_progress = {
+                    "percent": 15 + round(percent * 0.85),
+                    "stage": stage,
+                    "active": True,
+                }
+
+            days, report = score_folder(folder, bundle, progress_callback=update_progress)
             RESULTS_DIR.mkdir(exist_ok=True)
             days.to_csv(RESULTS_DIR / "dashboard_day_scores.csv", index=False)
             report.to_csv(RESULTS_DIR / "dashboard_report.csv", index=False)
             employee_days, ranking = days, report
+            analysis_progress = {"percent": 100, "stage": "Analysis complete", "active": False}
     except HTTPException:
         raise
     except Exception as error:
+        analysis_progress = {"percent": 0, "stage": "Analysis failed", "active": False}
         raise HTTPException(status_code=400, detail=f"Analysis could not be completed: {error}") from error
 
     suspicious = report[report["status"] == "SUSPICIOUS"]
@@ -79,6 +91,11 @@ def health():
         "ready": MODEL_PATH.is_file(),
         "message": "Model bundle is ready." if MODEL_PATH.is_file() else "Model bundle is missing. Run notebook Cell 31.",
     }
+
+
+@app.get("/api/progress")
+def progress():
+    return analysis_progress
 
 
 @app.post("/api/analyze")
