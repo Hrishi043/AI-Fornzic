@@ -32,6 +32,21 @@ h1, h2, h3 { color: #172330; letter-spacing: -.02em; }
   border-left: 5px solid #4779ad; border-radius: 12px; padding: 1rem 1.2rem;
   margin: .65rem 0; }
 .report-status { color: #315f91; font-weight: 750; letter-spacing: .04em; }
+.analysis-animation { display: flex; align-items: center; gap: .7rem; color: #315f91;
+  font-weight: 650; margin: .35rem 0 .75rem; }
+.analysis-pulse { display: inline-flex; gap: 4px; }
+.analysis-pulse span { width: 7px; height: 7px; border-radius: 50%; background: #4779ad;
+  animation: analysis-bounce 1s infinite ease-in-out; }
+.analysis-pulse span:nth-child(2) { animation-delay: .15s; }
+.analysis-pulse span:nth-child(3) { animation-delay: .3s; }
+.analysis-track { height: 4px; overflow: hidden; border-radius: 4px; background: #dce7f1;
+  margin: .45rem 0 .85rem; }
+.analysis-track::after { content: ""; display: block; width: 38%; height: 100%;
+  background: #4779ad; border-radius: inherit; animation: analysis-sweep 1.25s infinite ease-in-out; }
+@keyframes analysis-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: .55; }
+  30% { transform: translateY(-4px); opacity: 1; } }
+@keyframes analysis-sweep { from { transform: translateX(-110%); }
+  to { transform: translateX(290%); } }
 </style>
 """, unsafe_allow_html=True)
 
@@ -69,16 +84,34 @@ if folder_text:
     st.success(f"Selected folder: {folder.name}")
     if st.button("Analyze folder", type="primary"):
         try:
-            with st.spinner("Reading activity logs and scoring records with all four models..."):
-                days, report = score_folder(folder, bundle)
+            animation_slot = st.empty()
+            animation_slot.markdown(
+                '<div class="analysis-animation">Analyzing activity data'
+                '<span class="analysis-pulse"><span></span><span></span><span></span></span></div>'
+                '<div class="analysis-track"></div>',
+                unsafe_allow_html=True,
+            )
+            progress_bar = st.progress(0, text="Starting analysis…")
+            with st.spinner("Analyzing activity data…"):
+                days, report = score_folder(
+                    folder,
+                    bundle,
+                    progress_callback=lambda percent, message: progress_bar.progress(
+                        percent, text=message
+                    ),
+                )
             st.session_state.employee_days = days
             st.session_state.ranking = report
             st.session_state.analysis_done = True
             RESULTS_DIR.mkdir(exist_ok=True)
             days.to_csv(RESULTS_DIR / "dashboard_day_scores.csv", index=False)
             report.to_csv(RESULTS_DIR / "dashboard_report.csv", index=False)
+            progress_bar.progress(100, text="Analysis complete")
+            animation_slot.empty()
             st.success("Analysis complete. The report files were saved in sprint1_output.")
         except Exception as error:
+            if "animation_slot" in locals():
+                animation_slot.empty()
             st.error(f"Analysis could not be completed: {error}")
 
 if st.session_state.analysis_done:

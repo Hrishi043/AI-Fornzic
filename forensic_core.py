@@ -142,20 +142,29 @@ def _score(model, model_name, values):
     return np.asarray(model.decision_function(values), dtype=float)
 
 
-def score_folder(data_folder, bundle):
+def score_folder(data_folder, bundle, progress_callback=None):
     """Build employee-day features, score with all four models, and rank employees."""
+    def report_progress(percent, message):
+        if progress_callback is not None:
+            progress_callback(percent, message)
+
     data_folder = Path(data_folder)
     missing = [name for name in REQUIRED_FILES if not (data_folder / name).is_file()]
     if missing:
         raise FileNotFoundError("Selected folder is missing: " + ", ".join(missing))
 
-    sources = [process_activity_file(data_folder / name) for name in REQUIRED_FILES]
+    sources = []
+    for index, name in enumerate(REQUIRED_FILES):
+        report_progress(index * 12, f"Reading and aggregating {name} ({index + 1} of {len(REQUIRED_FILES)})")
+        sources.append(process_activity_file(data_folder / name))
+        report_progress((index + 1) * 12, f"Finished {name} ({index + 1} of {len(REQUIRED_FILES)})")
     sources = [frame for frame in sources if not frame.empty]
     if not sources:
         raise ValueError("The selected activity files contained no usable records.")
 
     employee_days = pd.concat(sources, axis=1).fillna(0)
     employee_days = employee_days.groupby(level=["user", "day"]).sum().reset_index()
+    report_progress(65, "Preparing employee-day features")
 
     feature_columns = bundle["feature_columns"]
     for column in feature_columns:
@@ -164,12 +173,13 @@ def score_folder(data_folder, bundle):
     model_input = employee_days[feature_columns].apply(pd.to_numeric, errors="coerce").fillna(0)
 
     score_columns = []
-    for name in MODEL_NAMES:
+    for index, name in enumerate(MODEL_NAMES):
         scores = _score(bundle["models"][name], name, model_input)
         # Percentiles put the four different score scales on a comparable rank scale.
         column = name.lower().replace(" ", "_") + "_rank"
         employee_days[column] = pd.Series(scores).rank(pct=True, method="average").to_numpy()
         score_columns.append(column)
+        report_progress(65 + (index + 1) * 6, f"Scoring with {name} ({index + 1} of {len(MODEL_NAMES)})")
 
     employee_days["consensus_score"] = employee_days[score_columns].mean(axis=1)
 
@@ -219,6 +229,7 @@ def score_folder(data_folder, bundle):
         )
 
     ranking["why_flagged"] = ranking["user"].map(reasons)
+    report_progress(92, "Building investigation report")
     names = _load_optional_names(data_folder)
     if names is not None:
         ranking = ranking.merge(names, on="user", how="left")
@@ -234,6 +245,7 @@ def score_folder(data_folder, bundle):
     employee_days = employee_days.merge(
         ranking[["user", "name", "status"]], on="user", how="left"
     )
+    report_progress(100, "Analysis complete")
     return employee_days, ranking
 
 
