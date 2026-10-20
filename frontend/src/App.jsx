@@ -33,6 +33,7 @@ function App() {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('All employees')
   const [busy, setBusy] = useState(false)
+  const [analysisProgress, setAnalysisProgress] = useState({ percent: 0, stage: 'Preparing your files' })
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -76,14 +77,58 @@ function App() {
     setError('')
     setDetail(null)
     setSelected(null)
+    setAnalysisProgress({ percent: 0, stage: 'Preparing your files' })
+    let polling = true
+    const pollProgress = async () => {
+      while (polling) {
+        try {
+          const progress = await api('/api/progress')
+          if (progress.active) {
+            setAnalysisProgress({ percent: Math.max(15, progress.percent), stage: progress.stage })
+          }
+        } catch { /* The analysis request will report API errors. */ }
+        await new Promise((resolve) => window.setTimeout(resolve, 400))
+      }
+    }
+    const progressPolling = pollProgress()
     try {
       const form = new FormData()
       selectedFiles.forEach((file) => form.append('files', file, file.name))
-      const result = await api('/api/analyze-upload', { method: 'POST', body: form })
+      const result = await new Promise((resolve, reject) => {
+        const request = new XMLHttpRequest()
+        request.open('POST', '/api/analyze-upload')
+        request.upload.onprogress = (progress) => {
+          if (progress.lengthComputable) {
+            setAnalysisProgress({
+              percent: Math.round((progress.loaded / progress.total) * 15),
+              stage: 'Uploading selected logs',
+            })
+          }
+        }
+        request.onload = () => {
+          let body
+          try { body = JSON.parse(request.responseText) } catch {
+            reject(new Error('The local API returned an unreadable response. Check the API terminal for details.'))
+            return
+          }
+          if (request.status < 200 || request.status >= 300) {
+            reject(new Error(body.detail || 'Something went wrong.'))
+            return
+          }
+          setAnalysisProgress({ percent: 100, stage: 'Analysis complete' })
+          resolve(body)
+        }
+        request.onerror = () => reject(new Error('Cannot reach the local API at 127.0.0.1:8000. Start the app with “npm run dev” from the frontend folder.'))
+        request.send(form)
+      })
       setData(result)
       setFilter('All employees')
     } catch (err) { setError(err.message) }
-    finally { setBusy(false) }
+    finally {
+      polling = false
+      await progressPolling
+      setBusy(false)
+    }
   }
 
   const flagged = employees.filter((person) => person.status === 'SUSPICIOUS').slice(0, 10)
@@ -115,6 +160,24 @@ function App() {
             {folderName && <div className="source-note">{missingFiles.length ? `Selected “${folderName}” · ${selectedFiles.length} files · missing ${missingFiles.join(', ')}` : `Selected “${folderName}” · ${selectedFiles.length} files · all required logs found. Files upload only to this local app.`}</div>}
             {!health?.ready && <div className="source-note warning">{health?.available ? health.message : health ? error || 'Local API is not reachable. Start the app with “npm run dev” from the frontend folder.' : 'Checking the local analysis service…'}</div>}
           </form>
+          {busy && <section className="analysis-card" role="status" aria-live="polite">
+            <div className="analysis-visual" aria-hidden="true">
+              <div className="analysis-orbit orbit-a" /><div className="analysis-orbit orbit-b" />
+              <div className="analysis-core"><span>◎</span></div>
+              <i className="analysis-node node-a" /><i className="analysis-node node-b" />
+              <i className="analysis-node node-c" /><i className="analysis-node node-d" />
+            </div>
+            <div className="analysis-copy">
+              <div className="eyebrow">LIVE ANALYSIS · FOUR MODEL ENSEMBLE</div>
+              <h2>Finding patterns in the activity</h2>
+              <p>{analysisProgress.stage}. Your files are processed locally.</p>
+              <div className="analysis-progress-heading"><span>Analysis progress</span><b>{analysisProgress.percent}%</b></div>
+              <div className="analysis-progress-track" role="progressbar" aria-label="Analysis progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow={analysisProgress.percent}>
+                <i style={{ width: `${analysisProgress.percent}%` }} />
+              </div>
+              <div className="analysis-stage-list"><span className={analysisProgress.percent >= 15 ? 'complete' : 'current'}>01 <b>Prepare</b></span><span className={analysisProgress.percent >= 65 ? 'complete' : analysisProgress.percent >= 15 ? 'current' : ''}>02 <b>Score</b></span><span className={analysisProgress.percent >= 90 ? 'complete' : analysisProgress.percent >= 65 ? 'current' : ''}>03 <b>Prioritize</b></span></div>
+            </div>
+          </section>}
           <details className="model-guide">
             <summary><span><b>How the model ensemble works</b><small>See how activity records become a review priority.</small></span><span className="guide-action">Explore the scoring flow <i>＋</i></span></summary>
             <div className="guide-content">
