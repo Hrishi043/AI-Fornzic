@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 const api = async (url, options) => {
   const isForm = options?.body instanceof FormData
@@ -34,6 +34,8 @@ function App() {
   const [filter, setFilter] = useState('All employees')
   const [busy, setBusy] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState({ percent: 0, stage: 'Preparing your files' })
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const analysisStartedAt = useRef(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -61,6 +63,16 @@ function App() {
       .then(setDetail).catch((err) => setError(err.message))
   }, [selected])
 
+  useEffect(() => {
+    if (!busy) return
+    const timer = window.setInterval(() => {
+      if (analysisStartedAt.current) {
+        setElapsedSeconds(Math.floor((Date.now() - analysisStartedAt.current) / 1000))
+      }
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [busy])
+
   const employees = data?.employees || []
   const requiredFiles = ['logon.csv', 'device.csv', 'file.csv', 'email.csv', 'http.csv']
   const selectedNames = new Set(selectedFiles.map((file) => file.name.toLowerCase()))
@@ -77,6 +89,8 @@ function App() {
     setError('')
     setDetail(null)
     setSelected(null)
+    analysisStartedAt.current = Date.now()
+    setElapsedSeconds(0)
     setAnalysisProgress({ percent: 0, stage: 'Preparing your files' })
     let polling = true
     const pollProgress = async () => {
@@ -133,6 +147,14 @@ function App() {
 
   const flagged = employees.filter((person) => person.status === 'SUSPICIOUS').slice(0, 10)
   const otherEmployees = visibleEmployees.filter((person) => !flagged.includes(person))
+  const remainingSeconds = analysisProgress.percent >= 20 && elapsedSeconds >= 3
+    ? Math.max(1, Math.ceil(elapsedSeconds * (100 - analysisProgress.percent) / analysisProgress.percent))
+    : null
+  const remainingLabel = remainingSeconds === null
+    ? 'Estimating time remaining…'
+    : remainingSeconds >= 60
+      ? `About ${Math.ceil(remainingSeconds / 60)} min remaining`
+      : `About ${remainingSeconds} sec remaining`
 
   return (
     <div className="app-shell">
@@ -175,6 +197,7 @@ function App() {
               <div className="analysis-progress-track" role="progressbar" aria-label="Analysis progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow={analysisProgress.percent}>
                 <i style={{ width: `${analysisProgress.percent}%` }} />
               </div>
+              <div className="analysis-time-remaining"><span className="time-pulse" />{remainingLabel}<small>Estimate</small></div>
               <div className="analysis-stage-list"><span className={analysisProgress.percent >= 15 ? 'complete' : 'current'}>01 <b>Prepare</b></span><span className={analysisProgress.percent >= 65 ? 'complete' : analysisProgress.percent >= 15 ? 'current' : ''}>02 <b>Score</b></span><span className={analysisProgress.percent >= 90 ? 'complete' : analysisProgress.percent >= 65 ? 'current' : ''}>03 <b>Prioritize</b></span></div>
             </div>
           </section>}
@@ -211,6 +234,7 @@ function App() {
             </section>
 
             <div className="section-heading"><div><div className="eyebrow">REVIEW QUEUE</div><h2>Employees prioritized for review</h2><p>Ranked by consensus across four models. A flag is not proof of wrongdoing.</p></div><span className="queue-count">{flagged.length} prioritized</span></div>
+            <aside className="agreement-note"><span className="agreement-note-icon">◎</span><div><b>Why model agreement is included</b><p>Each model looks for patterns differently. Agreement counts how many models place an employee’s highest-risk day in their own top 10%; two or more agreeing can qualify an employee for review. It helps surface signals shared across methods, but it is a prioritization aid—not a probability or proof of wrongdoing.</p></div></aside>
             {flagged.length ? <div className="flagged-grid">{flagged.map((person, i) => <button className={`flag-card ${selected?.user === person.user ? 'chosen' : ''}`} key={person.user} onClick={() => setSelected(person)}><span className="flag-top"><span className="rank-number">{String(i + 1).padStart(2, '0')}</span><span className="status-pill suspicious"><i /> Prioritize</span></span><b className="employee-name">{person.name || formatUser(person.user)}</b><span className="employee-id">{person.name ? formatUser(person.user) : 'Employee identifier'}</span><span className="reason">{person.why_flagged}</span><span className="flag-foot"><span>{person.model_agreement}/4 models aligned</span><span className="score">{(person.consensus_score * 100).toFixed(1)} <small>rank</small></span></span></button>)}</div> : <div className="empty-state">No employees crossed the review rule for this dataset.</div>}
 
             <section className="directory-card"><div className="directory-heading"><div><h2>Employee directory</h2><p>Explore the full set of ranked employees.</p></div><div className="directory-controls"><label className="search-box"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search employees" /></label><select value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Filter employee status"><option>All employees</option><option>Suspicious</option><option>Review</option></select></div></div><div className="table-scroll"><table><thead><tr><th>EMPLOYEE</th><th>STATUS</th><th>CONSENSUS RANK</th><th>MODEL AGREEMENT</th><th>ACTIVE DAYS</th><th></th></tr></thead><tbody>{otherEmployees.slice(0, 50).map((person) => <tr key={person.user} onClick={() => setSelected(person)} className={selected?.user === person.user ? 'selected-row' : ''}><td><b>{person.name || formatUser(person.user)}</b><small>{person.name ? formatUser(person.user) : 'Employee identifier'}</small></td><td><span className={`status-pill ${person.status.toLowerCase()}`}><i />{person.status === 'SUSPICIOUS' ? 'Prioritize' : 'Review'}</span></td><td><div className="table-score"><div><i style={{ width: `${Math.max(4, person.consensus_score * 100)}%` }} /></div><span>{(person.consensus_score * 100).toFixed(1)}</span></div></td><td>{person.model_agreement} / 4 models</td><td>{person.active_days}</td><td className="row-arrow">↗</td></tr>)}</tbody></table>{!otherEmployees.length && <div className="table-empty">No employees match these filters.</div>}{otherEmployees.length > 50 && <div className="table-foot">Showing 50 of {otherEmployees.length} employees. Search to narrow the list.</div>}</div></section>
