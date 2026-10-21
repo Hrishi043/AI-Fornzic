@@ -9,9 +9,9 @@ project report.
 
 The report content is based on the project source, the CERT r4.2
 synthetic activity data, and saved outputs in `sprint1_output/`. The
-notebook, API, and model-core listings are source snapshots prepared for
-the report; `app_code_listing.txt` is retained for the alternative
-Streamlit interface. The four notebook plots are extracted from saved
+notebook, API, model-core, and alternative Streamlit listings are source
+snapshots included in full in the appendix; selected excerpts also
+appear earlier in the report. The four notebook plots are extracted from saved
 notebook outputs. `ui_react_landing.png` and `ui_react_model_guide.png`
 are saved captures of the React dashboard. The local API reported the
 saved model bundle as ready, but no folder analysis was run for these
@@ -39,6 +39,7 @@ pdflatex Project_Report.tex
 
 For Overleaf, upload `Project_Report.tex`, `api_code_listing.txt`,
 `forensic_core_code_listing.txt`, `notebook_code_listing.txt`,
+`app_code_listing.txt`,
 `ui_react_landing.png`, `ui_react_model_guide.png`, and the complete
 `figures/` folder, preserving these names and paths. Select pdfLaTeX as
 the compiler.
@@ -87,16 +88,15 @@ but are not shown in the captured screens.
 
 ## Before submission
 
-The template specifies a **minimum of 60 pages**. This source includes
-notebook plots, two React UI captures, and selected code excerpts, but
-the resulting PDF page count has not been verified. The LaTeX source was
-updated to document the current React analysis progress display and its
-approximate ETA, and the source-code snapshots were refreshed. Compile
-the report and check the page count and layout.
-If the result is below the department's minimum, add genuine, approved
-project evidence (for example, documented test runs or original
-screenshots); do not repeat content or invent results to reach the
-minimum.
+The template specifies a **minimum of 60 pages**. The report has been
+expanded with implementation detail, evaluation methodology, privacy
+and operational considerations, an expanded verification matrix, and
+full source listings. The resulting PDF page count has not been verified
+because no LaTeX compiler is installed in this environment. Compile the
+report and check the page count, code listing breaks, and layout. If it
+remains below the department's minimum, add genuine, approved project
+evidence (for example, documented test runs or original screenshots);
+do not repeat content or invent results to reach the minimum.
 
 Confirm that Dr. Manu John is the mini-project guide and Dr. Sonia
 Abraham is the HOD, and verify all academic signatories with the

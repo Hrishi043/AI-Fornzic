@@ -4,7 +4,6 @@
 \usepackage{amsmath}
 \usepackage{newtxtext,newtxmath}
 \usepackage{setspace}
-\usepackage{ragged2e}
 \usepackage{graphicx}
 \graphicspath{{figures/}{./}}
 \usepackage{array}
@@ -128,83 +127,39 @@
 
 \chapter*{Declaration}
 \addcontentsline{toc}{chapter}{Declaration}
-\begin{center}
-\begin{minipage}{0.85\textwidth}
-\justifying
-I, \studentname, Reg. No. \registernumber, hereby declare that this
-mini project report entitled \textit{\projecttitle} is a record of the
-project work carried out by me and submitted to \collegename\ as part
-of the \degree\ programme during the academic year \academicyear.
-
-\vspace{0.4cm}
-
-I further declare that the implementation, analysis, and results
-presented in this report are based on the project repository and its
-saved evaluation outputs, to the best of my knowledge. This work has
-not formed the basis for the award of any other degree, diploma, or
-similar title. Third-party datasets, libraries, and published material
-used in this project are acknowledged in the report.
+I, \studentname, Reg. No. \registernumber, hereby
+declare that this mini project report entitled \projecttitle\
+is a record of the project work carried out by me and submitted to
+\collegename\ as part of the \degree\ programme during the academic year
+\academicyear.
+The project implementation, analysis, and results described in this
+report are presented to the best of my knowledge and are based on the
+project repository and its saved evaluation outputs. This work has not
+formed the basis for the award of any other degree, diploma, or similar
+title. Any use of third-party datasets, libraries, or published material
+is acknowledged in the report.
 
 \vspace{1.2cm}
-
-\noindent
-\begin{minipage}[t]{0.48\textwidth}
-\textbf{Place:} Kothamangalam
-
-\vspace{0.5cm}
-
-\textbf{Date:} \rule{3cm}{0.4pt}
-\end{minipage}%
-\hfill
-\begin{minipage}[t]{0.38\textwidth}
-\centering
-\vspace{0.6cm}
-\textbf{Signature of the Student}
-\end{minipage}
-\end{minipage}
-\end{center}
-
-\clearpage
+\noindent Place: Kothamangalam\\
+Date: \hfill Signature of the Student
 
 \chapter*{Acknowledgement}
 \addcontentsline{toc}{chapter}{Acknowledgement}
-\begin{center}
-\begin{minipage}{0.85\textwidth}
-\justifying
-I express my sincere gratitude to my mini project guide, \guide, for
-guidance, thoughtful feedback, and valuable suggestions throughout the
-development and documentation of this project. The guidance helped me
-organise the technical work and present its results and limitations
-clearly.
+I express my sincere gratitude to my mini project guide,
+\guide, for guidance and valuable suggestions during the
+development and documentation of this project. I thank
+\hod, Head of the Department of Computer Applications, and the
+faculty and staff of \collegename, \collegeplace, for their support.
 
-\vspace{0.35cm}
+I also acknowledge the creators of the CERT Insider Threat Test Dataset
+and the developers and maintainers of the open-source Python,
+scikit-learn, pandas, NumPy, FastAPI, React, Vite, and Streamlit tools
+used in this demonstration. Finally, I express my gratitude to my family
+and friends for their encouragement.
 
-I thank \hod, Head of the Department of Computer Applications, and the
-faculty and staff of \collegename, \collegeplace, for their support and
-encouragement during the \degree\ programme and the completion of this
-mini project.
-
-\vspace{0.35cm}
-
-I acknowledge the creators of the CERT Insider Threat Test Dataset for
-making the synthetic activity records and scenario labels available for
-research and education. I also thank the developers and maintainers of
-Python, pandas, NumPy, scikit-learn, FastAPI, React, Vite, Streamlit,
-Jupyter, and the other open-source tools used in this project.
-
-\vspace{0.35cm}
-
-Finally, I am grateful to my family and friends for their patience,
-encouragement, and support throughout the project.
-
-\vspace{0.6cm}
 \begin{flushright}
-\textbf{-- \studentname}
+- \studentname
 \end{flushright}
-\end{minipage}
-\end{center}
-
-\clearpage
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
@@ -1545,31 +1500,321 @@ interpreted as proof the record is benign.
         operational deployment.
 \end{enumerate}
 
-\section{Code Snippets}
-The following short examples summarize feature aggregation, incident
-labelling, employee-grouped splitting, and model scoring. Full
-implementations are in the notebook, \texttt{api.py}, and
-\texttt{forensic\_core.py}.
+\section{Selected Code Snippets}
+These excerpts illustrate daily feature aggregation, incident-window
+labelling, employee-grouped evaluation, API file staging, model scoring,
+and consensus ranking. They are selected portions of the current
+implementation; the full source files remain in the project repository.
+The separate Streamlit app listing is an alternative interface.
 
-\begin{lstlisting}[language=Python,caption={Aggregate activity by user and day}]
-daily = events.groupby(["user", "day"])[feature_columns].sum()
-\end{lstlisting}
+\lstinputlisting[
+  language=Python,
+  firstline=111,
+  lastline=137,
+  caption={Daily event features aggregated by user and date},
+  label={lst:daily-feature-excerpt}
+]{notebook_code_listing.txt}
 
-\begin{lstlisting}[language=Python,caption={Label days in known incident windows}]
-matches = (days.user == incident.user) & days.day.between(start, end)
-days.loc[matches, "known_incident_window"] = 1
-\end{lstlisting}
+\lstinputlisting[
+  language=Python,
+  firstline=280,
+  lastline=295,
+  caption={Known incident-window labels matched to employee-days},
+  label={lst:incident-label-excerpt}
+]{notebook_code_listing.txt}
 
-\begin{lstlisting}[language=Python,caption={Keep each employee in one data split}]
-splitter = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
-train_idx, test_idx = next(splitter.split(X, y, groups=employee_ids))
-\end{lstlisting}
+\lstinputlisting[
+  language=Python,
+  firstline=92,
+  lastline=116,
+  caption={Local API staging and cleanup for selected activity files},
+  label={lst:api-upload-excerpt}
+]{api_code_listing.txt}
 
-\begin{lstlisting}[language=Python,caption={Combine model ranks into a review score}]
-for name, model in models.items():
-    ranks[name] = score(model, features).rank(pct=True)
-consensus = ranks.mean(axis=1)
-\end{lstlisting}
+\lstinputlisting[
+  language=Python,
+  firstline=136,
+  lastline=175,
+  caption={Four-model scoring, percentile alignment, and consensus ranking},
+  label={lst:consensus-excerpt}
+]{forensic_core_code_listing.txt}
+
+\section{Detailed Data Preparation Method}
+\subsection{Input validation and parsing}
+The dashboard accepts five source files with fixed filenames. It first
+checks that each file exists and then checks that the normalized header
+contains the two fields required for aggregation: a timestamp and a user
+identifier. Optional activity and attachment fields add source-specific
+features when present. A missing optional field therefore removes that
+particular feature contribution, while a missing required field prevents
+the source from being processed. This distinction is important when
+reviewing files exported from different schemas.
+
+The parser reads up to 25,000 records at a time. Timestamps are parsed
+with invalid values coerced to missing, user identifiers are converted
+to strings and trimmed, and rows with unusable identifiers or dates are
+discarded. Duplicate removal is applied within each chunk. Because a
+duplicate may occur in two different chunks, the saved quality summary
+does not establish globally unique source rows. An operational data
+quality report should therefore include cross-chunk duplicate checks
+when exact event counts matter.
+
+\subsection{Aggregation semantics}
+Each retained source row contributes one event to the relevant
+employee-day count. The timestamp is converted to a calendar day, and
+the hour is classified as after-hours if it is earlier than 06:00 or at
+or later than 18:00. Device rows additionally contribute to the
+connection feature when their activity value equals ``connect'' after
+lowercasing. Email rows contribute the numeric attachment field when it
+can be parsed; invalid attachment values contribute zero. The feature
+tables from all sources are aligned by user and day, and missing values
+are filled with zero before model scoring.
+
+This representation deliberately reduces millions of event rows to a
+small number of counts. It discards within-day ordering, exact event
+times after the after-hours indicator is calculated, and the semantic
+content of events. It is therefore suitable for a compact demonstration
+of ranking but cannot reproduce the complete event narrative needed for
+an investigation.
+
+\subsection{Label construction and uncertainty}
+Training labels are created by matching user identifiers to the
+answer-file incident windows for release 4.2. The start and end are
+normalized to days and the interval includes both boundary dates. A
+positive employee-day means that at least one known window covers that
+user and day. This rule is deterministic and easy to reproduce, but it
+does not identify which event within the day was relevant. It also
+cannot guarantee that days outside the published windows are truly
+negative. For that reason, this report uses ``unmatched'' when
+describing model false positives and treats the target as a known-window
+indicator rather than a complete ground truth.
+
+\section{Model and Evaluation Details}
+\subsection{Preprocessing and score direction}
+The Logistic Regression pipeline imputes missing numeric values with
+the median and standardizes features before fitting. Class weighting
+increases the contribution of the rare positive examples during its
+optimization. The Decision Tree and Random Forest consume numeric
+counts directly and use balanced class weights to account for the
+unequal label frequencies. The Random Forest averages predictions over
+200 trees; the tree depth and minimum leaf settings regularize the
+individual decision rules. Isolation Forest is fitted without labels,
+and its decision function is negated so that a larger score consistently
+means a higher rank across the application.
+
+Raw scores from the four estimators have different meanings and scales.
+In the dashboard, each model's scores are converted to percentile ranks
+within the currently selected dataset. The ranks can be averaged for a
+consensus view, but they are not calibrated probabilities and are not
+comparable across separate folder analyses. Adding or removing records
+can change percentile values even when a particular employee-day's raw
+model score does not change.
+
+\subsection{Employee-grouped partitioning}
+All days belonging to a synthetic employee are assigned to the same
+partition. The first split reserves test employees; a second grouped
+split separates training and validation employees from the remaining
+groups. The result contains 198,259 training rows, 66,075 validation
+rows, and 66,118 test rows. The respective known-positive counts are
+815, 260, and 289. No employee identifier is shared between these
+partitions. The grouping addresses repeated-person leakage, but it does
+not simulate future deployment in time: dates from the same broad
+dataset period may appear across partitions for different employees.
+
+\subsection{Candidate augmentation}
+The augmentation candidate creates one perturbed example for each
+positive training employee-day. Event counts are resampled with
+count-aware Poisson and binomial operations intended to preserve
+nonnegative integer-like behavior. Only training rows are augmented;
+validation and test records remain unchanged. The candidate is kept
+only when its validation Average Precision exceeds that of the
+real-data Random Forest. This comparison provides evidence that the
+candidate improved ranking on this validation split, but it does not
+prove that synthetic examples represent real incident behavior or that
+the gain will persist on another dataset.
+
+\subsection{Capacity-based decision rule}
+The workflow evaluates several review rates and selects the rate with
+the best validation F1 for the selected model. At evaluation time the
+top-scored records are selected anew within each partition, so the
+operating point represents a queue-size assumption. At a one-percent
+capacity, the held-out test queue contains 662 of 66,118 employee-days;
+at five percent it contains 3,306. The first setting is more selective,
+while the larger queue retrieves a greater fraction of known positive
+days. Neither rate is a score threshold that can be carried to another
+population without recalibration and review of capacity constraints.
+
+\section{Detailed Dashboard and API Workflow}
+\subsection{Request lifecycle}
+The local React client starts an analysis request after the analyst
+selects the required folder. In the upload flow, the API accepts the
+expected filenames, rejects duplicate or missing required files, writes
+the accepted files to a temporary directory, and closes the uploaded
+file handles when processing finishes. The analysis lock serializes
+requests because the service keeps the latest employee-day table and
+ranking in process memory for detail requests. The API returns the
+employee report and a summary containing the employee count, flagged
+count, review count, and number of active dates.
+
+The progress endpoint exposes a percentage and stage message. Progress
+is reported at source and model milestones; it is not based on a
+measurement of remaining rows or compute time. A client-side remaining
+time estimate is consequently an extrapolation from elapsed time and
+reported progress. The final milestone indicates successful completion
+of scoring and report creation, while an exception resets the progress
+state and returns an error response.
+
+\subsection{Employee detail and displayed signals}
+The employee detail request selects one employee from the most recent
+in-memory report and returns that employee's relative model ranks,
+agreement count, active-day count, review status, and daily activity
+table. The explanation string is generated from a small set of
+aggregated signal rules on that employee's highest-consensus day. It
+may mention after-hours logons, device connections, file activity,
+email, or web event counts when the count meets a dataset-level
+percentile condition. These rules describe measurable features; they do
+not explain why an event occurred or establish a policy violation.
+
+The API writes two CSV outputs after each successful run. These files
+are convenient for inspection, but they are not a durable case system:
+there is no transaction history, analyst annotation, authorization
+record, or deletion schedule. A later run can replace prior outputs.
+The current service also retains the latest data frames in process
+memory until replaced or the process exits. Both behaviors should be
+considered when evaluating deployment controls.
+
+\section{Risk, Privacy, and Operational Considerations}
+\subsection{Data minimization}
+The feature pipeline does not read message bodies, web destinations,
+file contents, or filenames. It does process user identifiers, exact
+timestamps during parsing, source event types, and aggregate counts.
+This reduces the semantic content processed but does not make the data
+anonymous: an identifier linked to an employee can remain sensitive.
+For the demonstration, the most appropriate handling is to use the
+synthetic dataset, restrict local file access, and avoid copying raw
+records or outputs into shared locations.
+
+\subsection{Human review and evidentiary limits}
+A ranked record should be treated as a prompt to inspect authorized
+source material. Review should consider the employee's role, assigned
+schedule, approved exceptions, business calendar, and relevant system
+context. Analysts should record the basis for a decision and seek
+independent corroboration before escalating a lead. The tool does not
+provide a mechanism to capture those notes, challenge inaccurate source
+data, or record an employment decision; those activities must remain
+outside the prototype and follow institutional policy.
+
+\subsection{Potential sources of error}
+The fixed after-hours window can label approved shift work as unusual.
+Aggregate volumes can reflect differences in role, workload, tenure, or
+system access. Sparse incident labels may mark ordinary events on an
+incident day as positive and may leave other relevant days unlabelled.
+Duplicate rows across chunks can inflate counts, while malformed data
+can remove activity from a user's profile. A new folder with a
+different event distribution also changes percentile ranks and can
+alter employee ordering. These mechanisms can generate both missed
+leads and unnecessary review.
+
+\subsection{Controls needed before operational use}
+A deployment would need an explicit lawful purpose and authorization,
+named data owners, least-privilege access, secure transfer and storage,
+auditable model and data versions, retention and deletion rules, and a
+documented process for correcting source data. Model validation should
+cover relevant employee groups, time periods, and operating conditions.
+Review burden and disparate impact should be measured with appropriate
+stakeholders. Analysts should be trained to distinguish rank from
+probability and known-window labels from verified ground truth. The
+current repository does not implement these controls, so the dashboard
+is limited to controlled demonstration use.
+
+\section{Reproducibility and Review Protocol}
+\subsection{Reproducing the saved experiment}
+To reproduce the analysis, use the same CERT r4.2 activity files and
+answer file, run the notebook cells in order, and preserve the recorded
+split and estimator configuration. Verify that the generated aggregate
+schema contains the expected feature columns and that all positive
+labels lie within employee groups assigned to exactly one partition.
+Run model evaluation after the split is fixed, compare validation
+Average Precision for the real and augmented Random Forest candidates,
+then calculate test metrics using the selected model and queue rate.
+The model bundle should be generated only after the evaluation path has
+completed and should be checked for the four expected model names and
+ordered feature list before it is used by the dashboard.
+
+\subsection{Reviewing an individual result}
+An analyst using the demonstration should first confirm that the
+selected folder belongs to an authorized, synthetic or otherwise
+approved exercise. After processing, the analyst can use the employee
+directory to identify a relative review priority, inspect the four
+model ranks and their agreement, and open the highest-ranked activity
+days. Each displayed count should be interpreted in context and checked
+against original records. The analyst should not infer intent from an
+after-hours count, attachment count, or model rank alone. Because the
+application lacks case notes, any independent review record should be
+kept in an approved system with access controls and retention rules.
+
+\subsection{Suggested verification matrix}
+Table~\ref{tab:verification-matrix} expands the high-level test list
+into observable checks. The table distinguishes checks run for this
+report from work that remains recommended; it does not claim that every
+manual scenario has been exercised.
+\begin{longtable}{|p{0.10\textwidth}|p{0.37\textwidth}|p{0.39\textwidth}|p{0.08\textwidth}|}
+\caption{Expanded verification matrix}\label{tab:verification-matrix}\\
+\hline
+Area & Input or condition & Expected observation & Status\\
+\hline
+\endfirsthead
+\hline
+Area & Input or condition & Expected observation & Status\\
+\hline
+\endhead
+Schema & A required source file is absent & API identifies missing filename and stops before scoring & Recommended\\
+\hline
+Schema & Duplicate upload names are supplied & API rejects the duplicate name & Implemented in source; manual run recommended\\
+\hline
+Parsing & A timestamp cannot be parsed & Row is excluded from aggregation & Implemented in source\\
+\hline
+Parsing & User field is empty or whitespace & Row is excluded after trimming & Implemented in source\\
+\hline
+Parsing & A duplicate is repeated within one chunk & One copy contributes to counts & Implemented in source\\
+\hline
+Parsing & Duplicate lies across chunk boundary & Duplicate may remain; verify and document & Known limitation\\
+\hline
+Features & Device activity is not ``connect'' & Event count increases; connection count does not & Recommended\\
+\hline
+Features & Email attachment field is nonnumeric & Event count increases; attachment contribution is zero & Implemented in source\\
+\hline
+Alignment & A trained feature is absent from a source export & Missing model column is filled with zero & Implemented in source\\
+\hline
+Scoring & Model bundle is absent or incomplete & Health check or analysis returns a clear error & Source check present; manual run recommended\\
+\hline
+Ranking & New rows are added to the selected folder & Percentile ranks are computed within that folder & Implemented in source\\
+\hline
+Outputs & Analysis succeeds & Employee and employee-day CSV summaries are written & Implemented in source; end-to-end run recommended\\
+\hline
+Governance & Output directory permissions are checked & Only authorized users can access sensitive artifacts & Not implemented by application\\
+\hline
+\end{longtable}
+
+\section{Complete Source Listings}
+The following listings preserve the source snapshots used while preparing
+this report. They are included for review and reproducibility; the
+repository remains the authoritative location for current code. Notebook
+cell boundaries are represented by comments in the listing. The source
+files should be refreshed before a later submission if implementation
+changes.
+
+\subsection{Notebook analysis listing}
+\lstinputlisting[language=Python,caption={Notebook code cells used for data preparation, model evaluation, and artifact creation},label={lst:full-notebook}]{notebook_code_listing.txt}
+
+\subsection{Core scoring implementation}
+\lstinputlisting[language=Python,caption={CSV aggregation, feature alignment, model scoring, and employee ranking},label={lst:full-core}]{forensic_core_code_listing.txt}
+
+\subsection{FastAPI service implementation}
+\lstinputlisting[language=Python,caption={Local API endpoints and upload handling},label={lst:full-api}]{api_code_listing.txt}
+
+\subsection{Alternative Streamlit interface}
+\lstinputlisting[language=Python,caption={Alternative Streamlit application source snapshot},label={lst:full-streamlit}]{app_code_listing.txt}
 
 \renewcommand{\bibname}{References}
 \clearpage
