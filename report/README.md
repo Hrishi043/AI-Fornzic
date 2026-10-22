@@ -90,8 +90,12 @@ but are not shown in the captured screens.
 
 The template specifies a **minimum of 60 pages**. The report has been
 expanded with implementation detail, evaluation methodology, privacy
-and operational considerations, an expanded verification matrix, and
-full source listings. The resulting PDF page count has not been verified
+and operational considerations, an expanded feature dictionary and
+data-lineage checkpoints, model-scoring concepts, implementation
+trade-offs, API contract, deployment risk review, troubleshooting guide,
+React interaction states, accessibility notes, glossary, reproducibility
+checklist, development roadmap, and full source listings.
+The resulting PDF page count has not been verified
 because no LaTeX compiler is installed in this environment. Compile the
 report and check the page count, code listing breaks, and layout. If it
 remains below the department's minimum, add genuine, approved project

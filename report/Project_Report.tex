@@ -492,6 +492,41 @@ coarse-volume and timing signals. The ``after-hours'' definition is a
 fixed clock interval (before 06:00 or at/after 18:00); it does not
 account for individual schedules, holidays, or time zones.
 
+\subsubsection{Feature groups and interpretation}
+The twelve numeric fields can be read as five source-specific groups.
+The event-count field measures retained row volume for that source on
+one user-day. Its after-hours counterpart counts only rows in the fixed
+clock interval. These paired fields distinguish total recorded volume
+from the portion occurring outside the defined interval; neither field
+establishes that activity was unauthorized.
+
+The device connection count is narrower than the device event count:
+it includes rows whose activity text is ``connect'' after conversion
+to lowercase. The model can therefore distinguish a general device
+event total from the subset marked as a connection. The email
+attachment feature sums parsed attachment counts and is distinct from
+the number of email rows. A single email event may contribute multiple
+attachments, while an invalid attachment value contributes zero to the
+sum. File and web features are event volume only; no filenames,
+destinations, or contents are model inputs.
+
+\subsubsection{Feature scale and representation}
+All input values are nonnegative counts or sums, with zero used when no
+matching event is present after source tables are joined. This makes the
+feature matrix suitable for common tabular estimators and gives a clear
+interpretation to each column. However, counts are often skewed: a small
+number of user-days may have far more events than most days. Logistic
+Regression standardizes the numeric input after median imputation,
+whereas the tree models use count thresholds directly. The transformation
+and estimator choice therefore affect how a large count changes a rank.
+
+Because the model excludes identifiers and calendar dates, it does not
+directly learn an employee's historical baseline or weekday pattern.
+Two individuals with different roles can receive similar feature
+vectors despite very different expectations for their work. Adding
+personalized baselines may help represent context, but would require
+careful protection against learning and amplifying historical bias.
+
 \subsection{Analysis of class variables}
 For each answer-file incident in dataset version 4.2, the notebook
 normalizes start and end timestamps to calendar days and marks matching
@@ -538,6 +573,56 @@ time; it is a dataset overview, not evidence that any user is
 anomalous. The employee plot is descriptive only and does not adjust
 for working days, role, or tenure.
 
+\subsection{Data lineage and transformation checkpoints}
+Table~\ref{tab:data-lineage} follows one source row from ingestion to
+the final model matrix. It makes explicit which transformations are
+common to all sources and which fields create additional features.
+
+\begin{table}[H]
+\centering
+\caption{Data lineage from raw activity source to model input}
+\label{tab:data-lineage}
+\small
+\begin{tabularx}{\textwidth}{|p{0.17\textwidth}|p{0.27\textwidth}|p{0.29\textwidth}|X|}
+\hline
+Stage & Operation & Retained information & Checkpoint for review\\
+\hline
+File selection & Identify the five required filenames & Source identity and expected file set & Confirm that inputs belong to one dataset export\\
+\hline
+Header inspection & Normalize column names and check required date/user fields & Required fields and optional activity fields & Confirm header compatibility before processing\\
+\hline
+Chunk parsing & Parse timestamps, trim IDs, reject unusable rows, deduplicate within chunk & Usable event records and row quality counts & Reconcile rows read, retained, rejected, and deduplicated\\
+\hline
+Feature creation & Count each retained event and applicable source-specific values & Event, after-hours, connection, and attachment contributions & Check nonnegative counts and source totals\\
+\hline
+Daily aggregation & Group by user and calendar day and sum contributions & One row per user-day and numeric feature columns & Confirm unique user-day keys and expected date range\\
+\hline
+Feature alignment & Add absent trained columns as zero and order model features & Fixed-width numeric model matrix & Compare final columns with model bundle metadata\\
+\hline
+Scoring & Apply four estimators and normalize scores to within-file ranks & Model-specific ranks and consensus value & Confirm score direction and output row count\\
+\hline
+\end{tabularx}
+\end{table}
+
+The checkpoints in the final column are recommended review points. They
+are not all emitted as a formal audit report by the current dashboard.
+In particular, a successful API response only indicates that the
+processing path completed; it does not certify that the input export
+was complete, that every source row was correctly interpreted, or that
+the resulting rankings are appropriate for a particular purpose.
+
+\subsection{Aggregation example}
+Consider a user with several retained events on one calendar date. Each
+row increments its source event count by one. If a timestamp falls
+before 06:00 or at/after 18:00, it also increments that source's
+after-hours count. A device row marked ``connect'' increments both the
+device event count and the connection count. An email row with a parsed
+attachment value increments the email event count by one and adds that
+value to the attachment total. At the end of aggregation, these partial
+source summaries are combined into a single user-day record. This
+example describes the transformation rule only; it does not represent
+an individual observed in the saved evaluation.
+
 \section{Analysis of architecture and algorithms}
 \subsection{Detailed study of proposed algorithms}
 \textbf{Logistic Regression:} A supervised baseline with median
@@ -559,6 +644,66 @@ negative decision function is used so larger values rank as more
 unusual. The contamination setting controls the estimator's outlier
 decision threshold; the project separately evaluates a validation-
 selected one-percent queue and retains five percent as a reference.
+
+\subsection{Model scoring concepts}
+The four estimators produce scores through different mechanisms. The
+following expressions summarize the underlying scoring ideas; they are
+not a substitute for the saved estimator configuration or a claim that
+the dashboard outputs are calibrated probabilities.
+
+For Logistic Regression, the positive-class probability is modeled as
+the logistic transform of a linear feature combination:
+\[
+\hat{p}(y=1\mid\mathbf{x}) =
+\sigma\!\left(\beta_0+\sum_{j=1}^{p}\beta_jx_j\right),
+\qquad
+\sigma(z)=\frac{1}{1+e^{-z}}.
+\]
+The scaling step places numeric features on comparable ranges for
+optimization, while class weighting changes the relative penalty
+associated with errors on the rare positive class. Coefficients can
+indicate direction within the fitted linear model, but the report does
+not treat them as causal explanations.
+
+A Decision Tree partitions the feature space through successive
+threshold tests. At each node, the tree chooses a split that reduces
+impurity in the child groups; a common impurity measure for binary
+classification is Gini impurity,
+\(G=1-\sum_{c}p_c^2\). A depth limit and minimum leaf size constrain
+how specific the resulting rules can become. A single tree is easy to
+trace as a sequence of conditions, but small changes in training data
+can produce a different tree structure.
+
+Random Forest fits a collection of randomized trees and aggregates
+their outputs. For probability-producing trees, the ensemble score can
+be represented as
+\[
+\hat{p}_{\mathrm{RF}}(y=1\mid\mathbf{x})
+=\frac{1}{B}\sum_{b=1}^{B}
+\hat{p}_{b}(y=1\mid\mathbf{x}),
+\]
+where \(B=200\) for the configured forest. Randomized samples and
+feature choices reduce dependence on any one tree. The ensemble is
+more stable than a single tree in many tabular settings, but it remains
+dependent on the engineered features, labels, and sample design.
+
+Isolation Forest repeatedly isolates observations using random feature
+and split choices. Observations isolated with shorter average path
+lengths are considered more anomalous. A conventional anomaly score is
+often written as \(s(x,n)=2^{-E[h(x)]/c(n)}\), where \(h(x)\) is the
+path length and \(c(n)\) is a normalization term for sample size.
+The implementation uses the estimator's decision function with sign
+reversed to align the direction with the supervised score ranks. An
+unusual record in this feature space need not overlap a known incident
+window, which is why anomaly scores and supervised positive-class
+scores answer different questions.
+
+After model scoring, the dashboard maps each model's values to
+percentile ranks inside the current analysis. This rank transformation
+supports a shared scale for presentation, but it removes the absolute
+distance between two raw scores. A percentile of 0.95 means that the
+record is near the high end of that run's ranked set; it does not mean
+that the event has a 95 percent chance of being harmful.
 
 \subsection{Step-by-step model workflow}
 \begin{enumerate}
@@ -907,6 +1052,69 @@ no database in the current implementation. CSV and joblib files are
 local artifacts, so file permissions, encryption, backup, and deletion
 must be managed by the operator.
 
+\subsection{Design decisions and trade-offs}
+Table~\ref{tab:design-decisions} records the practical trade-offs in the
+implemented prototype. These choices keep the demonstration compact and
+operable on a local workstation, while identifying capabilities that
+would be needed for a stronger research or operational system.
+
+\begin{table}[H]
+\centering
+\caption{Implemented design decisions and their trade-offs}
+\label{tab:design-decisions}
+\small
+\begin{tabularx}{\textwidth}{|p{0.23\textwidth}|p{0.28\textwidth}|X|}
+\hline
+Decision & Benefit in the prototype & Cost or limitation\\
+\hline
+Aggregate events by user and day & Reduces millions of source rows to a compact tabular model input & Loses event order and within-day context\\
+\hline
+Read CSV files in chunks & Limits the size of each parsed input block in memory & Does not by itself bound all memory used by accumulated daily groups\\
+\hline
+Use five fixed source filenames & Simplifies folder validation and repeatable demonstrations & Requires a compatible export schema and filename mapping\\
+\hline
+Keep user ID and date out of model features & Avoids direct identifier memorization and date-specific splits & Does not model each person's baseline, schedule, or temporal trend\\
+\hline
+Use four complementary estimators & Provides supervised and unsupervised ranking perspectives & Adds interface complexity; model agreement is not independent evidence\\
+\hline
+Write CSV artifacts rather than a database & Makes results easy to inspect and exchange locally & No run history, transaction integrity, access policy, or case workflow\\
+\hline
+Run the API on loopback & Keeps the intended demo local to one machine & Does not provide user authentication or protect local files from other accounts\\
+\hline
+\end{tabularx}
+\end{table}
+
+The chunk size of 25,000 rows is an implementation setting rather than
+a measured optimum. A smaller chunk can reduce temporary parsing
+memory while increasing loop and aggregation overhead; a larger chunk
+can reduce overhead while increasing the amount of raw data held at
+once. The grouped daily tables also accumulate as each chunk is
+processed, so peak memory depends on the number of distinct user-day
+groups as well as the chunk size. Performance claims should therefore
+be based on end-to-end measurements that include parsing, aggregation,
+model scoring, serialization, and output writing.
+
+\subsection{Processing boundary and resource profile}
+The dominant input in the saved run is the HTTP activity file, with
+over 28 million rows. The pipeline streams this source in chunks, but
+then creates grouped employee-day summaries and joins them across
+sources. The number of summarized records is far smaller than the raw
+event count, yet parsing and grouping still require CPU, disk access,
+and intermediate memory. The notebook's model fitting adds a separate
+compute cost, especially for the 200-tree ensembles. The dashboard
+inference stage does not retrain the estimators; it builds features,
+scores them, ranks values, and writes summaries.
+
+No reproducible benchmark of elapsed time, peak memory, or resource
+usage is currently recorded. Consequently, this report does not state
+a minimum RAM size or promise a processing duration. A benchmark should
+record hardware and software versions, input file sizes, row counts,
+warm/cold file-cache conditions, and output dimensions. It should also
+repeat runs because disk cache and background system activity can
+affect wall-clock times. Such evidence would support a credible system
+requirement instead of an estimate based only on the developer's
+machine.
+
 \section{Database design}
 No relational database is implemented. The logical data entities are:
 ActivityEvent (source row), EmployeeDay (user, day,
@@ -917,6 +1125,65 @@ supporting high-ranked activity day). CSV is used for tabular
 interchange, and joblib serializes Python estimators. A production
 version should define explicit schemas, provenance, retention controls,
 and access logs before introducing persistent case data.
+
+\section{API Contract and Output Structure}
+The API forms the boundary between the React client and the local
+analysis code. Table~\ref{tab:api-contract} summarizes the routes
+implemented in the current FastAPI service. The table describes the
+prototype's local contract and does not imply authentication or a
+stable public API guarantee.
+
+\begin{table}[H]
+\centering
+\caption{Implemented API endpoints}
+\label{tab:api-contract}
+\small
+\begin{tabularx}{\textwidth}{|p{0.10\textwidth}|p{0.23\textwidth}|X|}
+\hline
+Method and route & Input & Purpose and response\\
+\hline
+GET \texttt{/api/health} & No request body & Reports whether the expected model bundle file exists\\
+\hline
+GET \texttt{/api/progress} & No request body & Returns the current progress percentage, stage text, and active state\\
+\hline
+POST \texttt{/api/analyze} & JSON folder path & Analyzes a folder already accessible to the local API process\\
+\hline
+POST \texttt{/api/analyze-upload} & Multipart activity files & Validates uploaded filenames, stages files temporarily, then runs analysis\\
+\hline
+POST \texttt{/api/employee} & JSON user identifier & Returns details for one employee from the latest in-memory result\\
+\hline
+\end{tabularx}
+\end{table}
+
+For the upload route, the service accepts the five required activity
+filenames and recognizes a small set of optional employee lookup
+filenames. Duplicate accepted names and missing required files produce
+an error before analysis. The optional lookup can associate a user ID
+with a display name when it contains a recognized user column and name
+column. The analysis result includes an employee list, aggregate counts,
+and the names of the four models. The detail route returns relative
+model ranks, consensus status, model agreement, active-day count, and a
+friendly activity table for that employee.
+
+\subsection{Generated CSV roles}
+The dashboard writes one row per employee-day to
+\texttt{dashboard\_day\_scores.csv} and one row per employee to
+\texttt{dashboard\_report.csv}. The day-level output supports
+inspection of feature counts and model ranks over time. The employee
+report supports sorting and filtering by the aggregate review status,
+consensus rank, model agreement, and generated reason string. These
+outputs are derived summaries and should be protected at the same level
+as the source activity logs because they preserve user identifiers and
+review priorities.
+
+The in-memory state and CSV exports serve different purposes. The API
+uses in-memory frames to answer detail requests for the most recent
+analysis, while the CSV files persist after that process state is
+replaced or the server stops. There is no mechanism to retrieve an older
+analysis by identifier, compare two runs, or record the analyst who
+requested a report. A later approved version could add explicit run IDs
+and provenance metadata, provided that retention and access rules are
+defined first.
 
 \section{UI design}
 The primary interface is a React dashboard served locally by Vite and
@@ -951,6 +1218,73 @@ time. A note beside the review queue explains that model agreement counts
 how many model rankings place an employee among their respective top ten
 percent and that agreement is a review-prioritization signal, not a
 probability or proof of misconduct.
+
+\subsection{React interaction states}
+The React client is implemented as one primary overview screen with
+several states controlled by component state. Table~\ref{tab:ui-states}
+describes the transitions visible in the current source and the
+information presented to the operator.
+
+\begin{table}[H]
+\centering
+\caption{Primary dashboard states and transitions}
+\label{tab:ui-states}
+\small
+\begin{tabularx}{\textwidth}{|p{0.18\textwidth}|p{0.31\textwidth}|X|}
+\hline
+State & Entry condition & User-visible behavior\\
+\hline
+Initial & Page loads & Shows the landing view and checks API health; retries reachability after a failed check\\
+\hline
+Folder selected & Browser folder picker changes & Shows folder name, selected file count, missing required filenames, and service readiness\\
+\hline
+Analysis active & Analyst submits a complete selection & Disables analysis action, shows stage, progress bar, elapsed time, and approximate remaining time\\
+\hline
+Analysis complete & API returns employee results & Displays summary cards, prioritized queue, searchable directory, filters, and detail selection\\
+\hline
+Employee selected & Analyst selects a queue card or directory row & Requests latest employee details and shows model ranks and up to 20 high-ranked days\\
+\hline
+Request error & Network, parsing, or API request fails & Displays a dismissible error message and allows the analyst to correct the issue and retry\\
+\hline
+\end{tabularx}
+\end{table}
+
+The folder picker gathers files from a browser directory selection. The
+client checks the selected filenames against the five required names
+before enabling the analysis button. Once submitted, browser upload
+events account for the first portion of the progress display; thereafter
+the client polls the API progress route. The visible estimate is
+calculated from elapsed time and reported percentage, so it may change
+as later processing stages take longer or finish more quickly than
+earlier ones.
+
+\subsection{Review queue and directory behavior}
+The prioritized queue presents up to ten employee cards in consensus
+order, with a displayed relative rank, model-agreement count, and
+signal-description string. The directory provides search over the
+employee ID and optional name, and a status filter. The current
+interface limits the non-card directory display to 50 rows at a time;
+search narrows the set. Selecting either a card or row requests the
+employee detail from the API and opens a profile panel. The detail panel
+compares the four within-dataset percentile ranks and lists up to twenty
+activity days ordered by consensus score.
+
+The interface is designed to help navigate the data rather than to
+provide a complete investigation record. It does not retain analyst
+notes, show the original raw event rows, capture a disposition, or
+compare historical analysis runs. The ranked day table exposes
+aggregated counts only. A reviewer still needs a separate authorized
+means of examining original events and recording any conclusion.
+
+\subsection{Accessibility and communication choices}
+The analysis panel uses a live status region and a progressbar with
+minimum, maximum, and current values so assistive technology can expose
+the update. The folder input has an accessible label, and the error
+banner has a dismiss action. Color is paired with text labels in the
+review status and model names. These source-level design choices are
+useful but do not amount to a completed accessibility audit; keyboard
+navigation, screen-reader behavior, zoom, contrast, and responsive
+layout should be reviewed in a documented acceptance test.
 
 \clearpage
 \begin{figure}[p]
@@ -1220,6 +1554,84 @@ by the reported classification metrics. Additional employee-level and
 temporal validation is necessary before making claims about dashboard
 effectiveness.
 
+\subsection{Interpretation of the selected operating point}
+The selected one-percent operating point is best understood as a queue
+budget for a particular evaluation split. It does not mean that the
+system identifies one percent of employees as risky, and it does not
+mean that a score is a one-percent probability. The ranked unit in the
+offline experiment is an employee-day. If an analyst can inspect only a
+fixed number of employee-days, the top-ranked records define the
+candidate queue; if the practical unit is an employee, aggregation and
+capacity must be defined separately.
+
+The 95 matching positive records in the test queue are useful evidence
+that the selected model retrieves some known incident-window days. The
+194 known positives outside the queue demonstrate that a narrow review
+budget misses many labelled examples. The 567 unmatched records inside
+the queue cannot be classified as either confirmed false alarms or
+confirmed benign activity because the labels are incomplete. Operational
+review would need a disposition process that can distinguish a data
+quality issue, expected work, an unresolved lead, and a corroborated
+incident without converting a model score directly into an outcome.
+
+\subsection{Error analysis priorities}
+The aggregate metrics do not show why a particular test record was
+ranked highly or why another positive record was missed. A useful next
+analysis would inspect a stratified sample of true-positive,
+unmatched-high-score, and missed-positive records. Each record would be
+reviewed against the original event sequence and its answer-file
+incident interval. The review should check whether the score was driven
+by event volume, unusual timing, device activity, attachment counts, or
+interactions among several features. Since no event-level explanation
+or independent analyst adjudication was saved for this experiment, the
+current report does not claim to have completed this error analysis.
+
+Error analysis should also distinguish modeling error from measurement
+error. A malformed timestamp or missing user identifier can remove
+records before modelling. A duplicate may inflate an aggregate. A
+day-level label can assign the same target to all activity on a day,
+even where only a small subset of the events relates to the incident.
+Finally, role and schedule differences can change expected activity
+volume. These issues require data and process review in addition to
+model tuning.
+
+\subsection{Threats to validity}
+\textbf{Construct validity:} the target is an answer-file window match,
+not a direct measurement of intent or policy violation. The features
+are coarse daily counts and omit content and sequence.
+
+\textbf{Internal validity:} employee-grouped splitting limits direct
+person overlap, but data cleaning, duplicate handling, and the synthetic
+augmentation design can still affect the result. Only one recorded
+split is summarized here, so sampling variability is not estimated.
+
+\textbf{External validity:} CERT r4.2 is synthetic, and the experiment
+does not establish performance on a live organization's systems,
+workforce, logging practices, or policies. Operational data may have
+different base rates and feature distributions.
+
+\textbf{Conclusion validity:} test metrics are estimates based on 289
+known positive days and a single held-out group partition. Differences
+between models should not be interpreted as stable population-wide
+effects without repeated splits or confidence intervals. Average
+Precision and capacity metrics summarize ranking, but they do not
+capture investigation time, analyst disagreement, or the consequences
+of an incorrect escalation.
+
+\subsection{Metric example}
+At the selected test capacity, the queue contains 662 employee-days.
+The 95 known positive days yield a precision of
+\(95/662 \approx 0.144\). There are 289 known positive days in the full
+test set, so recall is \(95/289 \approx 0.329\). The F1 value is the
+harmonic mean of these two quantities:
+\[
+F_1 = 2\,\frac{\text{precision}\times\text{recall}}
+{\text{precision}+\text{recall}} \approx 0.200.
+\]
+This calculation makes the denominator explicit. It also shows why
+precision and recall should accompany a single summary score: the same
+F1 can arise from different review burdens and retrieval rates.
+
 \section{Requirements traceability}
 \begin{table}[H]
 \centering
@@ -1316,6 +1728,92 @@ loaded from untrusted sources. Input logs and outputs may contain
 sensitive identifiers and must remain access-controlled. A public or
 production deployment is outside the verified scope.
 
+\section{Deployment Risk Review}
+The demonstration keeps its API bound to loopback and uses local files,
+but local execution does not by itself guarantee confidentiality or
+integrity. The selected logs, in-memory data frames, generated CSV files,
+and serialized estimator bundle all require appropriate handling. This
+section records the principal technical risks visible from the current
+architecture and the controls that would be appropriate in a later
+version.
+
+\begin{longtable}{|p{0.17\textwidth}|p{0.27\textwidth}|p{0.29\textwidth}|p{0.19\textwidth}|}
+\caption{Deployment risk review for the prototype}\label{tab:deployment-risks}\\
+\hline
+Asset or boundary & Potential failure & Possible consequence & Control needed\\
+\hline
+\endfirsthead
+\hline
+Asset or boundary & Potential failure & Possible consequence & Control needed\\
+\hline
+\endhead
+Input logs & Wrong or unauthorized folder is selected & Processing exceeds the approved purpose or includes unrelated data & Authorization check, scope statement, and analyst confirmation\\
+\hline
+CSV parser & Unexpected headers or malformed rows are silently excluded or misread & Aggregate counts differ from source activity & Schema validation, row-quality summary, and reproducible rejection log\\
+\hline
+Temporary upload & Process interruption leaves staged data behind & Sensitive source files persist beyond the intended analysis & Confirm cleanup behavior and apply managed temporary storage\\
+\hline
+In-memory state & API process remains open after analysis & Latest employee details remain accessible to local callers & Restrict local access and clear state after the review session\\
+\hline
+Generated CSV files & Outputs inherit permissive directory permissions & Rankings and identifiers are exposed to other local users & Least-privilege permissions, encryption, and deletion schedule\\
+\hline
+Model bundle & Untrusted joblib artifact is loaded & Loading may execute unsafe serialized content & Load only a trusted, versioned artifact from a controlled path\\
+\hline
+Ranking logic & Relative score is read as calibrated risk & Unjustified action follows from an unsupported interpretation & Interface training, plain-language limitations, and human corroboration\\
+\hline
+Single machine & Backup or device compromise exposes inputs and outputs & Loss of confidentiality and auditability & Managed device controls, encrypted storage, and incident response\\
+\hline
+\end{longtable}
+
+The table is a design review, not a security assessment or penetration
+test. It identifies foreseeable failure paths from the current data
+flow. The prototype has not been tested against malicious uploads,
+concurrent clients, compromised endpoints, or a hostile local user.
+Those tests and an accountable security review would be required before
+any broader deployment.
+
+\section{Local Operation and Troubleshooting}
+Table~\ref{tab:troubleshooting} maps visible setup or input problems to
+the expected diagnostic path. It is based on the current source behavior
+and is intended to help a developer distinguish configuration issues
+from data-quality issues. The table does not replace an end-to-end
+acceptance test on the target machine.
+
+\begin{longtable}{|p{0.24\textwidth}|p{0.34\textwidth}|p{0.34\textwidth}|}
+\caption{Troubleshooting guide for the local demonstration}\label{tab:troubleshooting}\\
+\hline
+Symptom & Likely cause & Investigation step\\
+\hline
+\endfirsthead
+\hline
+Symptom & Likely cause & Investigation step\\
+\hline
+\endhead
+Health response says the bundle is not ready & Model bundle is absent at the configured output path & Run the notebook artifact-creation cell and confirm the expected filename\\
+\hline
+Analysis says a required file is missing & Selected directory does not contain all five expected names & Check exact filenames and ensure the folder selection is the directory holding the CSV files\\
+\hline
+Analysis reports a required date or user column & A CSV header differs from the expected schema & Inspect normalized headers and adapt the export or an explicitly reviewed schema mapping\\
+\hline
+No usable activity records are found & Rows have invalid timestamps or blank identifiers, or all source files are empty & Inspect sample rows and source quality before re-running\\
+\hline
+Employee names are blank & No compatible optional lookup file was supplied or IDs did not match & Use stable user identifiers; treat display names as optional enrichment\\
+\hline
+Progress appears uneven & Progress updates occur at source and model milestones & Allow processing to finish and treat remaining-time estimates as approximate\\
+\hline
+Employee detail cannot be opened & No successful analysis exists in the running API process, or the user ID is absent & Run analysis again and confirm the selected row belongs to the latest report\\
+\hline
+Dashboard output differs from notebook output & Input selection, chunk-level duplicate behavior, or feature schema differs & Compare file inventory, row-quality counts, date handling, and feature columns\\
+\hline
+\end{longtable}
+
+The API normalizes most processing exceptions into a client error response
+with a diagnostic message. This is useful for local debugging but may
+expose implementation details, so a deployed service should return
+sanitized messages to users and retain technical diagnostics in a
+restricted log. Such logging and access separation are not implemented
+in the current prototype.
+
 \chapter{Git History}
 The following selected entries are taken from the repository history.
 They record the sequence of notebook and application changes visible in
@@ -1381,7 +1879,7 @@ unverified internship activities or personal performance.
 This project demonstrates a local pipeline from activity logs to
 employee-day features, model evaluation, and a React/FastAPI review
 dashboard. The validation-selected Random Forest's one-percent test
-queue retrieves 62 of 289 known positives. These results rank synthetic
+queue retrieves 95 of 289 known positives. These results rank synthetic
 records for review; incomplete labels and low precision mean they do not
 prove harmful behaviour or validate the dashboard's employee-level
 status. Any operational use requires authorization, corroborating
@@ -1411,6 +1909,97 @@ evidence, and accountable human review.
         retention/deletion controls, model versioning, and documented
         analyst procedures before wider deployment.
 \end{enumerate}
+
+\section{Prioritized Development Roadmap}
+Further work should be staged so that measurement quality and review
+practice are established before adding more complex models. Table~\ref{tab:roadmap}
+maps a practical sequence to observable deliverables. The ordering is a
+proposal; it does not imply that any of these improvements have already
+been implemented.
+
+\begin{longtable}{|p{0.12\textwidth}|p{0.24\textwidth}|p{0.38\textwidth}|p{0.18\textwidth}|}
+\caption{Proposed project development roadmap}\label{tab:roadmap}\\
+\hline
+Stage & Focus & Deliverable & Evidence of completion\\
+\hline
+\endfirsthead
+\hline
+Stage & Focus & Deliverable & Evidence of completion\\
+\hline
+\endhead
+1 & Data quality & Schema validation, rejection counts, global duplicate strategy, and feature reconciliation & Reconciled source-to-aggregate totals\\
+\hline
+2 & Evaluation robustness & Repeated employee-grouped splits, uncertainty intervals, and time-forward evaluation & Reproducible metric distribution across splits\\
+\hline
+3 & Analyst study & Defined queue capacity, review time, adjudication labels, and agreement process & Documented review protocol and measured workload\\
+\hline
+4 & Model analysis & Stratified review of missed positives and unmatched high-score records & Error analysis with independently checked examples\\
+\hline
+5 & Governance & Authentication, least privilege, audit events, retention, and deletion & Control verification and approved operating procedure\\
+\hline
+6 & Monitoring & Versioned data and model records, drift checks, and periodic revalidation & Scheduled review with documented acceptance criteria\\
+\hline
+\end{longtable}
+
+\subsection{Stage 1: data quality and schema contracts}
+The current parser is intentionally permissive for malformed timestamps
+and optional columns. A more auditable pipeline should produce a
+per-file summary with the input row count, retained row count, invalid
+timestamp count, missing-user count, duplicate count, and accepted
+feature columns. The output should also record the parser version and
+input file identity using a controlled checksum. This would help an
+analyst distinguish a quiet employee-day from a day for which the input
+was incomplete. Schema checks should fail clearly when a required field
+is renamed or has an incompatible type, rather than allowing a partial
+analysis to appear complete.
+
+The aggregation process should have a documented duplicate policy.
+Global deduplication can require extra storage or an external sort for
+large files, so the chosen method should be benchmarked and described.
+Feature reconciliation should compare source totals with aggregate
+totals and explain any differences caused by rejected rows, optional
+fields, or day alignment. These checks provide a stronger foundation
+than model tuning because a model cannot recover events that were
+incorrectly dropped or counted.
+
+\subsection{Stage 2: evaluation across groups and time}
+Repeated grouped splits would show how much the reported metrics depend
+on which employees happen to be held out. Confidence intervals or
+quantiles across the repeated runs can describe uncertainty without
+pretending that one split is definitive. A time-forward evaluation
+should also train on earlier periods and evaluate on later periods; this
+would test a deployment question that the current employee grouping
+does not answer. Where possible, both constraints should be combined so
+that employee overlap and temporal leakage are examined explicitly.
+
+The positive label definition should be reviewed alongside the
+evaluation design. Incident windows can cover days containing mixed
+routine and incident-related activity. Alternative label windows or
+event-level labels could be studied as sensitivity analyses, provided
+their definitions are set before interpreting test results. The results
+should be reported separately for each label rule rather than selecting
+the rule that produces the most favorable score.
+
+\subsection{Stage 3: analyst workload and review outcome}
+The queue-rate grid in the experiment gives a technical comparison,
+but a real review capacity depends on the time required to inspect a
+lead and the availability of trained reviewers. A future study could
+record time-to-review, disposition categories, requests for additional
+context, and inter-reviewer agreement. These process measures would
+help determine whether a ranked queue is useful in practice. They must
+be collected under an approved research and data-governance process,
+with clear limits on who may see employee-level information.
+
+\subsection{Stage 4: monitoring and change management}
+If any later system is approved for continued use, each analysis should
+be associated with a versioned feature definition, model artifact,
+input period, and documented configuration. Changes in logging systems,
+work schedules, or organizational roles can shift feature distributions
+and ranking behavior. Monitoring should therefore look for changes in
+data completeness, feature ranges, queue volume, and adjudicated review
+outcomes. A model update should undergo the same validation and approval
+process as the original version, with rollback available if quality or
+governance criteria are not met.
 
 
 
@@ -1499,6 +2088,87 @@ interpreted as proof the record is benign.
   \item Assess bias, disparate impact, and performance drift before any
         operational deployment.
 \end{enumerate}
+
+\section{Glossary of Project Terms}
+\begin{description}
+  \item[Activity event] One retained row from a logon, device, file,
+        email, or HTTP source after the applicable parsing and cleaning
+        rules have been applied.
+  \item[Employee-day] The analysis unit formed by combining all
+        retained activity for one user identifier on one calendar day.
+  \item[Incident window] The inclusive start and end dates associated
+        with a user and scenario in the CERT answer file.
+  \item[Known-window label] The binary target used in this experiment;
+        a value of one indicates that the employee-day overlaps a listed
+        incident window. A zero means only that the rule did not mark it.
+  \item[Unlabelled record] A record without a positive answer-file
+        match. It is not assumed to represent confirmed benign activity.
+  \item[Feature] A numeric value derived from activity, such as a daily
+        event count, after-hours count, device connection count, or
+        attachment total.
+  \item[Grouped split] A data partition that keeps every row for one
+        user identifier in a single training, validation, or test group.
+  \item[Validation partition] The employee groups used to compare
+        model candidates and choose the review capacity.
+  \item[Test partition] The held-out employee groups used for the
+        final reported estimate after model and capacity selection.
+  \item[Average Precision] A summary of the precision-recall ranking
+        curve, used here to compare models over score cutoffs.
+  \item[Review capacity] The chosen fraction of ranked records that can
+        be presented for inspection in a fixed-size queue.
+  \item[Percentile rank] A record's relative position among the scores
+        in the currently analyzed dataset; it is not a probability.
+  \item[Consensus score] The mean of four model percentile ranks for
+        an employee-day. The dashboard ranks each employee using the
+        highest daily consensus score.
+  \item[Model agreement] The number of model-specific employee rankings
+        that fall in each model's top ten percent under the dashboard
+        rule.
+  \item[False positive in this report] A selected employee-day without
+        a matching known-window label. Because labels are incomplete,
+        this term does not establish benign activity.
+  \item[Model bundle] The local joblib artifact containing estimator
+        objects, model names, and the ordered feature-column list used
+        by the dashboard.
+\end{description}
+
+\section{Reproducibility Checklist}
+The checklist below summarizes the artifacts and configuration that
+should be retained when reproducing a future run. The current repository
+contains code snapshots and saved evaluation outputs, but it does not
+provide a complete environment lockfile or an immutable run manifest.
+
+\begin{longtable}{|p{0.10\textwidth}|p{0.47\textwidth}|p{0.33\textwidth}|}
+\caption{Reproducibility items for a future experiment}\label{tab:reproducibility}\\
+\hline
+ID & Item to record & Why it matters\\
+\hline
+\endfirsthead
+\hline
+ID & Item to record & Why it matters\\
+\hline
+\endhead
+RP01 & Dataset release, source-file names, file sizes, and controlled checksums & Identifies the exact input snapshot\\
+\hline
+RP02 & Python and package versions plus operating system & Supports environment reconstruction\\
+\hline
+RP03 & Feature names, order, parsing rules, and after-hours definition & Prevents silent training/inference mismatch\\
+\hline
+RP04 & Label window rule and answer-file version & Makes the target definition explicit\\
+\hline
+RP05 & Employee IDs or stable hashes assigned to each partition & Confirms group separation without exposing IDs unnecessarily\\
+\hline
+RP06 & Estimator parameters, random seeds, and augmentation selection & Explains model construction and variation\\
+\hline
+RP07 & Validation selection results and candidate capacity grid & Shows that test data did not determine model choice\\
+\hline
+RP08 & Test predictions, integer confusion counts, and metric code version & Enables independent recalculation of reported metrics\\
+\hline
+RP09 & Model artifact checksum and creation date & Connects deployed inference to the evaluated model bundle\\
+\hline
+RP10 & Analyst-facing output schema and any post-processing rule & Clarifies how model scores became a review queue\\
+\hline
+\end{longtable}
 
 \section{Selected Code Snippets}
 These excerpts illustrate daily feature aggregation, incident-window
