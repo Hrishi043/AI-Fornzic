@@ -9,27 +9,29 @@ project report.
 
 The report content is based on the project source, the CERT r4.2
 synthetic activity data, and saved outputs in `sprint1_output/`. The
-notebook, API, model-core, and alternative Streamlit listings are source
-snapshots included in full in the appendix; selected excerpts also
-appear earlier in the report. The four notebook plots are extracted from saved
-notebook outputs. `ui_react_landing.png` and `ui_react_model_guide.png`
+notebook, API, model-core, and alternative Streamlit source snapshots
+provide selected excerpts and complete source listings in the appendix.
+The four notebook plots are extracted from saved notebook outputs.
+`ui_react_landing.png` and `ui_react_model_guide.png`
 are saved captures of the React dashboard. The local API reported the
 saved model bundle as ready, but no folder analysis was run for these
 screenshots.
 
 ## Compile
 
-The source uses A4 paper, one-inch margins, Times-style type, 12-point body
-text, 1.3 line spacing, a project-title header, and the department/page
-footer requested in the supplied format. The title and college certificate
-pages are omitted as requested. The declaration, acknowledgement, abstract,
-and lists before the contents use italic Roman page numbers without headers
-or footer rules; the contents pages are unnumbered and the main report uses
-Arabic numbering with the project header and department/page footer.
+The source follows the supplied MCA mini-project format: A4 paper,
+one-inch margins, Times-style type, 12-point body text, 1.5 line spacing,
+16/14/12-point heading levels, a project-title header, and the
+department/page footer. The title and college certificate pages are
+embedded in `Project_Report.tex`. Declaration pages are
+unnumbered; small Roman page numbers begin with Acknowledgement and
+continue through the lists. Contents pages are unnumbered and the main
+report uses Arabic numbering from Introduction.
 
-The report expects the files in this folder to retain their relative
-paths. From this directory, run pdfLaTeX twice so the contents and
-automatically generated lists of tables and figures receive page
+The supplementary project record is embedded in `Project_Report.tex`.
+Keep the source listings and figures beside the report, preserving their
+relative paths. From this directory, run pdfLaTeX twice so the contents
+and automatically generated lists of tables and figures receive page
 numbers:
 
 ```sh
@@ -40,21 +42,20 @@ pdflatex Project_Report.tex
 For Overleaf, upload `Project_Report.tex`, `api_code_listing.txt`,
 `forensic_core_code_listing.txt`, `notebook_code_listing.txt`,
 `app_code_listing.txt`,
-`ui_react_landing.png`, `ui_react_model_guide.png`, and the complete
+`logo.png`, `ui_react_landing.png`, `ui_react_model_guide.png`, and the complete
 `figures/` folder, preserving these names and paths. Select pdfLaTeX as
 the compiler.
 
-Body leading is set to 1.3 spacing, with compact paragraph lists and
-float spacing; chapter titles are displayed without chapter numbers and
-the gap below the running header is reduced. Headers and footers begin
-on the Introduction page; chapter-opening pages from that point use the
-same page style. The system and data-flow figures are drawn as diagrams,
-including a sequence diagram.
-Data tables use
-visible row and column borders, single-spaced rows, and fitted text
-widths; the long requirements and test tables repeat their headings
-across pages. Code listings use a smaller fixed-width font to reduce
-appendix page count while preserving the required report content.
+Body leading is set to 1.5 spacing; chapter titles are displayed without
+chapter numbers and the gap below the running header is reduced. Headers
+and footers begin on the Introduction page; chapter-opening pages from
+that point use the same page style. Title and certificate pages have no
+page furniture. The system and data-flow figures are drawn as diagrams,
+including Random Forest and Isolation Forest flow diagrams.
+Data tables use visible row and column borders and fitted text widths;
+the long requirements and test tables repeat their headings across
+pages. Code listings use a smaller fixed-width font to preserve
+readability within the appendix.
 Selected excerpts cover feature aggregation, incident labels, employee-
 grouped splits, model-score normalization, and dashboard consensus.
 The grouped-split excerpt retains both split stages and the index
