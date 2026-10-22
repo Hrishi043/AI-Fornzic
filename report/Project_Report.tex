@@ -1,3 +1,4 @@
+% !TeX root = ./Project_Report.tex
 \documentclass[12pt,a4paper,oneside]{report}
 
 \usepackage[a4paper,margin=1in,headheight=18pt,headsep=10pt]{geometry}
@@ -16,6 +17,7 @@
 \usepackage{listings}
 \usepackage{caption}
 \usepackage{float}
+\usepackage{needspace}
 \usepackage{titlesec}
 \usepackage{etoolbox}
 \usepackage{tikz}
@@ -34,10 +36,10 @@
   {0pt}
   {\MakeUppercase}
 \titleformat{\section}
-  {\normalfont\fontsize{14}{17}\selectfont\bfseries\upshape}
+  {\normalfont\fontsize{17}{20}\selectfont\bfseries\upshape}
   {\thesection}{0.8em}{}
 \titleformat{\subsection}
-  {\normalfont\fontsize{12}{15}\selectfont\bfseries\upshape}
+  {\normalfont\fontsize{14}{17}\selectfont\bfseries\upshape}
   {\thesubsection}{0.8em}{}
 \titlespacing*{\chapter}{0pt}{-6pt}{8pt}
 \titlespacing*{\section}{0pt}{1.0ex plus 0.15ex minus 0.1ex}{0.35ex}
@@ -48,6 +50,10 @@
 \titlespacing*{\subsubsection}{0pt}{0.6ex plus 0.1ex minus 0.1ex}{0.2ex}
 \setlength{\floatsep}{4pt plus 1pt minus 1pt}
 \setlength{\textfloatsep}{5pt plus 1pt minus 1pt}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.75}
 \setlength{\intextsep}{4pt plus 1pt minus 1pt}
 \setlength{\abovecaptionskip}{2pt}
 \setlength{\belowcaptionskip}{1pt}
@@ -120,96 +126,6 @@
 \begin{document}
 
 %---------------------- TITLE PAGE ----------------------
-\begin{titlepage}
-\thispagestyle{empty}
-\begin{center}
-\vspace*{0.35cm}
-
-{\Large\bfseries MAR ATHANASIUS COLLEGE OF ENGINEERING}\\[-0.02cm]
-{\Large\bfseries KOTHAMANGALAM}\\[0.18cm]
-{\large (Government Aided Autonomous Institution)}\\[0.65cm]
-
-\IfFileExists{logo.png}{\includegraphics[width=3.1cm]{logo.png}}{}
-
-\vspace{0.75cm}
-{\Large\bfseries \department}
-
-\vspace{0.95cm}
-{\Large\bfseries MINI PROJECT REPORT}\\[0.35cm]
-{\large\bfseries ON}\\[0.45cm]
-{\Large\bfseries \projecttitle}
-
-\vspace{1.0cm}
-{\large Submitted by}\\[0.25cm]
-{\Large\bfseries \studentname}\\[0.15cm]
-{\large Register No.: \registernumber}
-
-\vspace{1.05cm}
-{\large Under the guidance of}\\[0.15cm]
-{\Large\bfseries \guide}
-
-\vspace{1.35cm}
-{\large \academicyear}
-\end{center}
-\end{titlepage}
-
-%---------------------- COLLEGE CERTIFICATE ----------------------
-\clearpage
-\thispagestyle{empty}
-\begin{center}
-\vspace*{0.35cm}
-
-{\Large\bfseries MAR ATHANASIUS COLLEGE OF ENGINEERING}\\[-0.02cm]
-{\Large\bfseries KOTHAMANGALAM}\\[0.15cm]
-{\large (Government Aided Autonomous Institution)}\\[0.3cm]
-
-\IfFileExists{logo.png}{\includegraphics[width=2.2cm]{logo.png}}{}
-
-\vspace{0.25cm}
-{\Large\bfseries CERTIFICATE}
-
-\vspace{0.35cm}
-{\large\bfseries \projecttitle}
-
-\vspace{0.4cm}
-{\small Certified that this is the bonafide record of the mini project work carried out by}
-
-\vspace{0.18cm}
-{\Large\bfseries \studentname}\\[0.12cm]
-{\large Register No.: \registernumber}\\[0.2cm]
-{\small during the academic year \academicyear, in partial fulfilment of the requirements for the award of the degree of}\\[0.15cm]
-{\large\bfseries \degree}\\[0.12cm]
-{\small under APJ Abdul Kalam Technological University.}
-\end{center}
-
-\vspace{1.45cm}
-\noindent
-\begin{minipage}[t]{0.45\textwidth}
-\centering
-{\small \guide}\\[0.12cm]
-{\small\bfseries Project Guide}
-\end{minipage}
-\hfill
-\begin{minipage}[t]{0.45\textwidth}
-\centering
-{\small \hod}\\[0.12cm]
-{\small\bfseries Head of the Department}
-\end{minipage}
-
-\vspace{1.35cm}
-\noindent
-\begin{minipage}[t]{0.45\textwidth}
-\centering
-{\small Project Coordinator}\\[0.12cm]
-{\small\bfseries Department of Computer Applications}
-\end{minipage}
-\hfill
-\begin{minipage}[t]{0.45\textwidth}
-\centering
-\vspace{0.12cm}
-{\small\bfseries External Examiner}
-\end{minipage}
-\clearpage
 
 \pagenumbering{gobble}
 \fancypagestyle{plain}{
@@ -219,7 +135,7 @@
   \renewcommand{\footrulewidth}{0pt}
 }
 \pagestyle{plain}
-
+\pagenumbering{roman}
 \chapter*{Declaration}
 
 I hereby declare that this mini project report entitled “AI Forensic Insider Risk Review System” is a record of the project work carried out by me and submitted to Mar Athanasius College of Engineering, Kothamangalam, as part of the Master of Computer Applications programme, under the guidance of Dr. Manu John, Department of Computer Applications.
@@ -246,7 +162,7 @@ I further declare that this work has not formed the basis for the award of any d
 \textbf{Signature of the Student}
 \end{minipage}
 \clearpage
-\pagenumbering{roman}
+
 \chapter*{Acknowledgement}
 
   I would like to express my sincere gratitude to my mini project guide, Dr. Manu John, for his valuable guidance, suggestions, and encouragement throughout the development of this project and the preparation of this report.
@@ -375,65 +291,46 @@ outcomes, conclusion, future work, references, and appendices.
 
 \chapter{Supporting Literature}
 \section{Literature Review}
-Insider-threat detection is difficult because legitimate and harmful
-activity can share the same systems and workflows. A single event such
-as a late login, removable-media connection, or large email attachment
-is not sufficient evidence of malicious intent. This motivates combining
-contextual signals and keeping a human investigator in the decision
-loop. The CERT Insider Threat Test Dataset provides synthetic user
-activity and scenario labels for reproducible experimentation; its
-scenarios are useful for evaluating methods but cannot represent every
-real organisation or establish real-world operational accuracy
-\cite{cert}.
+Insider-threat detection is challenging because legitimate and harmful
+activity can look similar in system logs. A late login, removable-media
+connection, or large attachment is a review signal only when considered
+with context; no single event establishes intent. The CERT Insider
+Threat Test Dataset supports reproducible study through synthetic
+activity and scenario labels, but it cannot establish performance in a
+real organisation \cite{cert}.
 
-Logistic Regression is a relatively interpretable supervised baseline.
-It estimates a linear decision function over the input features and can
-provide a useful comparison when the relationship between engineered
-features and the label is approximately additive. A Decision Tree
-represents a series of feature splits and can model simple nonlinear
-relationships. Random Forest averages a collection of randomized trees,
-reducing the instability of a single tree and providing a flexible
-tabular-data baseline \cite{breiman}.
+This project compares three supervised methods with one unsupervised
+method. Logistic Regression provides a linear baseline; a Decision Tree
+models feature interactions through splits; and Random Forest combines
+randomized trees to improve stability on tabular data \cite{breiman}.
+Isolation Forest ranks observations that are easier to isolate through
+random splits, without using incident labels during fitting
+\cite{liu}. Its anomaly score represents unusualness in the selected
+features, not incident probability.
 
-Isolation Forest is an unsupervised anomaly-detection method. It isolates
-observations through random feature and split selection; unusual points
-tend to be isolated with shorter paths \cite{liu}. In this project it is
-trained without using incident labels. It answers a different question
-from the supervised classifiers: ``which records are unusual in this
-feature space?'' Unusual does not necessarily mean incident-related.
-
-Evaluation must reflect both the rarity of the positive class and the
-intended review workflow. Accuracy can be dominated by the majority
-class. Precision measures how many alerts match known positive labels;
-recall measures how many known positives were retrieved. Average
-Precision summarizes precision over ranked thresholds and is useful for
-rare-positive ranking tasks. The scikit-learn documentation describes
-these metrics and their averaging conventions \cite{sklearnmetrics}.
-This project reports results at a validation-selected one-percent
-employee-day capacity and retains the five-percent queue as a larger
-fixed-size comparison.
+Because known positive days are rare, accuracy alone can conceal poor
+retrieval. Precision describes the share of reviewed records matching a
+known label, while recall measures the share of known labels retrieved.
+Average Precision evaluates ranking across score cutoffs and is useful
+for this imbalanced task \cite{sklearnmetrics}. The experiment therefore
+reports ranking metrics and fixed review-capacity results, selecting
+model and capacity on validation data before evaluating the held-out
+test employees.
 
 \section{Literature Review Summary}
-The selected methods provide complementary baselines rather than a claim
-that one algorithm is universally best. Supervised algorithms can learn
-patterns represented in the known incident labels; an anomaly detector
-can rank deviations without those labels. For either approach, the
-quality of the labels, the feature design, the data split, and the
-review capacity constrain conclusions more strongly than the algorithm
-name alone.
+The methods answer different questions: supervised models learn the
+patterns present in known labels, while Isolation Forest ranks feature
+space deviations. Label quality, feature design, employee separation,
+and review capacity limit the conclusions for every method.
 
 \section{Findings and Proposals}
 \begin{itemize}
-  \item Evaluate per-class precision and recall rather than relying on
-        accuracy alone.
-  \item Keep employees disjoint across model-development and test
-        partitions to reduce person-specific leakage.
-  \item Select a model using validation data; reserve test data for final
+  \item Report precision, recall, and ranking quality alongside accuracy.
+  \item Separate employees across training, validation, and test sets;
+        select models on validation data and reserve test data for final
         reporting.
-  \item Describe non-matching labels as ``not listed in known incidents''
-        rather than as a verified normal class.
-  \item Require independent corroboration and accountable human review
-        before acting on a flag.
+  \item Treat unmatched labels as unknown and require contextual human
+        review before acting on a ranked lead.
 \end{itemize}
 
 \chapter{System Analysis}
@@ -445,7 +342,7 @@ activity inputs are listed in Table~\ref{tab:sources}. The answer file is
 used only for research labels and model evaluation/training; the
 dashboard's user-selected activity folder does not need the answer file.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Activity source inventory}
 \label{tab:sources}
@@ -483,7 +380,7 @@ quality summary. Deduplication is performed within each input chunk, so
 duplicates spanning separate chunks may remain; this is a limitation to
 verify if exact global deduplication is required.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Data-cleaning summary from saved quality output}
 \label{tab:clean}
@@ -526,7 +423,7 @@ combinations are filled with zero after source tables are combined.
 The modelling table contains the numeric activity features below. The
 model excludes user ID, date, scenario, and the target label.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Employee-day feature definitions}
 \label{tab:features}
@@ -585,21 +482,21 @@ positive-class support and both the selected one-percent capacity and
 five-percent reference, since majority-class accuracy can obscure
 incident-class performance.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.7\textwidth]{notebook-1.png}
 \caption{Total retained events by source in the saved analysis notebook}
 \label{fig:source-events}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\textwidth]{notebook-2.png}
 \caption{Daily recorded activity volume across the dataset period}
 \label{fig:daily-events}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.8\textwidth]{notebook-3.png}
 \caption{Ten synthetic users with the highest aggregate event counts}
@@ -681,7 +578,7 @@ count-aware resampling before fitting. Validation data selects whether
 the augmented candidate is retained. The test partition is not used in
 that selection.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{tikzpicture}[
   algbox/.style={draw,rounded corners,align=center,text width=7.4cm,minimum height=0.58cm,font=\small},
@@ -710,7 +607,7 @@ path. It does not use the incident labels while fitting. The estimator
 isolates records using random splits, then the score direction is
 reversed so larger values appear higher in the common ranking interface.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{tikzpicture}[
   algbox/.style={draw,rounded corners,align=center,text width=7.4cm,minimum height=0.58cm,font=\small},
@@ -732,7 +629,7 @@ reversed so larger values appear higher in the common ranking interface.
 
 
 \section{Project pipeline}
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \begin{tikzpicture}[
   stage/.style={draw,rounded corners,align=center,text width=9.4cm,minimum height=0.58cm,font=\small},
@@ -970,7 +867,7 @@ The saved comparison and confusion-matrix counts are detailed in
 Chapter~\ref{chap:results}; the test-set results do not validate the
 dashboard's separate employee-level consensus rule.
 
-\clearpage
+\Needspace{9cm}
 \section{System Design Diagrams}
 \subsection{Use-case model}
 \begin{figure}[H]
@@ -999,6 +896,7 @@ dashboard's separate employee-level consensus rule.
 \caption{Use-case model for the prototype}
 \end{figure}
 
+\Needspace{8cm}
 \subsection{Activity diagram}
 \begin{figure}[H]
 \centering
@@ -1024,6 +922,7 @@ dashboard's separate employee-level consensus rule.
 \caption{Activity flow for one dashboard review}
 \end{figure}
 
+\Needspace{8.5cm}
 \subsection{Sequence diagram}
 \begin{figure}[H]
 \centering
@@ -1054,6 +953,7 @@ dashboard's separate employee-level consensus rule.
 \caption{Sequence of an analysis request}
 \end{figure}
 
+\Needspace{6.5cm}
 \subsection{Class and component design}
 \begin{figure}[H]
 \centering
@@ -1141,8 +1041,7 @@ how many model rankings place an employee among their respective top ten
 percent and that agreement is a review-prioritization signal, not a
 probability or proof of misconduct.
 
-\clearpage
-\begin{figure}[p]
+\begin{figure}[!htbp]
 \centering
 \begin{minipage}[t]{0.76\textwidth}
 \vspace{0pt}
@@ -1233,7 +1132,7 @@ the tables, so counts from the confusion matrices are authoritative.
 
 \section{Comparison of models}
 At the validation-selected one-percent review capacity, the results are:
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Metrics at the 1\% queue rate selected by validation F1}
 \label{tab:selected-capacity}
@@ -1266,7 +1165,7 @@ select the model or capacity.
 
 The original five-percent results remain useful as a larger-capacity
 reference:
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Model evaluation from saved \texttt{model\_comparison.csv}}
 \label{tab:comparison}
@@ -1286,7 +1185,7 @@ Isolation Forest & 0.016 & 0.008 & 0.096 & 0.018 & 0.208\\
 \end{tabularx}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Additional test metrics from saved evaluation}
 \label{tab:testextra}
@@ -1361,7 +1260,7 @@ status; those employee-level rules have not been evaluated by the
 employee-day test metrics in this report.
 
 \section{Confusion matrix}
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Random Forest confusion matrix at the validation-selected 1\% queue rate}
 \label{tab:matrix}
@@ -1402,7 +1301,7 @@ validation-based selection and a one-time test evaluation should be
 kept separate.
 
 \section{Requirements traceability}
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Requirements traceability}
 \label{tab:req}
@@ -1430,79 +1329,57 @@ R07 & Establish real-world validity and operational threshold & Not satisfied; f
 
 \chapter{Model Deployment}
 \section{Local demonstration setup}
-The primary React demonstration uses two local processes. Start the API
-from the project root after installing the Python requirements if needed:
+The primary React demonstration runs a local FastAPI service and Vite
+client. From the project root, start the API:
 \begin{lstlisting}
 ./.forensic/bin/python -m pip install -r requirements.txt
 ./.forensic/bin/python -m uvicorn api:app --host 127.0.0.1 --port 8000
 \end{lstlisting}
-Then start the web client in a second terminal:
+In a second terminal, start the client:
 \begin{lstlisting}
 cd frontend
 npm install
 npm run dev
 \end{lstlisting}
-The model bundle is expected at
-\texttt{sprint1\_output/insider\_investigation\_model.joblib}. The user
-opens the Vite URL (normally \texttt{http://127.0.0.1:5173}), selects
-the folder containing \texttt{logon.csv}, \texttt{device.csv},
-\texttt{file.csv}, \texttt{email.csv}, and \texttt{http.csv}, then
-selects ``Analyze folder''. The browser sends the selected CSV files to
-the API bound to loopback. The API stages them in a temporary directory,
-scores them, removes the temporary directory, and saves dashboard CSV
-outputs under \texttt{sprint1\_output}. Run notebook Cell 31 first if
-the model bundle is missing.
+Open the Vite URL (normally \texttt{http://127.0.0.1:5173}) and select a
+folder containing \texttt{logon.csv}, \texttt{device.csv},
+\texttt{file.csv}, \texttt{email.csv}, and \texttt{http.csv}. The model
+bundle must be at
+\texttt{sprint1\_output/insider\_investigation\_model.joblib}; run
+notebook Cell 31 if it is missing. The API stages uploads temporarily,
+processes files in 25,000-row chunks, removes the staged copies, and
+writes \texttt{dashboard\_report.csv} and
+\texttt{dashboard\_day\_scores.csv} under \texttt{sprint1\_output}.
 
-The Streamlit alternative can be started from the project root with:
+The optional Streamlit interface starts from the project root with:
 \begin{lstlisting}
 ./.forensic/bin/streamlit run app.py
 \end{lstlisting}
 
-\subsection{Analyst workflow}
+\section{Analyst workflow and limitations}
 \begin{enumerate}
-  \item Start the FastAPI service and React development server in
-        separate terminals.
-  \item Confirm that the saved four-model bundle is present and contains
-        all four expected estimator names and the ordered feature list.
-  \item Select the folder containing the five required CSV files with
-        the browser's folder picker. The browser passes those files to
-        the API over the local interface.
-  \item Start analysis. The API validates required files,
-        parses the usable columns in 25,000-row chunks, and aggregates
-        the records to employee-days. The React interface shows upload
-        progress, analysis milestones, and an approximate remaining time.
-  \item Review the ranked list, the relative model ranks, the model
-        agreement count, and the listed activity signals. A display
-        status is a review priority, not a finding of misconduct.
-  \item Select an employee to inspect that employee's highest-ranked
-        activity days and the associated feature counts.
-  \item Retrieve the two generated CSV files from
-        \texttt{sprint1\_output} and handle them under the same access
-        and retention rules as the source logs.
+  \item Confirm the model bundle is available, select the five-file
+        activity folder, and run ``Analyze folder''. The interface shows
+        upload and processing progress; missing required files stop the run.
+  \item Inspect employee rankings, model agreement, activity signals,
+        and the highest-ranked days. Treat these as review leads and
+        corroborate them against authorized source records and context.
+  \item Handle the generated CSVs under the same access and retention
+        rules as the input logs.
 \end{enumerate}
 
-If required files are missing, the API reports an error and does not
-proceed with scoring. The React client uses a browser folder picker and
-the API is configured for local development origins on port 5173. The
-Streamlit alternative uses an AppleScript folder picker and requires
-macOS. No analyst-authentication step or explicit confirmation of data
-authorization is implemented.
-
-\section{Deployment limitations}
-This is a local proof of concept. It has no login, role-based access,
-network service controls, encrypted database, audit log, scheduled
-ingestion, model registry, monitoring, or incident workflow. The joblib
-file must be treated as trusted executable model data and should not be
-loaded from untrusted sources. Input logs and outputs may contain
-sensitive identifiers and must remain access-controlled. A public or
-production deployment is outside the verified scope.
+This local proof of concept has no analyst authentication, role controls,
+audit trail, encrypted storage, retention enforcement, or case workflow;
+local file permissions remain the operator's responsibility. Load only
+trusted joblib bundles. The Streamlit alternative uses a macOS
+AppleScript folder picker.
 
 \chapter{Git History}
 The following selected entries are taken from the repository history.
 They record the sequence of notebook and application changes visible in
 Git; the entries are not a complete project diary.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Selected repository history}
 \label{tab:git-history}
@@ -1644,7 +1521,7 @@ runtime and peak-memory measurements on the intended machine.
 
 \section{Selected Test Counts}
 \label{app:test-counts}
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Confusion-matrix counts at the validation-selected 1\% queue rate}
 \small
@@ -1814,7 +1691,7 @@ selected folder.
 
 The distinction is summarized in Table~\ref{tab:workflow-boundaries}.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Offline evaluation and interactive scoring boundaries}
 \label{tab:workflow-boundaries}
@@ -2032,7 +1909,7 @@ blank schema for such a record. No values are supplied here because
 the report does not contain a documented end-to-end dashboard analysis
 run.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Suggested run-record fields for a future demonstration}
 \label{tab:run-record}
