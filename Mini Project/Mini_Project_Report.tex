@@ -168,24 +168,32 @@
 \addcontentsline{toc}{chapter}{Acknowledgement}
 I express my sincere gratitude to the management of Mar Athanasius
 College of Engineering, Kothamangalam, for providing the academic
-environment and facilities required to undertake this mini project.
-The opportunity to study data preparation, machine learning, software
-design, and responsible review workflows in one project has been an
-important part of my learning.
+environment and facilities needed to undertake this mini project. The
+project gave me an opportunity to apply my learning in data science,
+machine learning, software development, and responsible data analysis.
 
-I am grateful to my project guide, Dr.Manu John, for guidance,
-constructive feedback, and encouragement during the planning and
-development of the AI Forensic Insider Risk Review System. I thank
-Dr.Sonia Abraham, Head of the Department of Computer Applications, and
-the project coordinators and faculty members for their support and
-academic direction.
+I extend my heartfelt appreciation to my project guide, Dr.Manu John,
+Department of Computer Applications, for his valuable guidance,
+technical suggestions, and encouragement throughout the planning,
+development, and documentation of the AI Forensic Insider Risk Review
+System. His feedback helped me refine the project and present its
+methods and limitations more clearly.
 
-I also acknowledge the creators and maintainers of the CERT Insider
-Threat Test Dataset and the developers of the open-source libraries used
-in this project. The public synthetic dataset made it possible to
-explore a sensitive research problem without using real employee
-records. Finally, I thank my family and friends for their encouragement
-throughout the project.
+I am sincerely grateful to Dr.Sonia Abraham, Head of the Department of
+Computer Applications, for her encouragement and support. I also thank
+the project coordinators, faculty members, and staff of the department
+for their guidance and assistance during the project.
+
+I acknowledge the creators of the CERT Insider Threat Test Dataset and
+the developers and maintainers of the open-source tools used in this
+work. Their contributions supported the study of synthetic activity
+records and the implementation of the data-processing, modelling, and
+dashboard components.
+
+Finally, I express my heartfelt gratitude to my parents, family
+members, and friends for their patience, encouragement, and support. I
+also thank everyone who contributed directly or indirectly to the
+completion of this mini project and its report.
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
@@ -693,6 +701,80 @@ aggregated together, even if only a subset is related to the scenario.
 Relevant behaviour outside a listed interval is labelled negative.
 Thus, the training target is a useful benchmark proxy, not a
 ground-truth statement about every event or person.
+
+\subsection{Employee-day construction and data quality}
+Each of the five activity sources is read and transformed independently
+before the tables are joined. For a source \(s\), user \(u\), and
+calendar day \(d\), the basic event count is
+\[
+ x_{u,d,s}=\sum_{i=1}^{N_s}
+  \mathbb{1}(u_i=u\;\land\;\operatorname{day}(t_i)=d),
+\]
+where \(N_s\) is the number of retained records, \(t_i\) is a parsed
+source timestamp, and \(\mathbb{1}\) is an indicator function. The
+after-hours feature applies the additional predicate
+\[
+ \operatorname{hour}(t_i)<6\quad\text{or}\quad
+ \operatorname{hour}(t_i)\geq18.
+\]
+The interval is mechanical and inclusive at 18:00. It does not
+represent an organisation's definition of working hours, and it is not
+adjusted for shift patterns, holidays, travel, daylight-saving changes,
+or a user's location.
+
+The join key is the user identifier and calendar day. This creates one
+row for each observed employee-day and aligns the source-specific
+aggregates. If an employee-day has no contribution from one source,
+that source's count feature is filled with zero. This allows the saved
+model bundle to receive the same ordered columns during training and
+scoring. Zero must be interpreted narrowly: it means that no usable
+contribution was present in the aggregated table. It does not establish
+that the source was complete, that the employee had no activity, or
+that the event collection system was healthy.
+
+Ingestion quality should be reviewed before the scores. A useful
+run-level record includes each file's exact name, size, row count,
+minimum and maximum timestamp, distinct user count, rejected-row count,
+and within-chunk duplicate count. These values help distinguish an
+inactive source from an incomplete export. The current project records
+cleaning summaries for the development data, but does not implement a
+complete coverage calendar for arbitrary dashboard uploads. An operator
+should compare source date ranges and investigate abrupt differences
+before comparing queues from two runs.
+
+Chunked reads of 25,000 rows limit the size of each CSV read operation.
+They do not make the entire pipeline constant-memory: per-source
+aggregates, the joined feature table, model scores, and dashboard
+responses still require memory. Deduplication is also applied within
+chunks, so copies of a duplicate record that fall in different chunks
+may remain. Any future change to global deduplication should define the
+record identity rule and assess its memory and performance cost rather
+than silently changing counts.
+
+The feature table is intentionally content-light. It does not include
+message bodies, file contents, filenames, or URLs. This reduces the
+amount of sensitive text exposed to the estimator, but it also means a
+count cannot explain the purpose of an event. A daily aggregate removes
+event order and fine-grained timing. If a row is prioritised, the
+reviewer must return to authorised source records to inspect the
+sequence and context. The aggregate is a navigation aid, not a
+forensic timeline.
+
+A practical data acceptance check can be summarised as follows:
+\begin{enumerate}
+  \item Confirm that all five required files are present exactly once
+  and belong to the intended dataset and time period.
+  \item Confirm that user and date fields are usable and review the
+  number of records rejected during parsing.
+  \item Compare source date ranges and user counts; document material
+  gaps or changes from a previous run.
+  \item Confirm the model bundle's feature names and column order match
+  the constructed employee-day table.
+  \item Preserve a run identifier and a summary of input provenance so
+  that an exported row can be traced to its data batch.
+\end{enumerate}
+These checks establish that the run was inspected; they do not prove
+that the underlying source logs are complete or correct.
 
 \section{Data visualization}
 The notebook contains plots of event counts by source, daily event
@@ -1381,6 +1463,58 @@ under the answer-file label rule. It does not state whether a person
 committed misconduct, nor does it establish the correctness of an
 investigative outcome.
 
+\section{Validation design and class imbalance}
+The saved employee-day table is strongly imbalanced: 1,364 of 330,452
+rows are positive under the incident-window rule. A model can therefore
+rank a large number of ordinary-looking records above the rare positive
+class without a large change in overall accuracy. This affects both
+training and evaluation. Class weighting changes the penalty associated
+with misclassified examples during supervised fitting, but it does not
+create new independent incidents. Synthetic augmentation adds derived
+training examples according to a transformation rule; it must not be
+counted as additional observed evidence.
+
+The project uses user-group separation so that records from one
+synthetic person are not split across training, validation, and test.
+This addresses a specific leakage risk: daily rows from one user may
+share activity levels or stable habits. If some rows from the same user
+were present in training while other rows were held out, a model might
+benefit from person-specific regularities that would not be available
+for a new user. Group separation makes the test more informative about
+unseen users, although it does not answer whether the model will
+transfer to a different organisation, time period, or activity system.
+
+Model selection and evaluation are separated by purpose. Training data
+fit model parameters. Validation data compare the baseline and
+augmented Random Forest candidates and select the queue capacity by
+F1. Test data are held aside for reporting. Using test results to
+change a feature, a model parameter, or the queue rate would convert
+the test set into additional validation data and make the reported
+performance optimistic. If the model is revised after this report, a
+new test partition or a prospective evaluation is needed for an
+unbiased estimate.
+
+The single saved split also has sampling uncertainty. With only 289
+positive test rows, a change of several correctly ranked records can
+materially change precision and recall. This report presents the saved
+point estimates and confusion counts, but not confidence intervals or
+repeated group-split variability. A stronger study would use repeated
+stratified group splits or a time-based holdout, report the distribution
+of rare-class metrics, and explain how the split design matches the
+intended deployment question. The test design should be documented
+before examining performance, rather than selected after seeing which
+partition produces a favourable score.
+
+A time-based holdout answers a different question from a random
+user-group holdout. Grouped partitions ask whether the model ranks
+records from users it did not train on. Time-based partitions ask
+whether a model trained on earlier activity remains useful on later
+activity. Both questions can matter. A chronological design may expose
+changes in work patterns, software systems, or event collection that a
+random partition does not reveal. The current results should therefore
+be described as one grouped holdout experiment, not as evidence of
+long-term stability.
+
 \section{Comparison of models}
 \begin{table}[H]
 \centering
@@ -1469,6 +1603,59 @@ model that predicts almost everything negative can attain high
 accuracy while retrieving few positives. Accuracy must therefore be
 read alongside positive-class metrics and queue size.
 
+\section{Capacity selection and operational interpretation}
+A review queue is a resource allocation mechanism. If the capacity is
+\(k\) rows, the selected set contains the highest-ranked \(k\) records.
+For a positive set \(P\), precision and recall are
+\[
+ \operatorname{Precision@}k=\frac{|Q_k\cap P|}{k},
+ \qquad
+ \operatorname{Recall@}k=\frac{|Q_k\cap P|}{|P|}.
+\]
+This makes the workload explicit: a one-percent employee-day queue
+selects about one percent of records, whereas a five-percent queue
+requires five times as many employee-day reviews. The unit matters; a
+percentage of days is not a percentage of employees or cases.
+
+The validation F1 search chooses a point that balances precision and
+recall under the benchmark labels. It does not encode the actual cost
+of a reviewer hour, the impact of delayed escalation, or the harm of an
+unsupported inquiry. A real operating threshold should involve
+reviewers and governance stakeholders, include a stated maximum
+workload, and be evaluated on data that reflect the authorised use.
+Where the consequence of a false lead is high, the operating procedure
+may require stronger corroboration before any action; where the
+consequence of a missed case is high, a broader queue may be preferred.
+Those are policy decisions rather than properties of F1.
+
+The saved one-percent result illustrates this trade-off. The 662-row
+queue contains 95 benchmark-positive days and 567 rows without a
+positive benchmark label. It omits 194 of the 289 positive test rows.
+At five percent, the 3,306-row queue contains 178 benchmark-positive
+days and has higher recall but lower precision. These counts make the
+review burden visible. They also show why a single rank threshold
+cannot be described as both highly precise and highly sensitive in this
+experiment.
+
+The dashboard's employee-level consensus operates at another level.
+It first computes model ranks for employee-days, averages the four
+ranks per day, and uses an employee maximum for ordering. A top-five
+percent status is thus relative to the uploaded population. If the
+population changes, the cutoff changes. If multiple runs cover
+non-overlapping periods, their percentiles should not be compared as
+though they shared one calibrated scale. A stable operational process
+would need to record the population, dates, model version, and queue
+rule for every run.
+
+A useful report of capacity results should provide the denominator,
+positive support, selection count, true-positive count, false-positive
+count under the benchmark rule, and false-negative count under the same
+rule. It should also state whether the capacity was chosen on
+validation or test data. This prevents metrics from being detached
+from the selection procedure and makes it possible for a reader to
+reconstruct the workload. The project's saved comparison follows this
+principle by reporting capacity, metrics, and confusion counts.
+
 \section{Dashboard consensus and offline evaluation}
 For user \(u\), day \(d\), and model \(m\), the dashboard calculates a
 percentile rank \(r_{u,d,m}\). It computes
@@ -1489,6 +1676,76 @@ queue rule, not a calibrated threshold. The offline 1-percent
 test-capacity results do not validate the dashboard's top-five-percent
 employee rule or its reason text.
 
+\section{Model outputs, ranks, and queue rules}
+The four estimators produce values with different semantics. Logistic
+Regression maps a feature vector \(\mathbf{x}\) to a positive-class
+score using
+\[
+ \hat p(\mathbf{x})=\frac{1}{1+\exp[-(\beta_0+
+                    \boldsymbol{\beta}^{\mathsf T}\mathbf{x})]}.
+\]
+The project uses this value for ordering. Class weighting, synthetic
+augmentation in one candidate, the benchmark labels, and the training
+population all influence its meaning. No calibration analysis is
+reported, so the value should not be described as the probability of
+misconduct in an organisation.
+
+A decision tree repeatedly partitions rows using feature thresholds.
+For a node with class proportions \(p_1,\ldots,p_K\), the Gini
+impurity is \(1-\sum_k p_k^2\); a split is useful when it reduces the
+weighted impurity of its child nodes. The tree's maximum depth and
+minimum leaf size constrain its complexity. A learned threshold is a
+predictive rule in this dataset, not a causal statement about an
+employee's intent.
+
+The Random Forest aggregates the outputs of its trees. In simplified
+notation, for \(B\) trees,
+\[
+ \hat p_{\mathrm{RF}}(\mathbf{x})=
+ \frac{1}{B}\sum_{b=1}^{B}\hat p_b(\mathbf{x}).
+\]
+The saved model uses 200 trees. Bootstrap sampling and feature
+randomisation reduce the influence of any one tree, while the
+validation comparison determines whether the baseline or augmented
+candidate is retained. Synthetic rows are a training technique; they
+are not additional observed employees or independent evidence.
+
+Isolation Forest learns without incident labels. Random partitioning
+creates short paths for observations that are easier to isolate. A
+standard form of its anomaly score is
+\[
+ s(\mathbf{x},n)=2^{-E[h(\mathbf{x})]/c(n)},
+\]
+where \(h\) is path length, \(E\) averages over trees, and \(c(n)\)
+normalises for sample size. The deployed code reverses the estimator's
+decision orientation so that a larger internal score sorts toward the
+more unusual end. Changing that sign or changing score conventions
+would change queue order and must be treated as an interface change.
+
+To combine model perspectives, the dashboard maps each output to an
+empirical within-batch percentile. For row \(i\), model \(m\), and
+batch size \(N\), one convenient expression is
+\[
+ r_{i,m}=\frac{1}{N}\sum_{j=1}^{N}
+    \mathbb{1}(s_{j,m}\leq s_{i,m}),
+ \qquad c_i=\frac{1}{4}\sum_{m=1}^{4}r_{i,m}.
+\]
+The employee summary uses the maximum daily consensus and the
+employee-level maxima for the model agreement rule. This procedure
+makes unlike scales combinable but makes ranks relative to the current
+batch. Adding or removing other employees can change a percentile
+without changing the raw score for the employee under review.
+
+The dashboard status rule and offline evaluation capacity must remain
+distinct. The dashboard uses a top-five-percent consensus condition or
+at least two models in their employee-level top decile. The saved test
+experiment reports an employee-day queue at one-percent capacity and a
+five-percent comparison. Those are different units and different
+selection rules. Results at the one-percent employee-day capacity do
+not validate the dashboard's employee-level rule. Any operational
+queue rule should be selected using an authorised validation set and a
+stated review-capacity constraint.
+
 \section{Confusion matrix interpretation}
 The term false positive in a benchmark confusion matrix means an
 employee-day selected by the model that does not overlap an incident
@@ -1503,6 +1760,57 @@ source events, compare them with work context and approved policy, and
 document alternative explanations. The model score alone should not be
 used as the basis for employment action, access revocation, or a claim
 of intent.
+
+\section{Reading the saved evaluation at its operating points}
+The saved test set contains 66,118 employee-days, of which 289 overlap
+a listed incident interval under the project label rule. At a one
+percent queue capacity, 662 rows are selected. The Random Forest table
+reports 95 positive labels in that queue, 567 selected rows without a
+positive label, and 194 positive rows outside it. Together with 65,262
+unselected rows without a positive label, the confusion counts sum to
+the test size:
+\[
+ 95+567+194+65{,}262=66{,}118.
+\]
+
+The corresponding precision and recall are
+\[
+ \operatorname{Precision}=\frac{95}{95+567}\approx0.144,
+ \qquad
+ \operatorname{Recall}=\frac{95}{95+194}\approx0.329.
+\]
+Their harmonic mean is approximately 0.200. These calculations explain
+the rounded metrics in the results chapter. They are not new test
+results. Precision answers what fraction of selected rows match a
+positive benchmark label; recall answers what fraction of positive
+benchmark rows were selected. Neither metric establishes whether a
+real-world lead is true or false.
+
+At the five percent reference capacity, the queue increases to 3,306
+rows and contains 178 positive labels. Recall rises to about 0.616,
+while precision falls to about 0.054. The larger queue finds more
+labelled days but asks an analyst to review many more rows. The
+appropriate operational capacity depends on staffing, the cost of
+reviewing unsupported leads, and the consequences of missed leads.
+Those costs are not measured in this project, so the report does not
+recommend a capacity for a real organisation.
+
+The benchmark's positive label is an incident-window proxy. Events for
+a user on a labelled day may not all relate to the scenario, and
+activity outside the listed interval is not marked positive by the
+project rule. Consequently, a selected row without a positive label is
+not necessarily an erroneous alert, and a row outside the queue is not
+proof that the model missed an actual offence. Metric names should be
+read with the label definition and support counts beside them.
+
+A careful results summary should report the test population, the
+positive support, the queue size, precision, recall, F1, Average
+Precision, and confusion counts. Accuracy alone is not useful for
+judging a highly imbalanced review task: a model that selects almost
+nothing can classify most rows as negative while retrieving very few
+positive examples. Fixed-capacity measures make the analyst workload
+visible, while Average Precision summarises ranking performance across
+thresholds. Both views are needed to understand the saved experiment.
 
 \section{Discussion}
 The saved results show that the chosen Random Forest configuration
@@ -1617,6 +1925,244 @@ handled with the same care as their source logs.
   and disposition in an authorised case-management process outside
   this prototype.
 \end{enumerate}
+
+\section{Application workflow and result traceability}
+The application can be read as a set of transformations with explicit
+inputs and outputs. The operator selects five activity CSV files. The
+browser sends the files to the local API. The API validates filenames,
+stages accepted files, and invokes the core scoring functions. The core
+normalises the source tables, derives daily features, orders columns
+according to the saved bundle, scores each row, and creates employee
+summaries. The API returns progress and final results. The interface
+renders the queue and activity details, while the service writes
+summary CSV files locally.
+
+Each transition should preserve enough context to explain the next
+one. At ingestion, record which files were accepted and the date range
+represented. At cleaning, keep counts of rows read, retained, and
+rejected. At feature generation, retain the feature schema and
+aggregation version. At scoring, record the model bundle identifier
+and the score orientation. At ranking, retain the batch size and the
+queue rule. At export, record the output time and run identifier. The
+prototype implements only part of this trace; the rest are practical
+requirements for a dependable future workflow.
+
+Errors should be visible and actionable. Missing input files should be
+reported by name. Unreadable files or required columns should produce a
+failed run, not an apparently empty result. A missing or incompatible
+model bundle should stop analysis and direct the maintainer to the
+model build process. A failure after file staging should not leave the
+operator uncertain whether a result was produced. The user should be
+able to distinguish service unavailable, input invalid, scoring
+failed, and scoring completed with no rows to review.
+
+The current API keeps its most recent result in process memory for
+employee-detail queries and serialises analysis within one process.
+This is appropriate for a local demonstration, but it is not a durable
+job system. A process restart clears the cache, and separate workers
+do not share the same state. A more robust design would attach a job
+identifier to each analysis, record its status durably, and associate
+all output files with that identifier. It would also define whether an
+interrupted request can be safely retried and how temporary files are
+removed after failure.
+
+The browser's progress display should not be interpreted as a service
+level guarantee. It is a representation of the current local analysis
+stage. Input size, processor load, memory, and disk speed affect actual
+runtime. The project does not contain a formal benchmark or throughput
+target. Before use with a new dataset, the operator should test the
+workflow on a representative copy, measure resource use, and establish
+an acceptable run time and failure-recovery process.
+
+Traceability also includes human review. The employee-day row should
+be linkable to the exact source data and scoring run that produced it.
+The current CSV summaries are convenient for inspection but are not an
+immutable case record. A production environment should retain a
+controlled mapping between an exported row, the authorized source
+records reviewed, the reviewer, and the disposition. This mapping must
+be designed with privacy and retention controls so that accountability
+does not become indiscriminate retention of sensitive event data.
+
+\section{Human review and evidence handling}
+A ranked row should start a review pathway, not conclude one. Before
+opening a record, an authorised reviewer should confirm the run's data
+period, source files, model bundle, and successful completion status.
+The reviewer should then inspect which source counts contributed to
+the employee-day and whether any source was absent or incomplete. If a
+source event warrants follow-up, the reviewer should retrieve the
+original record under approved access controls and compare it with
+relevant work context. The aggregate score alone is not sufficient
+evidence.
+
+Observed facts, model outputs, and reviewer interpretation should be
+recorded separately. An observed fact might be a timestamp and event
+type in a source log. A model output is a score or percentile from a
+particular bundle and input batch. A reviewer interpretation connects
+those items to an authorised policy question. Keeping these categories
+separate makes it possible to revisit the conclusion if the source
+export, feature rule, model version, or queue policy changes.
+
+The reviewer should record the reason the row was selected, the
+original records consulted, their authority to access them, any
+contextual explanation considered, and the disposition. If the lead
+is not substantiated, it should be closed without turning the model
+status into a lasting employee attribute. If the review raises a
+credible concern, it should move to the organisation's established
+investigation process. This prototype has no case-management function,
+so a separately approved system must hold formal notes and decisions.
+
+Alternative explanations should be examined rather than assumed away.
+After-hours activity can reflect a shift schedule, travel, maintenance,
+or automation. A change in file or web volume can coincide with a
+project deadline, new responsibilities, or a source-system change.
+These examples are not claims about any particular employee; they
+illustrate why the reviewer needs contextual evidence. A percentile,
+large count, or agreement between models does not reveal intent.
+
+Access to original logs and derived exports should be limited to the
+minimum necessary for the approved purpose, recorded under existing
+organisational controls, and governed by retention policy. Local
+processing reduces external transfer but does not provide
+authentication, role-based access, or immutable audit logging. The
+current API is intended for loopback use and should not be exposed to
+an untrusted network. If several people share a workstation, operating
+system accounts and exported files become part of the security
+boundary.
+
+If the source data are incomplete, the appropriate outcome may be to
+suspend interpretation and request a corrected export. If the bundle
+fails validation, the output should be treated as an unsuccessful run
+and regenerated only through the model-maintenance process. If an
+original record cannot be retrieved, document that limitation rather
+than infer its contents from the aggregate. This handling preserves
+the distinction between an analytical lead and a verified finding.
+
+\section{Security and privacy boundary}
+Local-first operation limits routine data transfer to an external
+service, but it is not a complete security control. The current
+prototype has no user authentication, role-based permissions, or
+immutable audit log. A person with access to the workstation and output
+directory may be able to inspect source records or derived summaries.
+The API should remain bound to loopback as documented; exposing it to a
+shared or public network would change the threat model.
+
+The temporary upload directory and output files need explicit
+handling. Temporary files should be removed after success and failure,
+with checks that staging does not persist unexpected copies. Output CSV
+files should be stored in a directory with appropriate operating
+system permissions and retention. Model bundles should be treated as
+trusted executable artifacts: only bundles produced by the controlled
+model build process should be loaded. Dependency versions should be
+pinned and updates reviewed because changes in parsing or estimator
+behaviour can affect the result.
+
+Input validation protects against accidental errors and some malformed
+requests, but filename allowlists alone do not protect the whole
+application. A future service would need upload-size limits, safe
+storage paths, authentication, authorisation, request controls, secure
+transport if any network use is permitted, and audit records. It would
+also need a security review of the model bundle and dependencies. None
+of these controls should be claimed as implemented unless supported by
+code and a verification record.
+
+Privacy should be considered at every stage: source access, temporary
+staging, aggregation, display, export, and retention. The omission of
+message bodies, file contents, and URLs reduces direct content exposure,
+but the remaining counts and identifiers may still be personal data.
+Access should be restricted to the minimum necessary and justified by
+a documented purpose. Retention should be limited to the period needed
+for the authorised review. Employees should not be assigned persistent
+risk labels based solely on the model's status.
+
+A threat assessment should identify the protected assets, likely
+actors, trust boundaries, and consequences of misuse. Relevant assets
+include source logs, identifiers, model bundles, employee-day scores,
+exports, and investigation notes. Threats include unauthorised access,
+accidental disclosure, tampering with a bundle or input file, replay of
+an outdated result, and a reviewer treating a rank as proof. Mitigations
+would combine technical safeguards, access policy, training, logging,
+and a defined review procedure. The project currently documents these
+risks but does not implement a production security architecture.
+
+\section{Change control and release acceptance}
+A saved model bundle is part of the application interface because the
+scoring core expects particular estimator names and an ordered list of
+feature columns. A model change can therefore affect data ingestion,
+queue ordering, detail responses, and interpretation text even when
+no API route changes. Each release should be associated with a source
+revision, dependency versions, dataset release, feature schema, model
+parameters, evaluation output, and a checksum for the serialized
+bundle. The current prototype stores model artifacts locally and does
+not provide a registry or signed release mechanism; these records must
+be maintained by the developer for reproducibility.
+
+A release candidate should be rebuilt from the documented notebook in
+a clean environment. The maintainer should confirm that the training,
+validation, and test groups remain disjoint; that model selection and
+queue-capacity selection use validation data only; and that test
+metrics are computed after all selection choices are frozen. The saved
+feature list should be compared with the live scoring table. A code
+change that alters a column name, count rule, time boundary, score sign,
+rank transform, or employee aggregation rule should receive a new
+version identifier and a written change note.
+
+A basic acceptance matrix for a release is shown below. It is a
+proposed control record, not a claim that these release checks have
+already been executed.
+\begin{table}[H]
+\centering
+\tablefont
+\caption{Model and data release checks proposed for future runs}
+\label{tab:release-checks}
+\begin{tabularx}{\textwidth}{|p{0.24\textwidth}|p{0.37\textwidth}|Y|}
+\hline
+\textbf{Check} & \textbf{Evidence to retain} & \textbf{Reason}\\
+\hline
+Input provenance & Dataset release, file names, date coverage, checksums. & Makes the evaluated population and inputs identifiable.\\
+\hline
+Feature contract & Ordered feature names, data types, missing-value policy. & Prevents scoring with shifted or incomplete columns.\\
+\hline
+Split integrity & User identifiers assigned to each partition and overlap check. & Detects user leakage across evaluation partitions.\\
+\hline
+Selection boundary & Validation metrics and record of model/capacity selection. & Shows that the held-out test did not drive tuning.\\
+\hline
+Bundle integrity & Bundle checksum, source revision, dependency versions. & Helps identify which implementation produced a score.\\
+\hline
+User interface & Service health, missing-file, failed-run, and successful-run checks. & Confirms that operational states are distinguishable.\\
+\hline
+\end{tabularx}
+\end{table}
+
+After a release, monitoring should focus first on data and process
+stability. Useful run-level measures include row counts by source,
+coverage dates, parsing failures, feature ranges, the fraction of
+employee-days with a nonzero count for each source, score distributions
+by model, queue size, and model-agreement counts. These measures can
+show that an input export or software dependency changed. They are not
+proof of model drift or evidence that a person has become more or less
+risky. Any alert on a distribution change should trigger technical
+review of the input and pipeline, not an automatic adverse action.
+
+Performance monitoring requires new labelled data and an approved
+validation design. Labels may be delayed, incomplete, and influenced
+by which records were reviewed. The target should be defined before
+metrics are compared, and reviewed cases should not be treated as a
+representative sample of all activity without accounting for selection
+bias. A future study should compare more than one time period and
+synthetic release, report uncertainty around rare-positive metrics,
+and assess performance across relevant operational contexts where
+there is a lawful and ethically appropriate basis to do so. The current
+report's one held-out split is a baseline for the prototype, not a
+continual monitoring programme.
+
+Queue monitoring should include workload as well as ranking metrics.
+A threshold can appear stable while the number of records in the queue
+changes because the population size or feature coverage changed. The
+operator should record both a relative rule, such as top five percent,
+and the resulting count of employees and employee-days. A future
+system may need a fixed review budget, but the budget should be selected
+with reviewers and governance stakeholders rather than inferred from
+the model score alone.
 
 \section{Operational limitations}
 The API retains the most recent result in process memory and serialises
@@ -1758,6 +2304,56 @@ interpretable, and useful while preserving the human-review boundary.
 3 & Assess privacy and security controls. & Complete threat modelling, privacy impact review, access control, and deployment testing. & High\\\hline
 \end{longtable}
 
+\section{External validation and responsible deployment}
+Before operational use, a data owner should establish the lawful and
+organisational purpose for analysis and identify who may initiate,
+review, and close a case. The organisation should assess privacy,
+employment, and security impacts with appropriate stakeholders. It
+should define prohibited uses, retention, access, escalation, and a
+process for challenging or correcting data. These decisions should be
+made before a model score is shown to a decision maker, not inferred
+from a dashboard label.
+
+Technical validation should use data that reflect the intended
+population, systems, work schedules, and time period. Synthetic CERT
+results are valuable for repeatability but are not a substitute for
+local validation. A prospective or carefully controlled retrospective
+study should define the target outcome, preserve an untouched evaluation
+set, measure queue workload, and include uncertainty. It should test
+whether apparent performance changes when source coverage, time
+boundaries, and user groups vary. If labels are based on past reviews,
+the study should consider selection bias and the possibility that
+unreviewed activity was never labelled.
+
+Human factors require separate evaluation. Reviewers should understand
+that the rank is relative, the labels are incomplete, and model
+agreement does not establish intent. The interface should make the
+supporting counts and data-quality caveats visible at the point of use.
+A reviewer should be able to record a disagreement, request more
+context, or close a lead without an adverse outcome. Governance should
+monitor whether the system changes how people are treated and whether
+review practice remains proportionate to the original purpose.
+
+Operational acceptance should be staged. First, verify technical
+reproducibility on a controlled dataset. Next, validate the end-to-end
+workflow with authorised reviewers using synthetic or otherwise
+approved material. Then conduct a limited pilot with documented
+oversight, without allowing scores alone to drive employment action.
+Review performance, queue burden, false-positive burden under the
+chosen label, data quality, and reviewer feedback. Only after those
+stages should an organisation consider broader use, and it should
+retain the ability to suspend the system if inputs, outputs, or
+controls no longer meet expectations.
+
+The prototype is therefore best understood as a research and
+educational demonstration. It illustrates a multi-source feature
+pipeline, group-aware model evaluation, a local service, and a review
+interface. It does not establish that employee activity can be
+reliably inferred from counts, that the dashboard rule is calibrated,
+or that an organisation is prepared to act on its output. A responsible
+next step is further evaluation under a defined governance framework,
+not unreviewed deployment.
+
 \section{Model and evaluation improvements}
 Model work should first establish stronger evaluation discipline.
 Experiments should compare the current random grouped split with
@@ -1879,7 +2475,7 @@ National Institute of Standards and Technology,
 \emph{Artificial Intelligence Risk Management Framework (AI RMF 1.0)},
 NIST AI 100-1, January 2023.
 doi: \url{https://doi.org/10.6028/NIST.AI.100-1}.
-\end{thebibliography}
+\end{thebibliography}\label{chap:last-reference-page}
 
 
 \chapter{Appendix}
