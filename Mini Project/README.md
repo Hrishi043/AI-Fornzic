@@ -4,6 +4,6 @@ Editable LaTeX source for the AI Forensic Insider Risk Review System report. The
 
 ## Compile
 
-Compile `Mini_Project_Report.tex` twice with pdfLaTeX from this folder to update the table of contents, lists, and references. Keep the `figures/`, `frontend/src/`, the plain-text React/CSS listings, research paper, and code listing files alongside the source. The report source reuses the literature review, project-specific diagrams, tables, equations, screenshots, and implementation listings from the supplied project materials.
+Compile `Mini_Project_Report.tex` twice with pdfLaTeX from this folder to update the table of contents, lists, and citation links. The bibliography appears before the long source-code appendices so citation metadata is written before those listings are processed. Keep the `figures/`, `frontend/src/`, the plain-text React/CSS listings, research paper, and code listing files alongside the source. The report source reuses the literature review, project-specific diagrams, tables, equations, screenshots, and implementation listings from the supplied project materials.
 
 The source has not yet been compiled in this environment because no LaTeX compiler is installed. Therefore, its final rendered page count and page-by-page layout have not been verified. Confirm the compiled report is 60–65 pages and inspect the page-number transitions and page density before submission.
