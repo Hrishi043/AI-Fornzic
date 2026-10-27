@@ -1,0 +1,190 @@
+\chapter{Git history}
+\label{chap:git}
+The repository history shows iterative development across data
+preparation, model evaluation, application interfaces, and report
+documentation. Recent commits updated the API implementation and
+\code{.gitignore}, refined report support material, and expanded
+project documentation. The current project contains a React
+dashboard, a FastAPI service, a Python scoring core, a Streamlit
+alternative, a modelling notebook, evaluation artifacts, and the
+synthetic data release.
+
+\begin{table}[H]
+\centering
+\tablefont
+\caption{Selected repository milestones}
+\label{tab:git-history}
+\begin{tabularx}{\textwidth}{|p{0.19\textwidth}|p{0.19\textwidth}|Y|}
+\hline
+\textbf{Commit} & \textbf{Date} & \textbf{Recorded milestone}\\\hline
+\code{e9bb2636} & 2026-10-25 & Updated ignore rules and removed a deprecated supplementary report file.\\\hline
+\code{ed6e861e} & 2026-10-25 & Removed deprecated API implementation details.\\\hline
+\code{1ebf6156} & 2026-10-23 & Added auxiliary report files and improved document structure.\\\hline
+\code{5f4ab2f7} & 2026-10-23 & Refactored report documentation and added supporting details.\\\hline
+\code{42d14c99} & 2026-10-22 & Expanded feature dictionary, lineage notes, and report sections.\\\hline
+\end{tabularx}
+\end{table}
+
+The history indicates that the repository changed during report
+preparation. The commit list is a selected snapshot, not a complete
+software-development process assessment. A production project should
+also use reviewed pull requests, versioned model artifacts, dependency
+locks, automated tests, and release tags. The report source in this
+file is a new report document; it does not restore or overwrite the
+older report source that may exist in repository history.
+
+\chapter{Conclusions}
+\label{chap:conclusion}
+
+\section{Summary of the project}
+This project developed a local-first prototype for turning several
+employee activity logs into a review queue. The data pipeline cleans
+and aggregates events into employee-day counts. A notebook labels
+synthetic incident-window records, creates user-disjoint development
+and test partitions, compares four model families, selects a candidate
+and queue capacity on validation data, and persists a model bundle.
+The API and dashboard use the saved feature contract to score a new
+batch and expose aggregated details to an analyst.
+
+The saved evaluation supports a limited empirical conclusion:
+Random Forest achieved the strongest listed performance among the
+four models at the selected one-percent test queue capacity on this
+CERT r4.2 partition. The result is not a general guarantee and should
+not be interpreted as detection accuracy for a real organisation.
+The evaluation's positive class is defined by overlap with synthetic
+incident windows; both false positives and false negatives are
+benchmark-relative.
+
+\section{Learning outcomes}
+The implementation provided experience in dataset inspection,
+chunked processing, feature engineering, rare-class evaluation,
+grouped cross-validation, model persistence, API design, browser
+interaction, visual communication, and responsible-use analysis.
+It also demonstrated the importance of keeping a training contract
+consistent with inference code and separating validation selection
+from final test reporting.
+
+\section{Final conclusion}
+Forensio demonstrates how a carefully bounded analytics pipeline can
+help organise the first stage of a review. Its most important design
+property is not the production of a score, but the explicit separation
+between statistical prioritisation and human judgment. The current
+prototype needs additional software, privacy, security, validation,
+and operational controls before any use beyond controlled research
+and demonstration.
+
+\chapter{Future scope}
+\label{chap:future}
+Future work should be driven by evidence and governance needs rather
+than by increasing model complexity alone. The following roadmap
+describes improvements that would make the system more reliable,
+interpretable, and useful while preserving the human-review boundary.
+
+\begin{longtable}{|p{0.12\textwidth}|p{0.28\textwidth}|p{0.42\textwidth}|p{0.12\textwidth}|}
+\caption{Prioritised future work}\label{tab:future-work}\\
+\hline
+\textbf{Phase} & \textbf{Work item} & \textbf{Purpose and acceptance evidence} & \textbf{Priority}\\\hline
+\endfirsthead
+\hline
+\textbf{Phase} & \textbf{Work item} & \textbf{Purpose and acceptance evidence} & \textbf{Priority}\\\hline
+\endhead
+\hline
+\multicolumn{4}{r}{Continued on next page}\\
+\endfoot
+\hline
+\endlastfoot
+1 & Add automated unit and integration tests. & Validate parsing, feature alignment, score ordering, API errors, upload staging, and status logic on controlled fixtures. & High\\\hline
+1 & Add input schema and quality reports. & Report row counts, invalid fields, duplicate handling, missing sources, and date coverage before scoring. & High\\\hline
+1 & Pin dependencies and version model bundles. & Reproduce training and inference with documented library versions, data checksums, and metadata. & High\\\hline
+2 & Add model explanation and analyst feedback. & Show feature contributions cautiously and record review outcomes without treating feedback as an automatic label. & Medium\\\hline
+2 & Evaluate temporal and cross-release generalisation. & Test robustness across time windows and benchmark versions using predefined protocols. & High\\\hline
+2 & Add role and schedule context under governance. & Reduce avoidable confounding only when lawful, necessary, validated, and stakeholder-approved. & Medium\\\hline
+3 & Build case-management and audit integration. & Provide authorised review history, reviewer notes, evidence references, and retention controls. & Medium\\\hline
+3 & Assess privacy and security controls. & Complete threat modelling, privacy impact review, access control, and deployment testing. & High\\\hline
+\end{longtable}
+
+\section{External validation and responsible deployment}
+Before operational use, a data owner should establish the lawful and
+organisational purpose for analysis and identify who may initiate,
+review, and close a case. The organisation should assess privacy,
+employment, and security impacts with appropriate stakeholders. It
+should define prohibited uses, retention, access, escalation, and a
+process for challenging or correcting data. These decisions should be
+made before a model score is shown to a decision maker, not inferred
+from a dashboard label.
+
+Technical validation should use data that reflect the intended
+population, systems, work schedules, and time period. Synthetic CERT
+results are valuable for repeatability but are not a substitute for
+local validation. A prospective or carefully controlled retrospective
+study should define the target outcome, preserve an untouched evaluation
+set, measure queue workload, and include uncertainty. It should test
+whether apparent performance changes when source coverage, time
+boundaries, and user groups vary. If labels are based on past reviews,
+the study should consider selection bias and the possibility that
+unreviewed activity was never labelled.
+
+Human factors require separate evaluation. Reviewers should understand
+that the rank is relative, the labels are incomplete, and model
+agreement does not establish intent. The interface should make the
+supporting counts and data-quality caveats visible at the point of use.
+A reviewer should be able to record a disagreement, request more
+context, or close a lead without an adverse outcome. Governance should
+monitor whether the system changes how people are treated and whether
+review practice remains proportionate to the original purpose.
+
+Operational acceptance should be staged. First, verify technical
+reproducibility on a controlled dataset. Next, validate the end-to-end
+workflow with authorised reviewers using synthetic or otherwise
+approved material. Then conduct a limited pilot with documented
+oversight, without allowing scores alone to drive employment action.
+Review performance, queue burden, false-positive burden under the
+chosen label, data quality, and reviewer feedback. Only after those
+stages should an organisation consider broader use, and it should
+retain the ability to suspend the system if inputs, outputs, or
+controls no longer meet expectations.
+
+The prototype is therefore best understood as a research and
+educational demonstration. It illustrates a multi-source feature
+pipeline, group-aware model evaluation, a local service, and a review
+interface. It does not establish that employee activity can be
+reliably inferred from counts, that the dashboard rule is calibrated,
+or that an organisation is prepared to act on its output. A responsible
+next step is further evaluation under a defined governance framework,
+not unreviewed deployment.
+
+\section{Model and evaluation improvements}
+Model work should first establish stronger evaluation discipline.
+Experiments should compare the current random grouped split with
+time-aware and release-aware designs, preserve an untouched test set,
+and report uncertainty intervals where the sampling design supports
+them. Synthetic augmentation should be compared with unaugmented
+baselines through repeated validation, with data-generation
+assumptions documented. Performance should be reported at several
+review capacities and accompanied by calibration analysis only if a
+probability interpretation is intended.
+
+The dashboard's employee-level consensus rule requires its own
+evaluation. Candidate thresholds should be chosen on validation data,
+analyst capacity should be specified before test evaluation, and
+employee-level labels should be aggregated under an explicit rule.
+Evaluation should also examine how queue membership changes between
+batches and whether changes are caused by data composition rather
+than model behaviour.
+
+\section{Software and governance improvements}
+Engineering priorities include a locked environment, automated
+regression tests, structured logs, configurable input limits, secure
+temporary storage, consistent error handling, and a versioned
+model-bundle manifest. The web service should receive a threat model
+before any network exposure. A production workflow should add
+authentication, role permissions, protected exports, durable audit
+events, and a documented retention schedule.
+
+Governance work should define the permitted purpose, data sources,
+access rights, legal basis, review standards, appeal or correction
+process, and criteria for ending a review. Any use involving real
+people should undergo appropriate institutional and legal review,
+impact assessment, and consultation with relevant stakeholders. A
+human reviewer must be able to reject a model lead and record a
+reasoned disposition.

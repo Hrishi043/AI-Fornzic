@@ -1,0 +1,348 @@
+\chapter{References}
+\label{chap:references}
+\begin{thebibliography}{99}
+\bibitem{rahman2022unintentional}
+M. M. H. Rahman, M. A. Al Naeem, and A. Abubakar,
+``Threats From Unintentional Insiders: An Assessment of an
+Organization's Readiness Using Machine Learning,''
+\emph{IEEE Access}, vol. 10, pp. 110294--110308, 2022.
+doi: \url{https://doi.org/10.1109/ACCESS.2022.3214819}.
+
+\bibitem{alshehari2023isolation}
+T. Al-Shehari, M. Al-Razgan, T. Alfakih, R. A. Alsowail, and
+S. Pandiaraj, ``Insider Threat Detection Model Using Anomaly-Based
+Isolation Forest Algorithm,'' \emph{IEEE Access}, vol. 11,
+pp. 118170--118185, 2023.
+doi: \url{https://doi.org/10.1109/ACCESS.2023.3326750}.
+
+\bibitem{dimitriadis2023fronesis}
+A. Dimitriadis, E. Lontzetidis, B. Kulvatunyou, N. Ivezic,
+D. Gritzalis, and I. Mavridis, ``Fronesis: Digital Forensics-Based
+Early Detection of Ongoing Cyber-Attacks,'' \emph{IEEE Access},
+vol. 11, pp. 728--743, 2023.
+doi: \url{https://doi.org/10.1109/ACCESS.2022.3233404}.
+
+\bibitem{liu2008isolation}
+F. T. Liu, K. M. Ting, and Z.-H. Zhou, ``Isolation Forest,'' in
+\emph{Proceedings of the 2008 Eighth IEEE International Conference on
+Data Mining}, 2008, pp. 413--422.
+doi: \url{https://doi.org/10.1109/ICDM.2008.17}.
+
+\bibitem{cert}
+Software Engineering Institute, Carnegie Mellon University,
+\emph{CERT Insider Threat Test Dataset, Version 4.2}.
+Available: \url{https://www.sei.cmu.edu/library/insider-threat-test-dataset/}.
+Accessed: 25 October 2026.
+
+\bibitem{nist53}
+Joint Task Force,
+\emph{Security and Privacy Controls for Information Systems and Organizations},
+NIST Special Publication 800-53, Revision 5, National Institute of
+Standards and Technology, September 2020.
+doi: \url{https://doi.org/10.6028/NIST.SP.800-53r5}.
+
+\bibitem{nist61}
+P. Cichonski, T. Millar, T. Grance, and K. Scarfone,
+\emph{Computer Security Incident Handling Guide},
+NIST Special Publication 800-61, Revision 2, National Institute of
+Standards and Technology, August 2012.
+doi: \url{https://doi.org/10.6028/NIST.SP.800-61r2}.
+
+\bibitem{sklearn}
+F. Pedregosa et al.,
+``Scikit-learn: Machine Learning in Python,''
+\emph{Journal of Machine Learning Research}, vol. 12, pp. 2825--2830,
+2011. Available: \url{https://jmlr.org/papers/v12/pedregosa11a.html}.
+
+\bibitem{pandas}
+The pandas development team,
+\emph{pandas documentation}.
+Available: \url{https://pandas.pydata.org/docs/}.
+Accessed: 25 October 2026.
+
+\bibitem{fastapi}
+S. Ramirez,
+\emph{FastAPI documentation}.
+Available: \url{https://fastapi.tiangolo.com/}.
+Accessed: 25 October 2026.
+
+\bibitem{react}
+Meta Open Source,
+\emph{React documentation}.
+Available: \url{https://react.dev/}.
+Accessed: 25 October 2026.
+
+\bibitem{python}
+Python Software Foundation,
+\emph{Python 3 documentation}.
+Available: \url{https://docs.python.org/3/}.
+Accessed: 25 October 2026.
+
+\bibitem{nistai}
+National Institute of Standards and Technology,
+\emph{Artificial Intelligence Risk Management Framework (AI RMF 1.0)},
+NIST AI 100-1, January 2023.
+doi: \url{https://doi.org/10.6028/NIST.AI.100-1}.
+\end{thebibliography}\label{chap:last-reference-page}
+
+
+\chapter{Appendix}
+\label{chap:appendix}
+
+\section{Minimum software requirements}
+\label{app:software}
+\begin{table}[H]
+\centering
+\tablefont
+\caption{Software needed for the current demonstration}
+\label{tab:software-requirements}
+\begin{tabularx}{\textwidth}{|p{0.25\textwidth}|p{0.28\textwidth}|Y|}
+\hline
+\textbf{Software} & \textbf{Purpose} & \textbf{Project note}\\\hline
+Python 3 & Model scoring, API, and alternative Streamlit UI. & Use an environment compatible with the installed scientific packages.\\\hline
+Python dependencies & pandas, NumPy, scikit-learn, joblib, FastAPI, python-multipart, Streamlit, Uvicorn. & Install from the repository requirements file and record resolved versions.\\\hline
+Node.js and npm & React and Vite development client. & Use the frontend package manifest and lock file when available.\\\hline
+Modern browser & Select local activity files and render the dashboard. & Directory upload support may differ by browser.\\\hline
+LaTeX distribution & Compile this report with pdfLaTeX. & The report uses standard packages including TikZ and newtx.\\\hline
+Model artifact & Persisted estimator bundle. & Expected path is \code{sprint1\_output/insider\_investigation\_model.joblib}.\\\hline
+\end{tabularx}
+\end{table}
+
+\section{Minimum hardware requirements}
+\label{app:hardware}
+The repository does not contain a measured minimum hardware
+benchmark. Actual resource use depends on input size, concurrent
+processes, Python package versions, and the fitted estimators. The
+following table is a practical starting point for a student
+demonstration and must not be treated as a tested guarantee.
+
+\begin{table}[H]
+\centering
+\tablefont
+\caption{Practical workstation guidance, not a measured benchmark}
+\label{tab:hardware-requirements}
+\begin{tabularx}{\textwidth}{|p{0.25\textwidth}|p{0.25\textwidth}|Y|}
+\hline
+\textbf{Resource} & \textbf{Suggested starting point} & \textbf{Reason}\\\hline
+Processor & Modern multi-core desktop or laptop CPU. & CSV parsing and model scoring benefit from general-purpose compute; exact runtime is unmeasured.\\\hline
+Memory & 16 GB RAM recommended for the full synthetic dataset. & Chunked input lowers read size, but merged employee-day tables and models remain in memory.\\\hline
+Storage & Several gigabytes of free space for source logs, environments, outputs, and report assets. & Dataset copies, notebook artifacts, and dependencies occupy disk space.\\\hline
+Display & 1366 by 768 pixels or higher. & Gives reasonable room for the dashboard and report figures.\\\hline
+Network & Not required for local analysis after dependencies are installed. & The documented demo binds locally; package installation may require connectivity.\\\hline
+\end{tabularx}
+\end{table}
+
+\section{Input contract and data lineage}
+\label{app:data-lineage}
+\begin{table}[H]
+\centering
+\tablefont
+\caption{Input contract checklist}
+\label{tab:input-contract}
+\begin{tabularx}{\textwidth}{|p{0.24\textwidth}|p{0.36\textwidth}|Y|}
+\hline
+\textbf{Check} & \textbf{Expected condition} & \textbf{Operator action}\\\hline
+Required files & All five expected filenames are present. & Confirm that the selected folder is the intended dataset.\\\hline
+Date and user & Each input contains parsable date and user fields. & Correct the source export; do not silently substitute another identity column.\\\hline
+Time coverage & Sources cover a consistent period and time zone. & Review date ranges and document any intentional gaps.\\\hline
+Duplicates & Cleaning results are understood. & Consider whether exact global deduplication is required.\\\hline
+Optional names & Lookup has a recognised user and name column. & Treat display names as sensitive and keep them out of model features.\\\hline
+Model schema & Bundle feature list matches the intended model release. & Verify bundle provenance and avoid untrusted serialized files.\\\hline
+\end{tabularx}
+\end{table}
+
+\section{Test cases and verification plan}
+\label{app:test-plan}
+\begin{longtable}{|p{0.10\textwidth}|p{0.24\textwidth}|p{0.32\textwidth}|p{0.27\textwidth}|}
+\caption{Functional and data-quality test plan}\label{tab:test-cases}\\
+\hline
+\textbf{ID} & \textbf{Scenario} & \textbf{Expected result} & \textbf{Execution status}\\\hline
+\endfirsthead
+\hline
+\textbf{ID} & \textbf{Scenario} & \textbf{Expected result} & \textbf{Execution status}\\\hline
+\endhead
+\hline
+\multicolumn{4}{r}{Continued on next page}\\
+\endfoot
+\hline
+\endlastfoot
+T-01 & Valid folder with five source files and model bundle. & Analysis returns employee summaries and activity rows. & Not recorded as executed in this report.\\\hline
+T-02 & Missing one required CSV. & API reports the missing filename; no successful result is returned. & Not recorded as executed in this report.\\\hline
+T-03 & Duplicate accepted filename in uploaded folder. & API returns a clear duplicate-file error. & Not recorded as executed in this report.\\\hline
+T-04 & CSV missing date or user column. & Scorer raises a schema error identifying the source. & Not recorded as executed in this report.\\\hline
+T-05 & Invalid date and blank user rows. & Invalid rows do not contribute to daily aggregates. & Cleaning summaries show no such rows for saved dataset; synthetic fixture test not recorded.\\\hline
+T-06 & Model bundle lacks a required model or feature list. & Bundle validation raises an actionable error. & Not recorded as executed in this report.\\\hline
+T-07 & Required model feature absent from aggregate. & Inference inserts a zero column in the saved feature order. & Behaviour present in source; automated test not recorded.\\\hline
+T-08 & Request employee detail before an analysis. & API returns conflict status and explanatory detail. & Not recorded as executed in this report.\\\hline
+T-09 & Request an unknown employee after analysis. & API returns not-found status. & Not recorded as executed in this report.\\\hline
+T-10 & API unavailable when UI loads. & UI communicates local service unavailability and retries health. & Interaction visible in source; browser test not recorded.\\\hline
+T-11 & Run analysis with a large CSV. & Chunk processing completes within tested memory and time bounds. & Benchmark not recorded; measure before operational use.\\\hline
+T-12 & Repeat analysis with the same verified inputs and bundle. & Outputs are reproducible within expected numeric tolerance. & End-to-end repeatability test not recorded.\\\hline
+\end{longtable}
+
+\section{Evaluation metrics and saved counts}
+\label{app:metrics}
+\begin{table}[H]
+\centering
+\tablefont
+\caption{Saved one-percent test confusion counts by model}
+\label{tab:all-confusion}
+\begin{tabularx}{\textwidth}{|p{0.27\textwidth}|R|R|R|R|}
+\hline
+\textbf{Model} & \textbf{TN} & \textbf{FP} & \textbf{FN} & \textbf{TP}\\\hline
+Logistic Regression & 65,169 & 660 & 287 & 2\\\hline
+Decision Tree & 65,247 & 582 & 209 & 80\\\hline
+Random Forest & 65,262 & 567 & 194 & 95\\\hline
+Isolation Forest & 65,185 & 644 & 271 & 18\\\hline
+\end{tabularx}
+\end{table}
+
+The confusion counts are useful for reconstructing capacity metrics.
+For Random Forest, \(TP+FP=662\), equal to the selected one-percent
+queue size. There are \(TP+FN=289\) positive test labels. This yields
+precision \(95/662\), recall \(95/289\), and the corresponding F1.
+Small differences in displayed values arise from rounding.
+
+\section{Troubleshooting guide}
+\begin{table}[H]
+\centering
+\tablefont
+\caption{Common demonstration issues}
+\label{tab:troubleshooting}
+\begin{tabularx}{\textwidth}{|p{0.27\textwidth}|p{0.32\textwidth}|Y|}
+\hline
+\textbf{Symptom} & \textbf{Likely cause} & \textbf{Recommended check}\\\hline
+Health reports model missing & Bundle absent or wrong path. & Run the notebook model-bundle creation step and verify the expected filename.\\\hline
+Browser cannot reach the API & API is stopped or listening on a different address. & Start the API using the documented local command and inspect its terminal.\\\hline
+Analysis says files are missing & Folder selection omitted a source or names differ. & Confirm all five exact filenames are present in the selected folder.\\\hline
+Scoring fails on a CSV & Unsupported schema, encoding, or malformed content. & Check headers, delimiter, date values, file integrity, and service error detail.\\\hline
+No employee details appear & Analysis did not complete or selected user is absent. & Re-run analysis, then select a user returned in the current report.\\\hline
+Results differ from prior run & Input batch, model bundle, package version, or row order differs. & Record data and artifact hashes, environment versions, and run settings.\\\hline
+\end{tabularx}
+\end{table}
+
+\section{Responsible-use checklist}
+\label{app:responsible-use}
+Before any review involving real people, an accountable organisation
+should verify that all of the following are satisfied:
+\begin{itemize}
+  \item The review purpose, authority, data sources, and data period are
+  documented and approved.
+  \item Access to raw logs, derived reports, and employee-name lookups
+  is limited to authorised personnel.
+  \item The model's limitations and relative score meaning are
+  explained to each reviewer.
+  \item A score cannot, by itself, trigger disciplinary, employment,
+  access, or law-enforcement action.
+  \item Reviewers can inspect original records, record alternative
+  explanations, and correct erroneous identity or source data.
+  \item Retention, deletion, disclosure, and audit requirements are
+  defined before data is loaded.
+  \item The model and thresholds have been assessed for the intended
+  population and operating environment.
+  \item The organisation has a process to pause the tool when data
+  quality, access control, or model behaviour is unacceptable.
+\end{itemize}
+
+\section{Glossary}
+\begin{longtable}{|p{0.25\textwidth}|p{0.68\textwidth}|}
+\caption{Terms used in the report}\label{tab:glossary}\\
+\hline
+\textbf{Term} & \textbf{Meaning in this project}\\\hline
+\endfirsthead
+\hline
+\textbf{Term} & \textbf{Meaning in this project}\\\hline
+\endhead
+\hline
+\endlastfoot
+Activity event & One row in one of the input CSV source logs.\\\hline
+Employee-day & Aggregated feature record for one user identifier on one calendar day.\\\hline
+Incident-window label & Positive label when a user-day overlaps a listed synthetic incident interval.\\\hline
+Review capacity & Fraction or count of highest-ranked rows selected for human review.\\\hline
+Average Precision & Ranking metric summarising precision across recall changes as the score threshold varies.\\\hline
+Percentile rank & Relative position of a score within the current scored batch.\\\hline
+Model agreement & Count of model employee-level ranks that meet the per-model top-ten-percent rule.\\\hline
+False positive & Selected test record without a matching positive label under the benchmark rule.\\\hline
+False negative & Positive benchmark record not selected at the chosen queue capacity.\\\hline
+Data lineage & Trace from raw source records through cleaning and features to scores and outputs.\\\hline
+\end{longtable}
+
+\section{Reproducibility checklist}
+\begin{enumerate}
+  \item Record the repository commit, Python version, dependency
+  versions, and operating system.
+  \item Verify the dataset release, input filenames, checksums, and
+  licensing conditions.
+  \item Re-run the notebook from a clean environment and confirm cell
+  execution order.
+  \item Confirm the user-group split has no overlap and that each
+  partition contains positive examples.
+  \item Save the training and validation selection outputs, model
+  parameters, feature list, and augmentation decision.
+  \item Keep the test metrics separate from all selection decisions.
+  \item Record the model-bundle hash and the source logs used for each
+  dashboard run.
+  \item Compile this document twice and inspect page count, contents,
+  tables, figures, code listings, and page-number transitions.
+\end{enumerate}
+
+\section{Notebook source listing}
+\label{app:notebook-source}
+The following appendix listing is generated from the project's
+notebook code cells. It is included as a reproducibility aid and should
+be refreshed from \code{notebook/forensic.ipynb} when the notebook
+changes. It is source documentation, not a substitute for executing
+the notebook and reviewing its outputs.
+
+\clearpage
+\lstinputlisting[caption={Notebook code cells for data preparation, model evaluation, and bundle creation},label={lst:notebook}]{notebook_code_listing.txt}
+
+\section{Scoring core source listing}
+\label{app:core-source}
+This listing captures the Python functions used by the API and
+Streamlit interface to validate the model bundle, read activity data,
+create employee-day features, calculate ranks, and format activity
+details.
+
+\clearpage
+\lstinputlisting[caption={Forensic core implementation},label={lst:core}]{forensic_core_code_listing.txt}
+
+\section{FastAPI source listing}
+\label{app:api-source}
+This listing documents the local HTTP interface, file staging,
+progress state, API errors, and employee detail response.
+
+\clearpage
+\lstinputlisting[caption={FastAPI service implementation},label={lst:api}]{api_code_listing.txt}
+
+\section{Streamlit source listing}
+\label{app:streamlit-source}
+The Streamlit interface is retained as an alternative local
+demonstration. Its output is also review-oriented and shows the model
+agreement and aggregate activity for selected users.
+
+\clearpage
+\lstinputlisting[caption={Alternative Streamlit interface},label={lst:streamlit}]{app_code_listing.txt}
+
+\section{React application source listing}
+\label{app:react-source}
+The React client implements service health checks, directory upload,
+progress polling, report rendering, employee selection, search, and
+filtering. The listing is included to show how the browser workflow
+relates to the API contract described in Chapter 4.
+
+\clearpage
+\lstinputlisting[caption={React dashboard application},label={lst:react}]{react_code_listing.txt}
+
+\section{Interface style source listing}
+\label{app:style-source}
+The frontend styling is maintained separately from the React
+component. These listings record the visual layout and the current
+theme overrides used by the saved UI screenshots.
+
+\clearpage
+\lstinputlisting[caption={Dashboard base styles},label={lst:styles}]{styles_code_listing.txt}
+
+\clearpage
+\lstinputlisting[caption={Dashboard theme styles},label={lst:premium-styles}]{theme_code_listing.txt}
+\label{app:end-content}

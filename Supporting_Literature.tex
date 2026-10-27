@@ -1,0 +1,112 @@
+% Supporting literature chapter fragment.
+% Add \input{Supporting_Literature} where this chapter belongs in the main report.
+% Requires the main document to load array and longtable.
+
+\chapter{Supporting literature}
+\label{chap:literature}
+
+\section{Literature Review}
+
+\subsection*{Paper 1: Threats from Unintentional Insiders: An Assessment}
+Modern organizations increasingly face security risks originating not only from malicious attackers but also from employees whose unintentional actions compromise organizational security. This study examines the causes, characteristics, and impacts of unintentional insider threats. The authors identify that careless handling of confidential information, weak password practices, accidental disclosure of sensitive data, and failure to follow cybersecurity policies contribute significantly to security incidents.
+
+The paper emphasizes that traditional security mechanisms mainly focus on external attacks and often overlook behavioural anomalies exhibited by legitimate users. Consequently, organizations require intelligent monitoring systems capable of analysing user activities and identifying abnormal behavioural patterns before they escalate into serious incidents.
+
+Although the paper provides valuable insights into insider threat behaviour, it primarily focuses on identifying the causes of insider threats rather than proposing an automated detection mechanism. This limitation motivates the development of intelligent machine learning-based forensic systems capable of continuously analysing user activities and detecting suspicious behaviour.
+
+\paragraph{Key Findings}
+\begin{itemize}
+  \item Insider threats are difficult to identify using traditional security tools.
+  \item User behaviour analysis plays a critical role in insider threat detection.
+  \item Continuous monitoring improves organizational security.
+  \item Automated analysis is required for handling large-scale organizational data.
+\end{itemize}
+\paragraph{Limitation}
+The study does not implement or evaluate a machine learning model for automated insider threat detection.
+
+\subsection*{Paper 2: Fronesis: Digital Forensics-Based Early Detection of Ongoing Cyber-Attacks}
+The Fronesis framework proposes an intelligent digital forensic system capable of identifying cyber attacks during their early stages. The framework integrates digital forensic evidence collection with security event analysis to improve incident response time and forensic readiness.
+
+The study demonstrates how security logs generated from multiple system components can be correlated to reconstruct attack scenarios. Automated analysis enables investigators to detect suspicious activities more efficiently compared to traditional manual investigations. The proposed framework significantly reduces investigation time while improving the accuracy of forensic analysis. However, the framework mainly focuses on forensic event correlation and does not extensively evaluate different machine learning algorithms for anomaly detection.
+
+\paragraph{Key Findings}
+\begin{itemize}
+  \item Digital forensic readiness reduces incident response time.
+  \item Automated evidence correlation improves investigation quality.
+  \item Continuous monitoring enhances cyber defence.
+  \item Early detection minimizes attack impact.
+\end{itemize}
+\paragraph{Limitation}
+Limited comparison of multiple machine learning algorithms for detecting insider threats.
+
+\subsection*{Paper 3: Insider Threat Detection Model Using Anomaly-Based Isolation Forest Algorithm}
+This research proposes an anomaly detection model based on the Isolation Forest algorithm for identifying insider threats. Unlike supervised learning methods, Isolation Forest isolates anomalous observations by randomly partitioning data, making it highly suitable for detecting unknown attack patterns.
+
+The model was evaluated using insider threat datasets and demonstrated promising performance in identifying abnormal user behaviour with relatively low computational complexity. The study highlights the effectiveness of anomaly detection for cybersecurity applications where labelled attack data may be limited.
+
+The findings strongly support the use of Isolation Forest in digital forensic investigations, particularly for identifying suspicious user activities within organizational environments.
+
+\paragraph{Key Findings}
+\begin{itemize}
+  \item Isolation Forest effectively detects anomalous user behaviour.
+  \item Suitable for high-dimensional cybersecurity datasets.
+  \item Efficient for large-scale log analysis.
+  \item Requires fewer computational resources than many complex models.
+\end{itemize}
+\paragraph{Limitation}
+The study focuses only on anomaly detection and does not perform detailed attack classification or forensic report generation.
+
+\subsection*{Paper 4: Performance Evaluation Framework for Insider Threat Detection Using Machine Learning}
+This study presents a comprehensive framework for evaluating the performance of various machine learning algorithms in detecting insider threats within organizational environments. The primary objective of the framework is to establish a standardized methodology for comparing machine learning models based on detection accuracy, computational efficiency, precision, recall, F1-score, and false positive rate. The authors emphasize that selecting an appropriate machine learning algorithm is essential for developing reliable insider threat detection systems capable of handling large volumes of organizational log data.
+
+The framework utilizes publicly available insider threat datasets to train and evaluate multiple machine learning classifiers. Various preprocessing techniques, including data cleaning, feature engineering, and normalization, are applied before model training to improve prediction performance. The study compares several classical machine learning algorithms and concludes that ensemble-based methods generally achieve better overall performance due to their robustness and ability to reduce overfitting.
+
+One of the significant contributions of this research is the introduction of a systematic evaluation methodology rather than focusing solely on a single algorithm. By comparing multiple performance metrics, the framework enables researchers and practitioners to select models that best suit their specific cybersecurity applications. The study also highlights that explainable machine learning techniques are particularly valuable in digital forensic investigations, where analysts require transparent reasoning behind prediction outcomes.
+
+The findings of this research directly support the methodology proposed in the present project. Since the proposed AI-Powered Digital Forensics and Cyber Incident Analysis Platform employs multiple machine learning algorithms---including Isolation Forest for anomaly detection and Random Forest, Decision Tree, and Logistic Regression for classification---the evaluation framework described in this paper provides an appropriate foundation for comparing model performance and selecting the most effective algorithm for forensic analysis.
+
+\paragraph{Key Findings}
+\begin{itemize}
+  \item Provides a standardized framework for evaluating insider threat detection models.
+  \item Demonstrates the importance of comparing multiple performance metrics rather than relying solely on accuracy.
+  \item Highlights the effectiveness of ensemble learning methods such as Random Forest.
+  \item Emphasizes proper preprocessing and feature engineering for improving prediction performance.
+  \item Supports explainable machine learning for digital forensic investigations.
+\end{itemize}
+\paragraph{Limitation}
+The proposed framework focuses primarily on algorithm evaluation and performance comparison. It does not integrate visualization dashboards, automated forensic reporting, or a complete end-to-end digital forensic investigation platform.
+
+\section{Findings and Proposal}
+The literature review indicates that existing research has made significant progress in applying artificial intelligence and machine learning to cybersecurity and digital forensics. Behaviour-based analysis, anomaly detection, and automated evidence correlation have emerged as effective approaches for identifying cyber incidents and insider threats. In particular, Isolation Forest has proven suitable for detecting previously unseen malicious activities, while Random Forest and Decision Tree classifiers have demonstrated strong performance in attack classification tasks.
+
+Despite these advancements, several research gaps remain. Many existing studies focus on a single aspect of cyber incident detection, such as anomaly detection or behavioural analysis, without integrating the entire digital forensic investigation process. Several frameworks are conceptual or evaluated using limited datasets, and few provide investigators with an interactive platform that combines data preprocessing, anomaly detection, attack classification, visualization, and forensic report generation. Furthermore, many recent solutions rely on deep learning models, which often require significant computational resources and provide limited interpretability, making them less suitable for academic environments and forensic investigations where explainability is essential.
+
+To address these limitations, the proposed project introduces an AI-Powered Digital Forensics and Cyber Incident Analysis Platform using Machine Learning. The platform utilizes the CERT Insider Threat Dataset as its primary data source and employs classical machine learning algorithms---including Isolation Forest for anomaly detection and Random Forest, Decision Tree, and Logistic Regression for incident classification. The system integrates data preprocessing, feature engineering, exploratory data analysis, machine learning prediction, dashboard visualization, and automated forensic report generation into a single workflow.
+
+Unlike existing approaches that emphasize only detection accuracy, the proposed platform aims to support the complete forensic investigation process by providing investigators with actionable insights, explainable predictions, and structured reports. By relying on computationally efficient and interpretable machine learning techniques, the proposed system offers a practical, scalable, and academically suitable solution for digital forensic investigations.
+
+\section{Literature Review Summary}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{|p{0.13\textwidth}|p{0.11\textwidth}|p{0.16\textwidth}|p{0.12\textwidth}|p{0.18\textwidth}|p{0.16\textwidth}|}
+\caption{Summary of Literature Review}\label{tab:literature-review-summary}\\
+\hline
+\textbf{Paper} & \textbf{Focus Area} & \textbf{ML Technique} & \textbf{Dataset} & \textbf{Strength} & \textbf{Research Gap}\\
+\hline
+\endfirsthead
+\hline
+\textbf{Paper} & \textbf{Focus Area} & \textbf{ML Technique} & \textbf{Dataset} & \textbf{Strength} & \textbf{Research Gap}\\
+\hline
+\endhead
+Threats from Unintentional Insiders & Insider Threat Analysis & Behaviour Analysis, NARX & CERT R4.2 & Identifies behavioural indicators of insider threats. & No automated forensic investigation platform.\\
+\hline
+Fronesis & Digital Forensics & Event Correlation & System and Network Logs & Early cyber-attack detection through forensic readiness. & Limited ML-based insider threat detection.\\
+\hline
+Insider Threat Detection Model & Anomaly Detection & Isolation Forest & Insider Threat Dataset & Efficiently detects unknown behavioural anomalies. & No attack classification or forensic reporting.\\
+\hline
+Performance Evaluation Framework & Threat Detection & Random Forest, Decision Tree, Logistic Regression, SVM & Public Insider Threat Dataset & Provides comparative evaluation of multiple ML models using standard performance metrics. & No visualization or integrated forensic investigation platform.\\
+\hline
+\end{longtable}
+\endgroup
