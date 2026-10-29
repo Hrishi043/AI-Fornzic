@@ -120,12 +120,12 @@ Create a horizontal bar chart for **test Average Precision**:
 - Open an employee to inspect daily activity aggregates.
 - Export the analysis report for follow-up.
 
-**Visual assets from the repository:**
+**Presentation-ready UI assets** (copies of the real project screenshots):
 
-- Landing / folder-selection view: `Mini Project/ui_react_landing.png`
-- Flagged employee summary: `Mini Project/ui_flagged_employee.png`
-- Employee activity details: `Mini Project/ui_employee_activity.png`
-- Model score view: `Mini Project/ui_model_scores.png`
+- Landing / folder-selection view: `presentation_assets/forensio_dashboard_landing.png`
+- Flagged employee summary: `presentation_assets/forensio_flagged_employee.png`
+- Employee activity details: `presentation_assets/forensio_employee_activity.png`
+- Model score view: `presentation_assets/forensio_model_scores.png`
 
 Use one large screenshot per slide or crop two related views. Keep a clear caption: **“Prototype interface; ranks are relative to the selected dataset.”**
 
